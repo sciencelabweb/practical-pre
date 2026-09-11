@@ -93,7 +93,6 @@ async function initDashboard() {
   loadAnalytics();
   loadYouTubeGuides();
   setupAdPreview();
-
   // Default date range: last 30 days
   const today = new Date();
   const from = new Date(); from.setDate(today.getDate() - 30);
@@ -121,7 +120,7 @@ async function loadStats() {
   document.getElementById('statAds').textContent = activeAds;
   document.getElementById('statFeedbacks').textContent = fbSnap.size;
   document.getElementById('statGuides').textContent = ytSnap.size;
-
+  
   let totalViews = 0;
   const counts = {};
   viewsSnap.docs.forEach(d => {
@@ -153,6 +152,7 @@ function setupAdPreview() {
   const days = document.getElementById('adRemindDays');
   [img, btn, days].forEach(el => el.addEventListener('input', updatePreview));
 }
+
 function updatePreview() {
   const img = document.getElementById('adImageUrl').value;
   const btn = document.getElementById('adBtnName').value;
@@ -205,23 +205,22 @@ async function loadAds() {
   list.innerHTML = '';
   snap.docs.forEach(d => {
     const a = d.data();
-    list.innerHTML += `
-      <div class="list-item">
-        <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
-        <div class="info">
-          <h4>${a.buttonName} 
-            <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">
-              ${a.status.toUpperCase()}
-            </span>
-          </h4>
-          <p>🔗 ${a.buttonUrl}</p>
-          <p>⏰ Remind after ${a.remindDays} days</p>
-        </div>
-        <div class="actions">
-          <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </div>`;
+    list.innerHTML += `<div class="list-item">
+      <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
+      <div class="info">
+        <h4>${a.buttonName}
+          <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">
+            ${a.status.toUpperCase()}
+          </span>
+        </h4>
+        <p>🔗 ${a.buttonUrl}</p>
+        <p>⏰ Remind after ${a.remindDays} days</p>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
   });
 }
 
@@ -247,29 +246,59 @@ window.deleteAd = async (id) => {
   loadStats();
 };
 
-// ============ FEEDBACKS ============
+// ============ FEEDBACKS (UPDATED WITH DELETE BUTTON) ============
 async function loadFeedbacks() {
   const snap = await getDocs(query(collection(db, 'feedbacks'), orderBy('createdAt', 'desc')));
   const list = document.getElementById('feedbacksList');
-  if (snap.empty) { list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No feedbacks yet</p>'; return; }
+  if (snap.empty) { 
+    list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No feedbacks yet</p>'; 
+    return; 
+  }
   list.innerHTML = '';
   snap.docs.forEach(d => {
     const f = d.data();
     const stars = '★'.repeat(f.rating || 0) + '☆'.repeat(5 - (f.rating || 0));
     const date = f.createdAt?.toDate ? f.createdAt.toDate().toLocaleString() : '—';
+    
     list.innerHTML += `
-      <div class="feedback-card">
-        <div class="fb-head">
-          <div class="stars">${stars}</div>
-          <div class="fb-date">${date}</div>
+      <div class="feedback-card" style="position: relative;">
+        <button onclick="deleteFeedback('${d.id}')" title="Delete feedback" style="
+          position: absolute; top: 14px; right: 14px;
+          width: 32px; height: 32px; border-radius: 8px;
+          background: #fff; border: 1.5px solid var(--border-color);
+          cursor: pointer; color: var(--text-muted);
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s;
+        " onmouseover="this.style.background='#fee2e2'; this.style.color='#dc2626'; this.style.borderColor='#fecaca';" 
+           onmouseout="this.style.background='#fff'; this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+        <div class="fb-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-right: 40px;">
+          <div class="stars" style="color: #D98E18; font-weight: 700; font-size: 1.05rem;">${stars}</div>
+          <div class="fb-date" style="font-size: 0.8rem; color: var(--text-muted);">${date}</div>
         </div>
-        <div class="fb-msg">${f.message || '<em style="color:var(--text-muted);">No message</em>'}</div>
-        <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">
+        <div class="fb-msg" style="color: var(--text-main); line-height: 1.55; font-size: 0.95rem; word-wrap: break-word;">
+          ${f.message || '<em style="color:var(--text-muted);">No message</em>'}
+        </div>
+        <div style="margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
           From: <strong>${f.page || 'Unknown page'}</strong>
         </div>
       </div>`;
   });
 }
+
+// NEW: Delete feedback function
+window.deleteFeedback = async (id) => {
+  if (!confirm('Delete this feedback permanently?')) return;
+  try {
+    await deleteDoc(doc(db, 'feedbacks', id));
+    toast('Feedback deleted');
+    loadFeedbacks();
+    loadStats(); // Update the feedback counter in dashboard
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+};
 
 // ============ ANALYTICS ============
 let allViewsData = [];
@@ -422,19 +451,18 @@ async function loadYouTubeGuides() {
     const g = d.data();
     const ytId = extractYTId(g.youtubeUrl);
     const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/120x70';
-    list.innerHTML += `
-      <div class="list-item">
-        <img class="thumb" src="${thumb}" style="width:120px; height:70px;">
-        <div class="info">
-          <h4>${g.practicalName}</h4>
-          <p>📹 ${g.title || 'Untitled'}</p>
-          <p>🔗 ${g.youtubeUrl}</p>
-        </div>
-        <div class="actions">
-          <a href="${g.youtubeUrl}" target="_blank" class="icon-btn" title="Watch"><i class="fa-solid fa-play"></i></a>
-          <button class="icon-btn danger" onclick="deleteGuide('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </div>`;
+    list.innerHTML += `<div class="list-item">
+      <img class="thumb" src="${thumb}" style="width:120px; height:70px;">
+      <div class="info">
+        <h4>${g.practicalName}</h4>
+        <p>📹 ${g.title || 'Untitled'}</p>
+        <p>🔗 ${g.youtubeUrl}</p>
+      </div>
+      <div class="actions">
+        <a href="${g.youtubeUrl}" target="_blank" class="icon-btn" title="Watch"><i class="fa-solid fa-play"></i></a>
+        <button class="icon-btn danger" onclick="deleteGuide('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
   });
 }
 
@@ -447,6 +475,6 @@ window.deleteGuide = async (id) => {
 };
 
 function extractYTId(url) {
-  const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+  const m = url.match(/(?:youtube.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu.be\/)([^"&?\/\s]{11})/);
   return m ? m[1] : null;
 }
