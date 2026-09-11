@@ -7,6 +7,93 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Feedback Display Styles */
+  .feedbacks-section {
+    margin-top: 32px;
+  }
+  .feedbacks-section .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--teal-subtle);
+    padding-bottom: 12px;
+  }
+  .feedbacks-section .section-title i {
+    color: var(--teal-dark);
+    background: var(--teal-subtle);
+    padding: 8px;
+    border-radius: 10px;
+  }
+  .feedbacks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .public-feedback-card {
+    background: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: 16px;
+    padding: 18px 20px;
+    transition: all 0.25s ease;
+  }
+  .public-feedback-card:hover {
+    border-color: var(--teal-light);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+  .public-feedback-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .public-feedback-stars {
+    color: #D98E18;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .public-feedback-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .public-feedback-msg {
+    color: var(--text-main);
+    line-height: 1.6;
+    font-size: 0.95rem;
+    word-wrap: break-word;
+  }
+  .feedbacks-empty {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    background: var(--bg-card);
+    border-radius: 14px;
+    border: 2px dashed var(--teal-light);
+  }
+  .feedbacks-empty i {
+    font-size: 2rem;
+    color: var(--teal-light);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .feedbacks-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+  }
+  .feedbacks-loading i {
+    color: var(--teal-dark);
+    margin-right: 6px;
+  }
+</style>
 </head>
 <body>
 
@@ -20,80 +107,39 @@
       </div>
     </div>
     <nav class="sidebar-nav">
-      <a href="12.html" class="nav-item">
-        <i class="fa-solid fa-microscope"></i> Travelling Microscope
-        <span class="menu-tag">Free</span>
-      </a>
-      <a href="10.html" class="nav-item">
-        <i class="fa-solid fa-circle-dot"></i> Micrometer Gauge
-      </a>
-      <a href="11.html" class="nav-item">
-        <i class="fa-solid fa-compass-drafting"></i> Spherometer Lab
-      </a>
-      <a href="2.html" class="nav-item">
-        <i class="fa-solid fa-arrows-up-down"></i> Forces Simulator
-      </a>
-      <a href="3.html" class="nav-item">
-        <i class="fa-solid fa-scale-balanced"></i> Moments Simulator
-      </a>
-      <a href="4.html" class="nav-item">
-        <i class="fa-solid fa-temperature-half"></i> Hare's Apparatus
-        <span class="menu-tag">Free</span>
-      </a>
-      <a href="5.html" class="nav-item">
-        <i class="fa-solid fa-beaker"></i> U-Tube Density
-      </a>
-      <a href="6.html" class="nav-item">
-        <i class="fa-solid fa-flask-vial"></i> Liquid Density
-      </a>
-      <a href="7.html" class="nav-item">
-        <i class="fa-solid fa-clock"></i> Simple Pendulum
-      </a>
-      <a href="8.html" class="nav-item">
-        <i class="fa-solid fa-wave-square"></i> Helical Spring
-      </a>
-      <a href="13.html" class="nav-item">
-        <i class="fa-solid fa-guitar"></i> Sonometer Practical
-      </a>
-      <a href="14.html" class="nav-item">
-        <i class="fa-solid fa-tower-broadcast"></i> Resonance Tube Practical
-      </a>
-      <a href="15.html" class="nav-item">
-        <i class="fa-solid fa-droplet"></i> Relative Humidity
-        <span class="menu-tag">Free</span>
-      </a>
-      <a href="16.html" class="nav-item">
-        <i class="fa-solid fa-gauge-high"></i> Gas Law Simulator
-      </a>
-      <a href="premium.html" class="nav-item">
-        <i class="fa-solid fa-crown"></i> Go Premium (Rs 999)
-      </a>
-      <a href="rate.html" class="nav-item active">
-        <i class="fa-solid fa-star"></i> Rate Our App
-      </a>
+      <a href="12.html" class="nav-item"><i class="fa-solid fa-microscope"></i> Travelling Microscope <span class="menu-tag">Free</span></a>
+      <a href="10.html" class="nav-item"><i class="fa-solid fa-circle-dot"></i> Micrometer Gauge</a>
+      <a href="11.html" class="nav-item"><i class="fa-solid fa-compass-drafting"></i> Spherometer Lab</a>
+      <a href="2.html" class="nav-item"><i class="fa-solid fa-arrows-up-down"></i> Forces Simulator</a>
+      <a href="3.html" class="nav-item"><i class="fa-solid fa-scale-balanced"></i> Moments Simulator</a>
+      <a href="4.html" class="nav-item"><i class="fa-solid fa-temperature-half"></i> Hare's Apparatus <span class="menu-tag">Free</span></a>
+      <a href="5.html" class="nav-item"><i class="fa-solid fa-beaker"></i> U-Tube Density</a>
+      <a href="6.html" class="nav-item"><i class="fa-solid fa-flask-vial"></i> Liquid Density</a>
+      <a href="7.html" class="nav-item"><i class="fa-solid fa-clock"></i> Simple Pendulum</a>
+      <a href="8.html" class="nav-item"><i class="fa-solid fa-wave-square"></i> Helical Spring</a>
+      <a href="13.html" class="nav-item"><i class="fa-solid fa-guitar"></i> Sonometer Practical</a>
+      <a href="14.html" class="nav-item"><i class="fa-solid fa-tower-broadcast"></i> Resonance Tube Practical</a>
+      <a href="15.html" class="nav-item"><i class="fa-solid fa-droplet"></i> Relative Humidity <span class="menu-tag">Free</span></a>
+      <a href="16.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Gas Law Simulator</a>
+      <a href="premium.html" class="nav-item"><i class="fa-solid fa-crown"></i> Go Premium (Rs 999)</a>
+      <a href="rate.html" class="nav-item active"><i class="fa-solid fa-star"></i> Rate Our App</a>
     </nav>
   </aside>
 
-  <!-- Overlay for mobile -->
   <div class="overlay" id="overlay"></div>
 
   <!-- Main Content -->
   <div class="main-wrapper">
-    <!-- Header -->
     <header class="top-header">
       <div class="header-left">
-        <button class="toggle-btn" id="toggleBtn">
-          <i class="fa-solid fa-bars"></i>
-        </button>
+        <button class="toggle-btn" id="toggleBtn"><i class="fa-solid fa-bars"></i></button>
       </div>
-      <div class="header-title">
-        <h1>Rate & Feedback</h1>
-      </div>
+      <div class="header-title"><h1>Rate & Feedback</h1></div>
       <div></div>
     </header>
 
-    <!-- Content Body -->
     <div class="content-body">
+      <!-- ========== FEEDBACK FORM ========== -->
       <div class="card" style="max-width: 600px; margin: 0 auto;">
         <div class="card-title">
           <i class="fa-solid fa-star" style="color: #D98E18;"></i> Rate & Feedback
@@ -103,7 +149,6 @@
         </p>
 
         <form id="feedbackForm">
-          <!-- Interactive Star Rating -->
           <div class="control-group">
             <label>How would you rate ScienceLab?</label>
             <div style="display: flex; gap: 8px; font-size: 2rem; color: #cbd5e1; cursor: pointer; margin-bottom: 8px;" id="starContainer">
@@ -117,26 +162,34 @@
             <p style="font-size: 0.85rem; color: var(--teal-dark); font-weight: 600;" id="ratingText">Selected: 5 Stars</p>
           </div>
 
-          <!-- Message Textarea -->
           <div class="control-group">
             <label for="feedbackMessage">Tell us what you like or what we can improve:</label>
             <textarea id="feedbackMessage" name="message" rows="4" placeholder="e.g., The micrometer simulator is great, but please add more specimens..." style="width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 12px; font-family: inherit; font-size: 1rem; resize: vertical; outline: none;"></textarea>
           </div>
 
-          <!-- Submit Button -->
           <button type="submit" class="btn" id="submitBtn" style="margin-top: 8px;">
             <i class="fa-solid fa-paper-plane"></i> Submit Feedback
           </button>
           
-          <!-- Success Message (Hidden by default) -->
           <div id="successMessage" style="display: none; margin-top: 16px; padding: 14px; background: #dcfce7; color: #166534; border-radius: 12px; text-align: center; font-weight: 600; border: 1px solid #86efac;">
-            <i class="fa-solid fa-check-circle"></i> Thank you! Your review has been recorded successfu.
+            <i class="fa-solid fa-check-circle"></i> Thank you! Your review has been recorded successfully.
           </div>
         </form>
       </div>
+
+      <!-- ========== PUBLIC FEEDBACKS DISPLAY (NEW!) ========== -->
+      <div class="feedbacks-section" style="max-width: 600px; margin: 32px auto 0;">
+        <div class="section-title">
+          <i class="fa-solid fa-comments"></i> What Others Say
+        </div>
+        <div id="publicFeedbacksList" class="feedbacks-list">
+          <div class="feedbacks-loading">
+            <i class="fa-solid fa-spinner fa-spin"></i> Loading reviews...
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer">
       <div class="footer-links-group">
         <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
@@ -175,7 +228,7 @@
 <!-- Firebase Feedback Submission Script -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCqZ2z6cLSV-cygTigtgc6TyKcRgxeYoy4",
@@ -189,7 +242,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 1. Star Rating Interaction Logic
+  // ========== STAR RATING LOGIC ==========
   const stars = document.querySelectorAll('.star');
   const ratingInput = document.getElementById('ratingValue');
   const ratingText = document.getElementById('ratingText');
@@ -199,70 +252,121 @@
       const value = parseInt(star.getAttribute('data-value'));
       ratingInput.value = value;
       ratingText.textContent = `Selected: ${value} Star${value > 1 ? 's' : ''}`;
-      
-      // Color the stars
       stars.forEach(s => {
-        if (parseInt(s.getAttribute('data-value')) <= value) {
-          s.style.color = '#D98E18'; // Amber/Yellow for selected
-        } else {
-          s.style.color = '#cbd5e1'; // Gray for unselected
-        }
+        s.style.color = parseInt(s.getAttribute('data-value')) <= value ? '#D98E18' : '#cbd5e1';
       });
     });
   });
-
-  // Initialize stars to 5 on load
   stars.forEach(s => s.style.color = '#D98E18');
 
-  // 2. Form Submission Logic
+  // ========== FORM SUBMISSION ==========
   const form = document.getElementById('feedbackForm');
   const submitBtn = document.getElementById('submitBtn');
   const successMsg = document.getElementById('successMessage');
 
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rating = parseInt(ratingInput.value) || 5;
+    const message = document.getElementById('feedbackMessage').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+      await addDoc(collection(db, 'feedbacks'), {
+        rating: rating,
+        message: message,
+        page: 'rate.html',
+        createdAt: serverTimestamp()
+      });
+      successMsg.style.display = 'block';
+      form.reset();
+      ratingInput.value = 5;
+      ratingText.textContent = 'Selected: 5 Stars';
+      stars.forEach(s => s.style.color = '#D98E18');
+      setTimeout(() => successMsg.style.display = 'none', 5000);
       
-      const rating = parseInt(ratingInput.value) || 5;
-      const message = document.getElementById('feedbackMessage').value.trim();
+      // Reload public feedbacks to show the new one instantly
+      loadPublicFeedbacks();
+    } catch (err) {
+      console.error("Feedback error:", err);
+      alert("Failed to submit feedback. Please check your internet connection.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Feedback';
+    }
+  });
 
-      // Disable button to prevent double submission
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
-
-      try {
-        await addDoc(collection(db, 'feedbacks'), {
-          rating: rating,
-          message: message,
-          page: 'rate.html',
-          createdAt: serverTimestamp()
-        });
-        
-        // Show success, reset form
-        successMsg.style.display = 'block';
-        form.reset();
-        ratingInput.value = 5;
-        ratingText.textContent = 'Selected: 5 Stars';
-        stars.forEach(s => s.style.color = '#D98E18');
-        
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-          successMsg.style.display = 'none';
-        }, 5000);
-        
-      } catch (err) {
-        console.error("Feedback error:", err);
-        alert("Failed to submit feedback. Please check your internet connection.");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Feedback';
+  // ========== LOAD PUBLIC FEEDBACKS ==========
+  async function loadPublicFeedbacks() {
+    const container = document.getElementById('publicFeedbacksList');
+    try {
+      const q = query(collection(db, 'feedbacks'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        container.innerHTML = `
+          <div class="feedbacks-empty">
+            <i class="fa-regular fa-comment-dots"></i>
+            No reviews yet. Be the first to share your feedback!
+          </div>`;
+        return;
       }
-    });
+
+      container.innerHTML = '';
+      snap.docs.forEach(docSnap => {
+        const f = docSnap.data();
+        const rating = f.rating || 5;
+        const starsHtml = '★'.repeat(rating) + '<span style="color:#cbd5e1;">' + '☆'.repeat(5 - rating) + '</span>';
+        
+        // Format date nicely
+        let dateStr = 'Recently';
+        if (f.createdAt?.toDate) {
+          const d = f.createdAt.toDate();
+          const now = new Date();
+          const diffMs = now - d;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          if (diffMins < 1) dateStr = 'Just now';
+          else if (diffMins < 60) dateStr = `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+          else if (diffHours < 24) dateStr = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+          else if (diffDays < 7) dateStr = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+          else dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        const card = document.createElement('div');
+        card.className = 'public-feedback-card';
+        card.innerHTML = `
+          <div class="public-feedback-head">
+            <div class="public-feedback-stars">${starsHtml}</div>
+            <div class="public-feedback-date">${dateStr}</div>
+          </div>
+          <div class="public-feedback-msg">${f.message ? escapeHtml(f.message) : '<em style="color:var(--text-muted);">No comment provided.</em>'}</div>
+        `;
+        container.appendChild(card);
+      });
+    } catch (err) {
+      console.error("Error loading feedbacks:", err);
+      container.innerHTML = `
+        <div class="feedbacks-empty">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Could not load reviews. Please try again later.
+        </div>`;
+    }
   }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Load feedbacks on page load
+  loadPublicFeedbacks();
 </script>
 
-<!-- Popup Ad Script (Loads ads from Firebase) -->
 <script type="module" src="ad-popup.js"></script>
-
 </body>
 </html>
