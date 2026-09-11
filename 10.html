@@ -610,5 +610,54 @@ function closeAuthModal() {
     };
   })();
 </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const PRACTICAL_ID = '10'; // ⚠️ CHANGE THIS for each page (e.g., '2', '3', '12')
+  const app = initializeApp({
+    apiKey: "AIzaSyCqZ2z6cLSV-cygTigtgc6TyKcRgxeYoy4",
+    authDomain: "sciencelab-admin.firebaseapp.com",
+    projectId: "sciencelab-admin",
+    storageBucket: "sciencelab-admin.firebasestorage.app",
+    messagingSenderId: "79590520524",
+    appId: "1:79590520524:web:41bc1b93236e98107e7469",
+    measurementId: "G-VPRS1JY8D2"
+  });
+  const db = getFirestore(app);
+
+  // 1. Track view (once per day per user)
+  const today = new Date().toISOString().split('T')[0];
+  const viewKey = `viewed_${PRACTICAL_ID}_${today}`;
+  if (!localStorage.getItem(viewKey)) {
+    await addDoc(collection(db, 'views'), {
+      practicalId: PRACTICAL_ID, date: today, count: 1, timestamp: serverTimestamp()
+    });
+    localStorage.setItem(viewKey, '1');
+  }
+
+  // 2. Load YouTube Guide if assigned
+  const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', PRACTICAL_ID));
+  const snap = await getDocs(q);
+  if (!snap.empty) {
+    const g = snap.docs[0].data();
+    const ytId = g.youtubeUrl.match(/(?:v=|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+    if (ytId) {
+      const box = document.createElement('div');
+      box.style.cssText = 'max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; border:2px solid #BDDED6; background:#fff;';
+      box.innerHTML = `
+        <div style="padding:12px 16px; background:#f0f7f5; font-weight:700; color:#177D81; display:flex; align-items:center; gap:8px;">
+          <i class="fa-brands fa-youtube" style="color:#dc2626; font-size:1.2rem;"></i> ${g.title}
+        </div>
+        <div style="position:relative; padding-bottom:56.25%; height:0;">
+          <iframe src="https://www.youtube.com/embed/${ytId}" style="position:absolute; inset:0; width:100%; height:100%; border:0;" allowfullscreen></iframe>
+        </div>`;
+      // Append to main content area (adjust selector if your main container has a different class)
+      document.querySelector('.content-body')?.appendChild(box);
+    }
+  }
+</script>
+<!-- Include the ad popup on every page -->
+<script type="module" src="ad-popup.js"></script>
 </body>
 </html>
