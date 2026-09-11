@@ -5,11 +5,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   collection, addDoc, getDocs, doc, deleteDoc, updateDoc,
-  query, orderBy, where, serverTimestamp
+  query, orderBy, where, serverTimestamp, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const PRACTICALS = [
-    { id: '1', name: 'Home', file: 'index.html' },
+  { id: '1', name: 'Home', file: 'index.html' },
   { id: '2', name: 'Forces Simulator', file: '2.html' },
   { id: '3', name: 'Moments Simulator', file: '3.html' },
   { id: '4', name: "Hare's Apparatus", file: '4.html' },
@@ -28,8 +28,10 @@ const PRACTICALS = [
 
 let viewsChart = null;
 let editingAdId = null;
+let currentSessionId = null;
+let sessionUnsubscribe = null;
 
-// ============ HELPER FUNCTIONS (IP & DEVICE) ============
+// ============ HELPER FUNCTIONS ============
 function getDeviceInfo() {
   const ua = navigator.userAgent;
   let os = "Unknown OS";
@@ -58,7 +60,7 @@ async function fetchAdminIp() {
   }
 }
 
-// ============ AUTH ============
+// ============ AUTH & SESSION MANAGEMENT ============
 window.adminLogin = async () => {
   const email = document.getElementById('loginEmail').value.trim();
   const pass = document.getElementById('loginPassword').value;
@@ -73,11 +75,14 @@ window.adminLogin = async () => {
 };
 
 window.adminLogout = async () => {
+  if (currentSessionId) {
+    await updateDoc(doc(db, 'admin_sessions', currentSessionId), {
+      isActive: false,
+      logoutTime: serverTimestamp()
+    });
+  }
+  if (sessionUnsubscribe) sessionUnsubscribe();
   await signOut(auth);
-  // Clear session details on logout
-  document.getElementById('adminIp').textContent = '---';
-  document.getElementById('adminDevice').textContent = '---';
-  document.getElementById('adminLoginTime').textContent = '---';
 };
 
 onAuthStateChanged(auth, async (user) => {
@@ -86,15 +91,38 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('adminLayout').classList.add('active');
     document.getElementById('adminEmail').textContent = user.email;
     
-    // Populate Session Info
-    document.getElementById('adminIp').textContent = await fetchAdminIp();
-    document.getElementById('adminDevice').textContent = getDeviceInfo();
-    document.getElementById('adminLoginTime').textContent = new Date().toLocaleString();
+    // Create Session Record
+    const ip = await fetchAdminIp();
+    const device = getDeviceInfo();
+    
+    const sessionRef = await addDoc(collection(db, 'admin_sessions'), {
+      uid: user.uid,
+      email: user.email,
+      ip: ip,
+      device: device,
+      loginTime: serverTimestamp(),
+      isActive: true,
+      terminated: false
+    });
+    
+    currentSessionId = sessionRef.id;
+    sessionStorage.setItem('currentSessionId', currentSessionId);
+
+    // Listen for remote termination (Force Logout by another admin)
+    sessionUnsubscribe = onSnapshot(doc(db, 'admin_sessions', currentSessionId), (docSnap) => {
+      if (docSnap.exists() && docSnap.data().terminated) {
+        alert('⚠️ Your session was terminated by another administrator.');
+        window.adminLogout();
+      }
+    });
 
     initDashboard();
+    loadAdmins(); // Load the manage admins table
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminLayout').classList.remove('active');
+    if (sessionUnsubscribe) sessionUnsubscribe();
+    currentSessionId = null;
   }
 });
 
@@ -104,8 +132,17 @@ window.switchSection = (id, el) => {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   el.classList.add('active');
-  const titles = { dashboard: 'Dashboard Overview', ads: 'Popup Ads Manager', feedbacks: 'User Feedbacks', analytics: 'Views Analytics', youtube: 'YouTube Video Guides' };
+  const titles = { 
+    dashboard: 'Dashboard Overview', 
+    ads: 'Popup Ads Manager', 
+    feedbacks: 'User Feedbacks', 
+    analytics: 'Views Analytics', 
+    youtube: 'YouTube Video Guides',
+    admins: 'Manage Admin Sessions' 
+  };
   document.getElementById('sectionTitle').textContent = titles[id];
+  
+  if (id === 'admins') loadAdmins(); // Refresh table when opening section
 };
 
 function toast(msg, isError = false) {
@@ -206,8 +243,8 @@ async function loadAds() {
     list.innerHTML += `<div class="list-item">
       <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
       <div class="info"><h4>${a.buttonName} <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">${a.status.toUpperCase()}</span></h4>
-      <p>📝 ${a.description || 'No description'}</p>
-      <p> ${a.buttonUrl}</p><p> Remind after ${a.remindDays} days</p></div>
+      <p> ${a.description || 'No description'}</p>
+      <p>🔗 ${a.buttonUrl}</p><p>⏰ Remind after ${a.remindDays} days</p></div>
       <div class="actions">
         <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
         <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -294,7 +331,6 @@ window.applyDateFilter = () => {
   renderChart(filtered); renderAnalyticsTable(filtered); toast('Filter applied');
 };
 
-// ============ PDF EXPORT ============
 window.exportPDF = async () => {
   toast('Generating PDF Report...');
   const { jsPDF } = window.jspdf;
@@ -389,3 +425,60 @@ function extractYTId(url) {
   const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
   return m ? m[1] : null;
 }
+
+// ============ MANAGE ADMINS (NEW SECTION) ============
+async function loadAdmins() {
+  const tbody = document.querySelector('#adminsTable tbody');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading sessions...</td></tr>';
+  
+  try {
+    const snap = await getDocs(query(collection(db, 'admin_sessions'), orderBy('loginTime', 'desc')));
+    tbody.innerHTML = '';
+    
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">No active sessions found.</td></tr>';
+      return;
+    }
+
+    snap.docs.forEach(d => {
+      const s = d.data();
+      const loginTime = s.loginTime?.toDate ? s.loginTime.toDate().toLocaleString() : 'Just now';
+      const isCurrent = d.id === currentSessionId;
+      
+      const statusBadge = s.isActive 
+        ? `<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">● Active</span>` 
+        : `<span style="background:#f1f5f9; color:#64748b; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">○ Inactive</span>`;
+      
+      const actionBtn = (!isCurrent && s.isActive) 
+        ? `<button class="icon-btn danger" onclick="terminateSession('${d.id}')" title="Force Logout"><i class="fa-solid fa-right-from-bracket"></i></button>` 
+        : `<button class="icon-btn" disabled style="opacity:0.5; cursor:not-allowed;" title="${isCurrent ? 'Current Session' : 'Already Inactive'}"><i class="fa-solid fa-ban"></i></button>`;
+
+      tbody.innerHTML += `<tr>
+        <td><strong>${s.email}</strong> ${isCurrent ? '<span style="font-size:0.7rem; background:var(--teal-subtle); color:var(--teal-dark); padding:2px 6px; border-radius:4px; margin-left:6px;">YOU</span>' : ''}</td>
+        <td style="font-family:monospace; font-size:0.9rem;">${s.ip || 'N/A'}</td>
+        <td style="font-size:0.85rem;">${s.device || 'Unknown'}</td>
+        <td style="font-size:0.85rem;">${loginTime}</td>
+        <td>${statusBadge}</td>
+        <td>${actionBtn}</td>
+      </tr>`;
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#dc2626;">Error loading sessions.</td></tr>`;
+  }
+}
+
+window.terminateSession = async (targetSessionId) => {
+  if (!confirm('Are you sure you want to force logout this admin session?')) return;
+  try {
+    await updateDoc(doc(db, 'admin_sessions', targetSessionId), {
+      isActive: false,
+      terminated: true,
+      terminatedAt: serverTimestamp(),
+      terminatedBy: auth.currentUser.email
+    });
+    toast('Session terminated successfully');
+    loadAdmins();
+  } catch (e) {
+    toast('Error terminating session: ' + e.message, true);
+  }
+};
