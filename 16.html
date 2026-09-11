@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Constant Volume Gas Law Simulator</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>Vernier Caliper</span>
+                </a>
+                <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Travelling Microscope</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Micrometer Gauge</span>
+                </a>
+                <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Spherometer Lab</span>
+                </a>
+               
+                <a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Forces Simulator</span>
+                </a>
+                <a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Moments Simulator</span>
+                </a>
+                <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>Hare's Apparatus</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U-Tube Density</span>
+                </a>
+                <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>Liquid Density</span>
+                </a>
+                <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Simple Pendulum</span>
+                </a>
+                <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Helical Spring</span>
+                </a>
+                <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Sonometer Practical</span>
+                </a>
+                <a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Resonance Tube Practical</span>
+                </a>
+                <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Relative Humidity</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="16.html" class="nav-item active">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>Gas Law Simulator</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Constant Volume Gas Law (<i>p</i> &prop; <i>T</i>)</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card Box -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory & Objective
+                        </h2>
+                        <p class="theory-text">
+                            Verify that for a fixed mass of dry gas at constant volume, the pressure (<i>p</i>) is directly proportional to its absolute temperature (<i>T</i>). Heat the water slowly while stirring continuously and record readings at intervals[cite: 1].
+                        </p>
+                    </div>
+
+                    <!-- Canvas Simulation Card -->
+                    <div class="card canvas-card">
+                        <canvas id="simCanvas" width="800" height="320"></canvas>
+                        <div id="statusBadge" class="status-badge status-balanced">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span id="statusText">Burner Off - Room Temperature</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls Grid -->
+                    <div class="controls-grid">
+                        <!-- Heating Control Card -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-fire"></i>
+                                Heating Controls
+                            </h2>
+                            <div class="control-group">
+                                <button class="btn" id="toggleBurnerBtn" onclick="toggleBurner()">
+                                    <i class="fa-solid fa-power-off"></i> Turn On Bunsen Burner
+                                </button>
+                            </div>
+                            <div class="control-group" style="margin-top: 15px;">
+                                <button class="btn btn-secondary" onclick="resetExperiment()">
+                                    <i class="fa-solid fa-rotate-right"></i> Reset Experiment
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Data Acquisition Card -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-clipboard-list"></i>
+                                Data Recording
+                            </h2>
+                            <div class="control-group">
+                                <label>
+                                    Current Water Temp (&theta;)
+                                    <span class="value-tag"><span id="live-theta">27.0</span> &deg;C</span>
+                                </label>
+                            </div>
+                            <div class="control-group">
+                                <button class="btn" onclick="recordReading()" id="recordBtn">
+                                    <i class="fa-solid fa-plus"></i> Record Reading (Table 24.1)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis and Table Card (Table 24.1) -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table"></i>
+                            Readings and Calculations (Table 24.1)
+                        </h2>
+                        <div class="table-responsive">
+                            <table class="data-table" id="readingsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>1</th>
+                                        <th>2</th>
+                                        <th>3</th>
+                                        <th>4</th>
+                                        <th>5</th>
+                                        <th>6</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Thermometer &theta; (&deg;C)</strong></td>
+                                        <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Absolute Temperature <i>T</i> (K)</strong></td>
+                                        <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Pressure Gauge <i>p</i> (&times; 10<sup>4</sup> Nm<sup>-2</sup>)</strong></td>
+                                        <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="equation-box" id="calc-expression">
+                            Record 6 sets of temperature and pressure readings as temperature rises by ~10 &deg;C increments[cite: 1].
+                        </div>
+                    </div>
+
+                    <!-- Graph Card -->
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 16px;">
+                            <h2 class="card-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
+                                <i class="fa-solid fa-chart-line"></i>
+                                Graph: Pressure (<i>p</i>) vs Temperature
+                            </h2>
+                            <div>
+                                <button class="btn" id="toggleUnitBtn" onclick="toggleGraphUnit()" style="padding: 6px 14px; font-size: 0.85rem;">
+                                    Switch to Celsius (&deg;C)
+                                </button>
+                            </div>
+                        </div>
+                        <div class="canvas-card" style="padding: 10px 0 0 0;">
+                            <canvas id="graphCanvas" width="700" height="300" style="max-width: 700px;"></canvas>
+                        </div>
+                        <div class="equation-box" id="graph-info-box" style="margin-top: 15px;">
+                            Plotted points are joined with a straight line. Use the toggle button above to switch the X-axis scale between Kelvin (K) and Celsius (&deg;C).
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-links-group">
+                    <a href="https://www.learny.study" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-learny">Learny App</a>
+                    <span style="color: var(--text-muted);">|</span>
+                    <a href="https://t.me/sciencepicco" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-science">Science Picco</a>
+                </div>
+                <p>
+                    Designed by 
+                    <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" class="footer-link">Hexa Solutions</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Simulator Physics & Animation Logic
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gCtx = graphCanvas.getContext('2d');
+
+        let waterTempC = 27.0;
+        let burnerOn = false;
+        let stirAngle = 0;
+        let recordedData = []; // Array of {theta, T, p}
+        let graphUnitIsKelvin = true; // true = Kelvin (K), false = Celsius (°C)
+
+        const liveTheta = document.getElementById('live-theta');
+        const toggleBurnerBtn = document.getElementById('toggleBurnerBtn');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const calcExpression = document.getElementById('calc-expression');
+        const graphInfoBox = document.getElementById('graph-info-box');
+        const toggleUnitBtn = document.getElementById('toggleUnitBtn');
+
+        function toggleBurner() {
+            burnerOn = !burnerOn;
+            if (burnerOn) {
+                toggleBurnerBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> Turn Off Bunsen Burner';
+                toggleBurnerBtn.style.backgroundColor = '#dc2626';
+                statusBadge.className = "status-badge status-unbalanced";
+                statusBadge.querySelector('i').className = "fa-solid fa-fire";
+                statusText.textContent = "Heating Water - Stir Continuously";
+            } else {
+                toggleBurnerBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> Turn On Bunsen Burner';
+                toggleBurnerBtn.style.backgroundColor = '';
+                statusBadge.className = "status-badge status-balanced";
+                statusBadge.querySelector('i').className = "fa-solid fa-circle-check";
+                statusText.textContent = "Burner Off";
+            }
+        }
+
+        function resetExperiment() {
+            burnerOn = false;
+            waterTempC = 27.0;
+            recordedData = [];
+            toggleBurnerBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> Turn On Bunsen Burner';
+            toggleBurnerBtn.style.backgroundColor = '';
+            statusBadge.className = "status-badge status-balanced";
+            statusBadge.querySelector('i').className = "fa-solid fa-circle-check";
+            statusText.textContent = "Burner Off - Room Temperature";
+            updateTableUI();
+            drawGraph();
+        }
+
+        function recordReading() {
+            if (recordedData.length >= 6) {
+                alert("All 6 required readings have already been recorded!");
+                return;
+            }
+            let theta = Math.round(waterTempC * 10) / 10;
+            let T = Math.round((theta + 273.15) * 10) / 10;
+            let p = Math.round((T * 2.5) / 10) / 10; 
+
+            recordedData.push({ theta, T, p });
+            updateTableUI();
+            drawGraph();
+        }
+
+        function toggleGraphUnit() {
+            graphUnitIsKelvin = !graphUnitIsKelvin;
+            if (graphUnitIsKelvin) {
+                toggleUnitBtn.textContent = "Switch to Celsius (°C)";
+            } else {
+                toggleUnitBtn.textContent = "Switch to Kelvin (K)";
+            }
+            drawGraph();
+        }
+
+        function updateTableUI() {
+            const table = document.getElementById('readingsTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            let rowTheta = "<td><strong>Thermometer &theta; (&deg;C)</strong></td>";
+            let rowT = "<td><strong>Absolute Temperature <i>T</i> (K)</strong></td>";
+            let rowP = "<td><strong>Pressure Gauge <i>p</i> (&times; 10<sup>4</sup> Nm<sup>-2</sup>)</strong></td>";
+
+            for (let i = 0; i < 6; i++) {
+                if (i < recordedData.length) {
+                    rowTheta += `<td>${recordedData[i].theta.toFixed(1)}</td>`;
+                    rowT += `<td>${recordedData[i].T.toFixed(1)}</td>`;
+                    rowP += `<td>${recordedData[i].p.toFixed(2)}</td>`;
+                } else {
+                    rowTheta += `<td>-</td>`;
+                    rowT += `<td>-</td>`;
+                    rowP += `<td>-</td>`;
+                }
+            }
+            
+            tbody.rows[0].innerHTML = rowTheta;
+            tbody.rows[1].innerHTML = rowT;
+            tbody.rows[2].innerHTML = rowP;
+
+            if (recordedData.length > 0) {
+                calcExpression.innerHTML = `<strong>Latest Recorded:</strong> &theta; = ${recordedData[recordedData.length-1].theta} &deg;C, <i>T</i> = ${recordedData[recordedData.length-1].T} K, <i>p</i> = ${recordedData[recordedData.length-1].p} &times; 10<sup>4</sup> Nm<sup>-2</sup> (${recordedData.length}/6 recorded)`;
+            } else {
+                calcExpression.innerHTML = `Record 6 sets of temperature and pressure readings as temperature rises by ~10 &deg;C increments[cite: 1].`;
+            }
+        }
+
+        function drawGraph() {
+            gCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+
+            const padding = 60;
+            const w = graphCanvas.width - padding * 2;
+            const h = graphCanvas.height - padding * 2;
+
+            // Axis limits based on active unit mode
+            const minX = graphUnitIsKelvin ? 270 : 0;
+            const maxX = graphUnitIsKelvin ? 380 : 100;
+            const maxP = 10;
+
+            // 1. Draw Grid Lines
+            gCtx.strokeStyle = '#e2e8f0';
+            gCtx.lineWidth = 1;
+
+            // Horizontal grid lines
+            for (let pVal = 0; pVal <= maxP; pVal += 2) {
+                let yPos = padding + h - (pVal / maxP) * h;
+                gCtx.beginPath();
+                gCtx.moveTo(padding, yPos);
+                gCtx.lineTo(padding + w, yPos);
+                gCtx.stroke();
+            }
+
+            // Vertical grid lines
+            if (graphUnitIsKelvin) {
+                for (let tVal = 280; tVal <= maxX; tVal += 20) {
+                    let xPos = padding + ((tVal - minX) / (maxX - minX)) * w;
+                    gCtx.beginPath();
+                    gCtx.moveTo(xPos, padding);
+                    gCtx.lineTo(xPos, padding + h);
+                    gCtx.stroke();
+                }
+            } else {
+                for (let cVal = 0; cVal <= maxX; cVal += 20) {
+                    let xPos = padding + ((cVal - minX) / (maxX - minX)) * w;
+                    gCtx.beginPath();
+                    gCtx.moveTo(xPos, padding);
+                    gCtx.lineTo(xPos, padding + h);
+                    gCtx.stroke();
+                }
+            }
+
+            // 2. Draw Main Axes
+            gCtx.strokeStyle = '#177D81';
+            gCtx.lineWidth = 2;
+            gCtx.beginPath();
+            gCtx.moveTo(padding, padding);
+            gCtx.lineTo(padding, padding + h);
+            gCtx.lineTo(padding + w, padding + h);
+            gCtx.stroke();
+
+            // 3. Axis Labels
+            gCtx.fillStyle = '#0f2728';
+            gCtx.font = 'bold 12px Inter, sans-serif';
+            gCtx.textAlign = 'center';
+
+            const xLabel = graphUnitIsKelvin ? 'Absolute Temperature T (K)' : 'Temperature θ (°C)';
+            gCtx.fillText(xLabel, padding + w / 2, padding + h + 42);
+
+            gCtx.save();
+            gCtx.translate(padding - 40, padding + h / 2);
+            gCtx.rotate(-Math.PI / 2);
+            gCtx.fillText('Pressure p (×10⁴ Nm⁻²)', 0, 0);
+            gCtx.restore();
+
+            // 4. Axis Ticks and Numeric Scales
+            gCtx.font = '10px Inter, sans-serif';
+            gCtx.textAlign = 'right';
+            for (let pVal = 0; pVal <= maxP; pVal += 2) {
+                let yPos = padding + h - (pVal / maxP) * h;
+                gCtx.fillText(pVal, padding - 8, yPos + 4);
+            }
+
+            gCtx.textAlign = 'center';
+            if (graphUnitIsKelvin) {
+                for (let tVal = 280; tVal <= maxX; tVal += 20) {
+                    let xPos = padding + ((tVal - minX) / (maxX - minX)) * w;
+                    gCtx.fillText(tVal, xPos, padding + h + 18);
+                }
+            } else {
+                for (let cVal = 0; cVal <= maxX; cVal += 20) {
+                    let xPos = padding + ((cVal - minX) / (maxX - minX)) * w;
+                    gCtx.fillText(cVal + '°C', xPos, padding + h + 18);
+                }
+            }
+
+            // 5. Plot Graph Line & Data Points
+            if (recordedData.length > 0) {
+                // Draw connecting line through all recorded points
+                gCtx.strokeStyle = '#177D81';
+                gCtx.lineWidth = 2.5;
+                gCtx.beginPath();
+
+                recordedData.forEach((pt, index) => {
+                    let xVal = graphUnitIsKelvin ? pt.T : pt.theta;
+                    let xCoord = padding + ((xVal - minX) / (maxX - minX)) * w;
+                    let yCoord = padding + h - (pt.p / maxP) * h;
+
+                    if (index === 0) {
+                        gCtx.moveTo(xCoord, yCoord);
+                    } else {
+                        gCtx.lineTo(xCoord, yCoord);
+                    }
+                });
+                gCtx.stroke();
+
+                // Draw highlighted markers on top of the line
+                recordedData.forEach((pt) => {
+                    let xVal = graphUnitIsKelvin ? pt.T : pt.theta;
+                    let xCoord = padding + ((xVal - minX) / (maxX - minX)) * w;
+                    let yCoord = padding + h - (pt.p / maxP) * h;
+
+                    gCtx.fillStyle = '#dc2626';
+                    gCtx.beginPath();
+                    gCtx.arc(xCoord, yCoord, 5, 0, 2 * Math.PI);
+                    gCtx.fill();
+                    
+                    gCtx.strokeStyle = '#ffffff';
+                    gCtx.lineWidth = 1.5;
+                    gCtx.stroke();
+                });
+
+                graphInfoBox.innerHTML = `<strong>Graph Status:</strong> Showing ${recordedData.length} point(s) plotted against <strong>${graphUnitIsKelvin ? 'Kelvin (K)' : 'Celsius (°C)'}</strong> scale. Continuous linear relationship shown.`;
+            } else {
+                graphInfoBox.innerHTML = `Plotted points connected with a continuous line will appear here as you record readings. Switch views between Kelvin and Celsius scales using the toggle button.`;
+            }
+        }
+
+        function updatePhysics() {
+            if (burnerOn) {
+                if (waterTempC < 100.0) {
+                    waterTempC += 0.05;
+                }
+            } else {
+                if (waterTempC > 27.0) {
+                    waterTempC -= 0.02;
+                }
+            }
+            stirAngle += 0.1;
+            liveTheta.textContent = waterTempC.toFixed(1);
+        }
+
+        function drawSimulation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            
+            // 1. Stand & Tripod
+            ctx.strokeStyle = '#7f8c8d';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(cx - 60, 240); ctx.lineTo(cx - 90, 300);
+            ctx.moveTo(cx + 60, 240); ctx.lineTo(cx + 90, 300);
+            ctx.stroke();
+
+            // Tripod Ring & Wire Gauze
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(cx, 240, 70, 0, Math.PI, false);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx - 70, 240); ctx.lineTo(cx + 70, 240);
+            ctx.stroke();
+
+            // 2. Bunsen Burner
+            ctx.fillStyle = '#bdc3c7';
+            ctx.fillRect(cx - 15, 255, 30, 45);
+            ctx.fillStyle = '#34495e';
+            ctx.fillRect(cx - 25, 300, 50, 10);
+            
+            if (burnerOn) {
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.moveTo(cx, 200);
+                ctx.quadraticCurveTo(cx - 15, 230, cx - 5, 255);
+                ctx.quadraticCurveTo(cx + 15, 230, cx, 200);
+                ctx.fill();
+                
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(cx, 215);
+                ctx.quadraticCurveTo(cx - 8, 235, cx, 255);
+                ctx.quadraticCurveTo(cx + 8, 235, cx, 215);
+                ctx.fill();
+            }
+
+            // 3. Beaker
+            ctx.strokeStyle = '#177D81';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(cx - 65, 130, 130, 110);
+            
+            // Water inside beaker
+            ctx.fillStyle = 'rgba(189, 222, 214, 0.4)';
+            ctx.fillRect(cx - 63, 150, 126, 88);
+
+            // 4. Round Bottom Flask (Dry Gas)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.strokeStyle = '#0f2728';
+            ctx.lineWidth = 2;
+            ctx.fillRect(cx - 10, 80, 20, 55);
+            ctx.strokeRect(cx - 10, 80, 20, 55);
+
+            ctx.beginPath();
+            ctx.arc(cx, 155, 35, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            // Gas label inside bulb
+            ctx.fillStyle = '#0f2728';
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Dry Gas', cx, 158);
+
+            // 5. Thermometer
+            ctx.strokeStyle = '#7f8c8d';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cx - 45, 75, 8, 150);
+            // Mercury Bulb
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(cx - 41, 220, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            // Mercury column height proportional to temperature
+            let mercuryHeight = 130 * (waterTempC / 100);
+            ctx.fillRect(cx - 43, 215 - mercuryHeight, 4, mercuryHeight);
+
+            // 6. Stirrer
+            let stirX = cx + 40 + Math.sin(stirAngle) * 6;
+            ctx.strokeStyle = '#7f8c8d';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(stirX, 135);
+            ctx.lineTo(stirX, 220);
+            ctx.stroke();
+
+            // 7. Capillary tube & Pressure Gauge Connection
+            ctx.strokeStyle = '#0f2728';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx, 80);
+            ctx.lineTo(cx, 55);
+            ctx.lineTo(cx + 180, 55);
+            ctx.lineTo(cx + 180, 95);
+            ctx.stroke();
+
+            // Pressure Gauge Dial
+            ctx.beginPath();
+            ctx.arc(cx + 180, 115, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = '#177D81';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Needle angle based on absolute temperature
+            let absT = waterTempC + 273.15;
+            let needleAngle = -Math.PI * 0.75 + (absT - 300) / 100 * (Math.PI * 1.5);
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx + 180, 115);
+            ctx.lineTo(cx + 180 + Math.cos(needleAngle)*18, 115 + Math.sin(needleAngle)*18);
+            ctx.stroke();
+
+            // Gauge Label
+            ctx.fillStyle = '#0f2728';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText('Pressure Gauge', cx + 180, 152);
+        }
+
+        function loop() {
+            updatePhysics();
+            drawSimulation();
+            requestAnimationFrame(loop);
+        }
+
+        updateTableUI();
+        drawGraph();
+        loop();
+    </script>
+</body>
+</html>

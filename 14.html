@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Resonance Tube Simulator</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Layout adjustments for side-by-side simulator & controls */
+        .sim-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 993px) {
+            .sim-grid {
+                grid-template-columns: 1fr 340px;
+                align-items: start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+               <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>Vernier Caliper</span>
+                </a>
+                <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Travelling Microscope</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Micrometer Gauge</span>
+                </a>
+                <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Spherometer Lab</span>
+                </a>
+               
+                <a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Forces Simulator</span>
+                </a>
+                <a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Moments Simulator</span>
+                </a>
+                <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>Hare's Apparatus</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U-Tube Density</span>
+                </a>
+                <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>Liquid Density</span>
+                </a>
+                <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Simple Pendulum</span>
+                </a>
+                <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Helical Spring</span>
+                </a>
+                <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Sonometer Practical</span>
+                </a>
+                <a href="14.html" class="nav-item active">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Resonance Tube Practical</span>
+                </a>
+                <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Relative Humidity</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>Gas Law Simulator</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Resonance Tube Experiment</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card Box -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory & Formulas
+                        </h2>
+                        <p class="theory-text">
+                            Measurement of the velocity of sound in air (<i>v</i>) and end correction (<i>e</i>) using a closed resonating tube.
+                        </p>
+                        <div class="formula">
+                            • Fundamental Resonance: &nbsp; &frac14; &lambda; = <i>l</i><sub>1</sub> + <i>e</i> &nbsp;&rArr;&nbsp; <i>v</i> = 4<i>f</i>(<i>l</i><sub>1</sub> + <i>e</i>)<br>
+                            • First Overtone: &nbsp; &frac34; &lambda; = <i>l</i><sub>2</sub> + <i>e</i> &nbsp;&rArr;&nbsp; <i>v</i> = &frac43; <i>f</i>(<i>l</i><sub>2</sub> + <i>e</i>)<br>
+                            • Velocity of Sound: &nbsp; <strong><i>v</i> = 2<i>f</i>(<i>l</i><sub>2</sub> &minus; <i>l</i><sub>1</sub>)</strong><br>
+                            • End Correction: &nbsp; <strong><i>e</i> = (<i>l</i><sub>2</sub> &minus; 3<i>l</i><sub>1</sub>) / 2</strong>
+                        </div>
+                    </div>
+
+                    <!-- Simulator & Side Controls Grid -->
+                    <div class="sim-grid">
+                        
+                        <!-- Left Container: Simulator + Input Controls Below -->
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <!-- Canvas Simulation Card -->
+                            <div class="card canvas-card">
+                                <canvas id="simCanvas" width="800" height="480"></canvas>
+                                <div id="statusBadge" class="status-badge status-unbalanced">
+                                    <i class="fa-solid fa-volume-xmark"></i>
+                                    <span id="statusText">Audio Stopped</span>
+                                </div>
+                            </div>
+
+                            <!-- Measure & Record Card (Positioned Underneath Canvas) -->
+                            <div class="card">
+                                <h2 class="card-title">
+                                    <i class="fa-solid fa-calculator"></i>
+                                    Measure & Record
+                                </h2>
+                                <div class="controls-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
+                                    <div class="control-group">
+                                        <label for="l1_input">
+                                            Fundamental Resonance Length (<i>l</i><sub>1</sub>)
+                                        </label>
+                                        <input type="number" id="l1_input" placeholder="e.g. 15.9" step="0.1">
+                                    </div>
+                                    <div class="control-group">
+                                        <label for="l2_input">
+                                            1st Overtone Resonance Length (<i>l</i><sub>2</sub>)
+                                        </label>
+                                        <input type="number" id="l2_input" placeholder="e.g. 49.3" step="0.1">
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn" onclick="calculateResults()">
+                                        <i class="fa-solid fa-calculator"></i> Calculate
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="recordFinding()">
+                                        <i class="fa-solid fa-plus"></i> Record Finding
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Container: Controls & Audio Tab -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-sliders"></i>
+                                Controls & Audio
+                            </h2>
+                            <div class="control-group">
+                                <label for="forkFreq">
+                                    Tuning Fork Frequency (<i>f</i>)
+                                    <span class="value-tag"><span id="freqVal">1024</span> Hz</span>
+                                </label>
+                                <select id="forkFreq" onchange="updateFrequency()">
+                                    <option value="1024">1024 Hz</option>
+                                    <option value="843">843 Hz</option>
+                                    <option value="622">622 Hz</option>
+                                    <option value="512"  selected>512 Hz</option>
+                                    <option value="480">480 Hz</option>
+                                    <option value="384">384 Hz</option>
+                                    <option value="320">320 Hz</option>
+                                    <option value="256">256 Hz</option>
+                                </select>
+                            </div>
+                            <div class="control-group" style="margin-top: 20px;">
+                                <label for="tubePos">
+                                    Air Column Length (<i>l</i>)
+                                    <span class="value-tag"><span id="lengthVal">15.0</span> cm</span>
+                                </label>
+                                <input type="range" id="tubePos" min="2" max="65" step="0.1" value="15" oninput="updateTubePosition()">
+                            </div>
+                            <div class="control-group" style="margin-top: 25px;">
+                                <button class="btn" onclick="toggleAudio()" id="audioBtn">
+                                    <i class="fa-solid fa-volume-high"></i> Start Sound Generator
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Experimental Readings Table Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table"></i>
+                            Readings & Calculated Data
+                        </h2>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Frequency <i>f</i> (Hz)</th>
+                                        <th><i>l</i><sub>1</sub> (cm)</th>
+                                        <th><i>l</i><sub>2</sub> (cm)</th>
+                                        <th>Velocity <i>v</i> (m/s)</th>
+                                        <th>End Correction <i>e</i> (cm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="findingsBody">
+                                    <!-- Dynamic Rows Added Here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="equation-box" id="calc-expression">
+                            Adjust air column height to find resonance peaks (<i>l</i><sub>1</sub> and <i>l</i><sub>2</sub>). Then click <strong>Calculate</strong> or <strong>Record Finding</strong>.
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-links-group">
+                    <a href="https://www.learny.study" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-learny">Learny App</a>
+                    <span style="color: var(--text-muted);">|</span>
+                    <a href="https://t.me/sciencepicco" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-science">Science Picco</a>
+                </div>
+                <p>
+                    Designed by 
+                    <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" class="footer-link">Hexa Solutions</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Physics Constants & Target Calculations
+        const actualV = 343; // Speed of sound in m/s (at ~20 °C)
+        const actualE = 0.8; // End correction in cm
+
+        let audioCtx = null;
+        let oscillator = null;
+        let gainNode = null;
+        let isPlaying = false;
+        let recordCount = 0;
+
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function getTargetLengths(f) {
+            const lambda = (actualV * 100) / f; // wavelength in cm
+            const l1 = (lambda / 4) - actualE;
+            const l2 = (3 * lambda / 4) - actualE;
+            return { l1, l2, lambda };
+        }
+
+        function updateFrequency() {
+            const f = parseFloat(document.getElementById("forkFreq").value);
+            document.getElementById("freqVal").innerText = f;
+            if (oscillator && audioCtx) {
+                oscillator.frequency.setValueAtTime(f, audioCtx.currentTime);
+            }
+            draw();
+            updateVolume();
+        }
+
+        function updateTubePosition() {
+            const l = parseFloat(document.getElementById("tubePos").value);
+            document.getElementById("lengthVal").innerText = l.toFixed(1);
+            draw();
+            updateVolume();
+        }
+
+        function toggleAudio() {
+            const badge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const audioBtn = document.getElementById('audioBtn');
+
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (isPlaying) {
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                audioBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Start Sound Generator';
+                badge.className = "status-badge status-unbalanced";
+                badge.querySelector('i').className = "fa-solid fa-volume-xmark";
+                statusText.textContent = "Audio Stopped";
+                isPlaying = false;
+            } else {
+                oscillator = audioCtx.createOscillator();
+                gainNode = audioCtx.createGain();
+
+                const f = parseFloat(document.getElementById("forkFreq").value);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(f, audioCtx.currentTime);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                isPlaying = true;
+
+                audioBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Stop Sound Generator';
+                badge.className = "status-badge status-balanced";
+                badge.querySelector('i').className = "fa-solid fa-volume-high";
+                statusText.textContent = "Audio Playing";
+
+                updateVolume();
+            }
+        }
+
+        function updateVolume() {
+            if (!isPlaying || !gainNode) return;
+            
+            const f = parseFloat(document.getElementById("forkFreq").value);
+            const currentL = parseFloat(document.getElementById("tubePos").value);
+            const { l1, l2 } = getTargetLengths(f);
+
+            const dist1 = Math.abs(currentL - l1);
+            const dist2 = Math.abs(currentL - l2);
+            const minDist = Math.min(dist1, dist2);
+
+            let intensity = Math.exp(-Math.pow(minDist / 1.5, 2));
+            let volume = 0.05 + intensity * 0.7; // Base hum + resonance peak
+            
+            gainNode.gain.setTargetAtTime(volume, audioCtx.currentTime, 0.05);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const f = parseFloat(document.getElementById("forkFreq").value);
+            const airLength = parseFloat(document.getElementById("tubePos").value);
+            const { l1, l2 } = getTargetLengths(f);
+
+            const fulcrumX = canvas.width / 2;
+            const scale = 5.2; // Scale in px per cm
+            const waterLevelY = 400; // Fixed water surface line
+
+            const jarX = fulcrumX - 75;
+            const jarW = 150;
+            const jarY = 140;
+            const jarH = waterLevelY - jarY + 40;
+            const tubeW = 44;
+            const tubeX = jarX + jarW/2 - tubeW/2;
+
+            const tubeTopY = waterLevelY - (airLength * scale);
+
+            // 1. Water Jar
+            ctx.fillStyle = "rgba(189, 222, 214, 0.4)";
+            ctx.fillRect(jarX, waterLevelY, jarW, jarH - (waterLevelY - jarY));
+            ctx.strokeStyle = "#177D81";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(jarX, jarY, jarW, jarH);
+
+            // 2. Tube Inner & Outline
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(tubeX, tubeTopY, tubeW, waterLevelY - tubeTopY);
+            ctx.strokeStyle = "#0f2728";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(tubeX, tubeTopY);
+            ctx.lineTo(tubeX, waterLevelY + 30);
+            ctx.moveTo(tubeX + tubeW, tubeTopY);
+            ctx.lineTo(tubeX + tubeW, waterLevelY + 30);
+            ctx.stroke();
+
+            // 3. Ruler Scale
+            const rulerX = jarX + jarW + 25;
+            ctx.strokeStyle = "#0f2728";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(rulerX, 35);
+            ctx.lineTo(rulerX, waterLevelY + 20);
+            ctx.stroke();
+
+            for (let i = 0; i <= 70; i += 5) {
+                let markY = waterLevelY - (i * scale);
+                if (markY >= 35 && markY <= waterLevelY + 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(rulerX, markY);
+                    ctx.lineTo(rulerX + (i % 10 === 0 ? 12 : 6), markY);
+                    ctx.stroke();
+                    if (i % 10 === 0) {
+                        ctx.fillStyle = "#0f2728";
+                        ctx.font = "11px Inter, sans-serif";
+                        ctx.fillText(i + " cm", rulerX + 16, markY + 4);
+                    }
+                }
+            }
+
+            // 4. Wave Visualization inside Tube
+            const dist1 = Math.abs(airLength - l1);
+            const dist2 = Math.abs(airLength - l2);
+            let amplitude = 0;
+            let mode = 0;
+
+            if (dist1 < 3.5) {
+                amplitude = Math.cos((dist1 / 3.5) * (Math.PI / 2)) * (tubeW / 2 - 4);
+                mode = 1; // Fundamental Wave
+            } else if (dist2 < 4.5) {
+                amplitude = Math.cos((dist2 / 4.5) * (Math.PI / 2)) * (tubeW / 2 - 4);
+                mode = 2; // 1st Overtone Wave
+            }
+
+            if (amplitude > 0.5) {
+                ctx.strokeStyle = "rgba(217, 142, 24, 0.85)";
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+
+                const totalH = waterLevelY - tubeTopY;
+                const steps = 60;
+
+                for (let i = 0; i <= steps; i++) {
+                    let y = tubeTopY + (i / steps) * totalH;
+                    let relativeY = (y - tubeTopY) / totalH;
+                    
+                    let wave = 0;
+                    if (mode === 1) {
+                        wave = Math.cos(relativeY * Math.PI / 2) * amplitude;
+                    } else if (mode === 2) {
+                        wave = Math.cos(relativeY * 3 * Math.PI / 2) * amplitude;
+                    }
+
+                    let x1 = (tubeX + tubeW / 2) + wave;
+                    if (i === 0) ctx.moveTo(x1, y);
+                    else ctx.lineTo(x1, y);
+                }
+                ctx.stroke();
+
+                ctx.beginPath();
+                for (let i = 0; i <= steps; i++) {
+                    let y = tubeTopY + (i / steps) * totalH;
+                    let relativeY = (y - tubeTopY) / totalH;
+                    
+                    let wave = 0;
+                    if (mode === 1) wave = Math.cos(relativeY * Math.PI / 2) * amplitude;
+                    else if (mode === 2) wave = Math.cos(relativeY * 3 * Math.PI / 2) * amplitude;
+
+                    let x2 = (tubeX + tubeW / 2) - wave;
+                    if (i === 0) ctx.moveTo(x2, y);
+                    else ctx.lineTo(x2, y);
+                }
+                ctx.stroke();
+            }
+
+            // 5. Tuning Fork Diagram
+            const forkY = tubeTopY - 26;
+            ctx.strokeStyle = "#177D81";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(tubeX + 12, forkY);
+            ctx.lineTo(tubeX + 12, forkY + 16);
+            ctx.lineTo(tubeX + 32, forkY + 16);
+            ctx.lineTo(tubeX + 32, forkY);
+            ctx.moveTo(tubeX + 22, forkY + 16);
+            ctx.lineTo(tubeX + 22, forkY + 30);
+            ctx.stroke();
+        }
+
+        // Formula Calculation Function
+        function getCalculatedData() {
+            const f = parseFloat(document.getElementById("forkFreq").value);
+            const l1 = parseFloat(document.getElementById("l1_input").value);
+            const l2 = parseFloat(document.getElementById("l2_input").value);
+
+            if (isNaN(l1) || isNaN(l2)) {
+                return null;
+            }
+
+            const v = (2 * f * (l2 - l1)) / 100; // in m/s
+            const e = (l2 - (3 * l1)) / 2;       // in cm
+
+            return { f, l1, l2, v, e };
+        }
+
+        function calculateResults() {
+            const data = getCalculatedData();
+            const calcExpression = document.getElementById('calc-expression');
+
+            if (!data) {
+                alert("Please enter values for both l1 and l2.");
+                return;
+            }
+
+            calcExpression.innerHTML = `
+                <strong>Formula Calculations:</strong><br>
+                • Velocity <i>v</i> = 2 × ${data.f} × (${data.l2} &minus; ${data.l1}) / 100 = <strong>${data.v.toFixed(2)} m/s</strong><br>
+                • End Correction <i>e</i> = (${data.l2} &minus; 3 × ${data.l1}) / 2 = <strong>${data.e.toFixed(2)} cm</strong>
+            `;
+        }
+
+        function recordFinding() {
+            const data = getCalculatedData();
+            if (!data) {
+                alert("Please enter valid readings for l1 and l2 before recording.");
+                return;
+            }
+
+            recordCount++;
+            const tableBody = document.getElementById("findingsBody");
+            const newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                <td><strong>${recordCount}</strong></td>
+                <td>${data.f}</td>
+                <td>${data.l1.toFixed(1)}</td>
+                <td>${data.l2.toFixed(1)}</td>
+                <td><strong>${data.v.toFixed(2)}</strong></td>
+                <td><strong>${data.e.toFixed(2)}</strong></td>
+            `;
+
+            tableBody.appendChild(newRow);
+            calculateResults();
+        }
+
+        // Initialize display canvas
+        draw();
+    </script>
+</body>
+</html>

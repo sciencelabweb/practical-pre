@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Travelling Microscope Simulator</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>Vernier Caliper</span>
+                </a>
+                <a href="12.html" class="nav-item active">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Travelling Microscope</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Micrometer Gauge</span>
+                </a>
+                <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Spherometer Lab</span>
+                </a>
+               
+                <a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Forces Simulator</span>
+                </a>
+                <a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Moments Simulator</span>
+                </a>
+                <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>Hare's Apparatus</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U-Tube Density</span>
+                </a>
+                <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>Liquid Density</span>
+                </a>
+                <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Simple Pendulum</span>
+                </a>
+                <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Helical Spring</span>
+                </a>
+                <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Sonometer Practical</span>
+                </a>
+                <a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Resonance Tube Practical</span>
+                </a>
+                <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Relative Humidity</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>Gas Law Simulator</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar (Centered Title) -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Travelling Microscope Practical</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card Box -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory & Formula
+                        </h2>
+                        <p class="theory-text">
+                            Measurement of capillary and rubber tube diameters using Vernier scale adjustment:
+                        </p>
+                        <div class="formula">
+                            Least Count (L.C.) = 1 Main Scale Division - 1 Vernier Scale Division = 0.001 cm
+                        </div>
+                    </div>
+
+                    <!-- Specimen Selector Card (Placed Above Simulator) -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-sliders"></i>
+                            Specimen Selection
+                        </h2>
+                        <div class="control-group">
+                            <label for="objectSelect">Select Target Specimen:</label>
+                            <select id="objectSelect">
+                                <option value="capillary">Capillary Tube (Internal Diameter)</option>
+                                <option value="rubber">Rubber Tube (Internal & External Diameters)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Compact Canvas Simulation Card -->
+                    <div class="card canvas-card" style="padding: 12px 10px 14px 10px;">
+                        <canvas id="eyepieceCanvas" width="200" height="200" style="max-width: 200px; max-height: 200px; margin: 0 auto;"></canvas>
+                        <div id="statusBadge" class="status-badge status-balanced" style="margin-top: 10px; padding: 4px 12px; font-size: 0.8rem;">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span id="statusText">Crosshair Positioned</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls Grid -->
+                    <div class="controls-grid">
+                        <!-- Horizontal Axis Adjustment -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-arrows-left-right"></i>
+                                Horizontal Movement (X-Axis)
+                            </h2>
+                            <div class="control-group">
+                                <label>
+                                    Position Slider
+                                    <span class="value-tag">X: <span id="xTotal">5.000</span> cm</span>
+                                </label>
+                                <input type="range" id="xSlider" min="0" max="1000" step="1" value="200">
+                            </div>
+                            <div class="equation-box" style="margin-top: 8px; font-size: 0.85rem; padding: 8px;">
+                                MSR: <span id="xMSR">5.00</span> cm | VSR: <span id="xVSR">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Vertical Axis Adjustment -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-arrows-up-down"></i>
+                                Vertical Movement (Y-Axis)
+                            </h2>
+                            <div class="control-group">
+                                <label>
+                                    Position Slider
+                                    <span class="value-tag">Y: <span id="yTotal">5.000</span> cm</span>
+                                </label>
+                                <input type="range" id="ySlider" min="0" max="1000" step="1" value="200">
+                            </div>
+                            <div class="equation-box" style="margin-top: 8px; font-size: 0.85rem; padding: 8px;">
+                                MSR: <span id="yMSR">5.00</span> cm | VSR: <span id="yVSR">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="recordReading()">
+                            <i class="fa-solid fa-bookmark"></i> Record Current Reading
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetReadings()">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                    </div>
+
+                    <!-- Analysis and Table Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table"></i>
+                            Recorded Measurements
+                        </h2>
+
+                        <!-- Table 4.1: Capillary Tube -->
+                        <div id="capillaryTableWrapper" class="table-responsive">
+                            <strong>Table 4.1: Capillary Tube Readings</strong>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>X₁ (cm)</th>
+                                        <th>X₂ (cm)</th>
+                                        <th>Y₁ (cm)</th>
+                                        <th>Y₂ (cm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="cell-x1">-</td>
+                                        <td id="cell-x2">-</td>
+                                        <td id="cell-y1">-</td>
+                                        <td id="cell-y2">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table 4.2 & 4.3: Rubber Tube -->
+                        <div id="rubberTableWrapper" class="table-responsive" style="display: none;">
+                            <strong>Table 4.2 & 4.3: Rubber Tube Readings</strong>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>X₁</th>
+                                        <th>X₂</th>
+                                        <th>X₃</th>
+                                        <th>X₄</th>
+                                        <th>Y₁</th>
+                                        <th>Y₂</th>
+                                        <th>Y₃</th>
+                                        <th>Y₄</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="cell-rx1">-</td>
+                                        <td id="cell-rx2">-</td>
+                                        <td id="cell-rx3">-</td>
+                                        <td id="cell-rx4">-</td>
+                                        <td id="cell-ry1">-</td>
+                                        <td id="cell-ry2">-</td>
+                                        <td id="cell-ry3">-</td>
+                                        <td id="cell-ry4">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="equation-box" id="calcResults">
+                            Record positions (X₁, X₂, Y₁, Y₂) to compute specimen dimensions.
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+           <footer class="footer">
+                <div class="footer-links-group">
+                    <a href="https://www.learny.study" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-learny">Learny App</a>
+                    <span style="color: var(--text-muted);">|</span>
+                    <a href="https://t.me/sciencepicco" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-science">Science Picco</a>
+                </div>
+                <p>
+                    Designed by 
+                    <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" class="footer-link">Hexa Solutions</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Simulator Logic
+        const LC = 0.001; 
+        const baseScaleX = 5.000;
+        const baseScaleY = 5.000;
+
+        const capillaryInnerRadius = 0.35;
+        const rubberInnerRadius = 0.45;
+        const rubberOuterRadius = 0.70;
+        const centerPos = 500;
+
+        const canvas = document.getElementById('eyepieceCanvas');
+        const ctx = canvas.getContext('2d');
+        const xSlider = document.getElementById('xSlider');
+        const ySlider = document.getElementById('ySlider');
+        const objectSelect = document.getElementById('objectSelect');
+
+        let readings = {};
+
+        function updateScaleDisplay() {
+            const xVal = parseFloat(xSlider.value);
+            const yVal = parseFloat(ySlider.value);
+
+            const totalX = baseScaleX + (xVal * 0.005);
+            const totalY = baseScaleY + (yVal * 0.005);
+
+            const xMSR = Math.floor(totalX * 20) / 20;
+            const xVSR = Math.round((totalX - xMSR) / LC);
+
+            const yMSR = Math.floor(totalY * 20) / 20;
+            const yVSR = Math.round((totalY - yMSR) / LC);
+
+            document.getElementById('xMSR').textContent = xMSR.toFixed(2);
+            document.getElementById('xVSR').textContent = xVSR;
+            document.getElementById('xTotal').textContent = totalX.toFixed(3);
+
+            document.getElementById('yMSR').textContent = yMSR.toFixed(2);
+            document.getElementById('yVSR').textContent = yVSR;
+            document.getElementById('yTotal').textContent = totalY.toFixed(3);
+
+            drawEyepiece(xVal, yVal);
+        }
+
+        function drawEyepiece(xVal, yVal) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            ctx.fillStyle = '#0f2728';
+            ctx.fillRect(0, 0, width, height);
+
+            const scale = 0.65; 
+            const offsetX = (centerPos - xVal) * scale;
+            const offsetY = (yVal - centerPos) * scale;
+
+            ctx.save();
+            ctx.translate(cx + offsetX, cy + offsetY);
+
+            const mode = objectSelect.value;
+
+            if (mode === 'capillary') {
+                ctx.beginPath();
+                ctx.arc(0, 0, capillaryInnerRadius * 100, 0, Math.PI * 2);
+                ctx.fillStyle = '#BDDED6';
+                ctx.fill();
+                ctx.strokeStyle = '#177D81';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(0, 0, (capillaryInnerRadius + 0.3) * 100, 0, Math.PI * 2);
+                ctx.strokeStyle = '#4e6c6d';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, rubberOuterRadius * 100, 0, Math.PI * 2);
+                ctx.fillStyle = '#D98E18';
+                ctx.fill();
+                ctx.strokeStyle = '#0f2728';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(0, 0, rubberInnerRadius * 100, 0, Math.PI * 2);
+                ctx.fillStyle = '#0f2728';
+                ctx.fill();
+                ctx.strokeStyle = '#BDDED6';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // Compact Eyepiece Frame Ring
+            ctx.beginPath();
+            ctx.arc(cx, cy, width / 2.3, 0, Math.PI * 2);
+            ctx.strokeStyle = '#BDDED6';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            // Reticle Crosshairs
+            ctx.beginPath();
+            ctx.moveTo(cx, 0);
+            ctx.lineTo(cx, height);
+            ctx.moveTo(0, cy);
+            ctx.lineTo(width, cy);
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+        }
+
+        function recordReading() {
+            const xTotal = parseFloat(document.getElementById('xTotal').textContent);
+            const yTotal = parseFloat(document.getElementById('yTotal').textContent);
+            const mode = objectSelect.value;
+
+            if (mode === 'capillary') {
+                if (!readings.x1) {
+                    readings.x1 = xTotal;
+                    document.getElementById('cell-x1').textContent = xTotal.toFixed(3);
+                } else if (!readings.x2) {
+                    readings.x2 = xTotal;
+                    document.getElementById('cell-x2').textContent = xTotal.toFixed(3);
+                } else if (!readings.y1) {
+                    readings.y1 = yTotal;
+                    document.getElementById('cell-y1').textContent = yTotal.toFixed(3);
+                } else if (!readings.y2) {
+                    readings.y2 = yTotal;
+                    document.getElementById('cell-y2').textContent = yTotal.toFixed(3);
+                }
+            } else {
+                const keys = ['rx1', 'rx2', 'rx3', 'rx4', 'ry1', 'ry2', 'ry3', 'ry4'];
+                for (let key of keys) {
+                    if (!readings[key]) {
+                        readings[key] = key.startsWith('rx') ? xTotal : yTotal;
+                        document.getElementById('cell-' + key).textContent = readings[key].toFixed(3);
+                        break;
+                    }
+                }
+            }
+            calculateResults();
+        }
+
+        function calculateResults() {
+            const mode = objectSelect.value;
+            const resDiv = document.getElementById('calcResults');
+
+            if (mode === 'capillary') {
+                if (readings.x1 && readings.x2 && readings.y1 && readings.y2) {
+                    const diaX = Math.abs(readings.x2 - readings.x1);
+                    const diaY = Math.abs(readings.y2 - readings.y1);
+                    const meanDia = (diaX + diaY) / 2;
+
+                    resDiv.innerHTML = `
+                        <strong>Horizontal Diameter (X₂ - X₁):</strong> ${diaX.toFixed(3)} cm<br>
+                        <strong>Vertical Diameter (Y₂ - Y₁):</strong> ${diaY.toFixed(3)} cm<br>
+                        <strong>Mean Internal Diameter:</strong> ${meanDia.toFixed(3)} cm
+                    `;
+                } else {
+                    resDiv.textContent = 'Record all 4 points (X₁, X₂, Y₁, Y₂) to view output.';
+                }
+            } else {
+                if (readings.rx1 && readings.rx2 && readings.rx3 && readings.rx4 && readings.ry1 && readings.ry2 && readings.ry3 && readings.ry4) {
+                    const intDiaX = Math.abs(readings.rx2 - readings.rx1);
+                    const intDiaY = Math.abs(readings.ry2 - readings.ry1);
+                    const meanIntDia = (intDiaX + intDiaY) / 2;
+
+                    const extDiaX = Math.abs(readings.rx4 - readings.rx3);
+                    const extDiaY = Math.abs(readings.ry4 - readings.ry3);
+                    const meanExtDia = (extDiaX + extDiaY) / 2;
+
+                    resDiv.innerHTML = `
+                        <strong>Mean Internal Diameter:</strong> ${meanIntDia.toFixed(3)} cm<br>
+                        <strong>Mean External Diameter:</strong> ${meanExtDia.toFixed(3)} cm
+                    `;
+                } else {
+                    resDiv.textContent = 'Record all 8 points for the rubber tube to calculate diameters.';
+                }
+            }
+        }
+
+        function resetReadings() {
+            readings = {};
+            const cells = document.querySelectorAll('.data-table td');
+            cells.forEach(cell => cell.textContent = '-');
+            document.getElementById('calcResults').textContent = 'Record positions to compute specimen dimensions.';
+        }
+
+        objectSelect.addEventListener('change', (e) => {
+            resetReadings();
+            if (e.target.value === 'capillary') {
+                document.getElementById('capillaryTableWrapper').style.display = 'block';
+                document.getElementById('rubberTableWrapper').style.display = 'none';
+            } else {
+                document.getElementById('capillaryTableWrapper').style.display = 'none';
+                document.getElementById('rubberTableWrapper').style.display = 'block';
+            }
+            updateScaleDisplay();
+        });
+
+        xSlider.addEventListener('input', updateScaleDisplay);
+        ySlider.addEventListener('input', updateScaleDisplay);
+
+        updateScaleDisplay();
+    </script>
+</body>
+</html>

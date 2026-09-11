@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Hare's Apparatus Simulator</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Chart.js for Analysis Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax for Formulas -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+               <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>Vernier Caliper</span>
+                </a>
+                <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Travelling Microscope</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Micrometer Gauge</span>
+                </a>
+                <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Spherometer Lab</span>
+                </a>
+               
+                <a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Forces Simulator</span>
+                </a>
+                <a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Moments Simulator</span>
+                </a>
+                <a href="4.html" class="nav-item active">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>Hare's Apparatus</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U-Tube Density</span>
+                </a>
+                <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>Liquid Density</span>
+                </a>
+                <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Simple Pendulum</span>
+                </a>
+                <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Helical Spring</span>
+                </a>
+                <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Sonometer Practical</span>
+                </a>
+                <a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Resonance Tube Practical</span>
+                </a>
+                <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Relative Humidity</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>Gas Law Simulator</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar (Centered Title) -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Hare's Apparatus Simulator</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card Box -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory
+                        </h2>
+                        <p class="theory-text">
+                            Determination of Relative Density of Liquids using Hydrostatic Pressure ($h_l \cdot \rho_l = h_w \cdot \rho_w$)
+                        </p>
+                    </div>
+
+                    <!-- Canvas/SVG Simulation Card -->
+                    <div class="card canvas-card">
+                        <svg viewBox="0 0 400 500" id="apparatus-svg" style="width: 100%; max-width: 500px; height: auto;">
+                            <defs>
+                                <linearGradient id="water-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#177D81" stop-opacity="0.6"/>
+                                    <stop offset="100%" stop-color="#126367" stop-opacity="0.8"/>
+                                </linearGradient>
+                                <linearGradient id="liquid-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#D98E18" stop-opacity="0.6"/>
+                                    <stop offset="100%" stop-color="#b4720e" stop-opacity="0.8"/>
+                                </linearGradient>
+                            </defs>
+
+                            <rect x="30" y="460" width="340" height="15" fill="#0f2728" rx="3"/>
+                            <rect x="195" y="50" width="10" height="410" fill="#4e6c6d"/>
+                            <rect x="60" y="70" width="280" height="370" fill="#f8faf9" stroke="#BDDED6" stroke-width="2" rx="4"/>
+
+                            <rect x="80" y="380" width="90" height="70" fill="none" stroke="#177D81" stroke-width="3" rx="2"/>
+                            <rect id="beaker-left-liquid" x="82" y="400" width="86" height="48" fill="url(#liquid-grad)"/>
+                            
+                            <rect x="230" y="380" width="90" height="70" fill="none" stroke="#177D81" stroke-width="3" rx="2"/>
+                            <rect id="beaker-right-water" x="232" y="400" width="86" height="48" fill="url(#water-grad)"/>
+
+                            <rect x="117" y="120" width="16" height="290" fill="none" stroke="#4e6c6d" stroke-width="1.5"/>
+                            <rect x="267" y="120" width="16" height="290" fill="none" stroke="#4e6c6d" stroke-width="1.5"/>
+                            <path d="M 125 120 L 125 100 Q 125 80 195 80 L 195 40" fill="none" stroke="#4e6c6d" stroke-width="12" stroke-linecap="round"/>
+                            <path d="M 275 120 L 275 100 Q 275 80 205 80 L 205 40" fill="none" stroke="#4e6c6d" stroke-width="12" stroke-linecap="round"/>
+                            <path d="M 200 80 L 200 35" fill="none" stroke="#BDDED6" stroke-width="8"/>
+
+                            <rect id="tube-left-liquid" x="119" y="410" width="12" height="0" fill="url(#liquid-grad)"/>
+                            <ellipse id="meniscus-left" cx="125" cy="410" rx="6" ry="2" fill="#D98E18"/>
+
+                            <rect id="tube-right-water" x="269" y="410" width="12" height="0" fill="url(#water-grad)"/>
+                            <ellipse id="meniscus-right" cx="275" cy="410" rx="6" ry="2" fill="#177D81"/>
+
+                            <path d="M 200 40 L 200 15 L 240 15" fill="none" stroke="#D98E18" stroke-width="6" stroke-linecap="round"/>
+                            <g id="pinch-clip" transform="translate(210, 8)">
+                                <rect x="0" y="0" width="12" height="14" fill="#0f2728" rx="2"/>
+                                <circle cx="6" cy="-2" r="4" fill="#177D81"/>
+                                <line x1="6" y1="-2" x2="6" y2="2" stroke="#fff" stroke-width="1.5"/>
+                            </g>
+
+                            <g transform="translate(140, 110)" font-size="8" fill="#4e6c6d" text-anchor="start">
+                                <line x1="0" y1="0" x2="0" y2="300" stroke="#BDDED6" stroke-width="2"/>
+                                <path d="M 0 0 L 5 0 M 0 30 L 3 30 M 0 60 L 5 60 M 0 90 L 3 90 M 0 120 L 5 120 M 0 150 L 3 150 M 0 180 L 5 180 M 0 210 L 3 210 M 0 240 L 5 240 M 0 270 L 3 270 M 0 300 L 5 300" stroke="#4e6c6d" stroke-width="1"/>
+                            </g>
+                            <g transform="translate(255, 110)" font-size="8" fill="#4e6c6d" text-anchor="end">
+                                <line x1="0" y1="0" x2="0" y2="300" stroke="#BDDED6" stroke-width="2"/>
+                                <path d="M 0 0 L -5 0 M 0 30 L -3 30 M 0 60 L -5 60 M 0 90 L -3 90 M 0 120 L -5 120 M 0 150 L -3 150 M 0 180 L -5 180 M 0 210 L -3 210 M 0 240 L -5 240 M 0 270 L -3 270 M 0 300 L -5 300" stroke="#4e6c6d" stroke-width="1"/>
+                            </g>
+
+                            <g id="arrow-hl">
+                                <line id="line-hl" x1="100" y1="400" x2="100" y2="410" stroke="#D98E18" stroke-width="1.5" stroke-dasharray="3,3"/>
+                                <text id="text-hl" x="90" y="405" font-size="11" fill="#D98E18" font-weight="bold" text-anchor="end">h_l = 0.0 cm</text>
+                            </g>
+
+                            <g id="arrow-hw">
+                                <line id="line-hw" x1="295" y1="400" x2="295" y2="410" stroke="#177D81" stroke-width="1.5" stroke-dasharray="3,3"/>
+                                <text id="text-hw" x="305" y="405" font-size="11" fill="#177D81" font-weight="bold" text-anchor="start">h_w = 0.0 cm</text>
+                            </g>
+                        </svg>
+
+                        <div id="clip-status-badge" class="status-badge status-unbalanced">
+                            <i class="fa-solid fa-lock"></i>
+                            <span id="clipStatusText">Valve Closed (Pinch Clip)</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls Grid -->
+                    <div class="controls-grid">
+                        <!-- Liquid Selection & Controls -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-sliders"></i>
+                                Apparatus Controls
+                            </h2>
+                            <div class="control-group">
+                                <label for="liquid-select">
+                                    Unknown Liquid (Left Tube)
+                                </label>
+                                <select id="liquid-select" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-weight: 500; outline: none;">
+                                    <option value="0.8">Methylated Spirit (&rho; &approx; 0.80 g/cm&sup3;)</option>
+                                    <option value="1.26">Glycerin Solution (&rho; &approx; 1.26 g/cm&sup3;)</option>
+                                    <option value="0.79">Acetone (&rho; &approx; 0.79 g/cm&sup3;)</option>
+                                    <option value="1.03">Milk (&rho; &approx; 1.03 g/cm&sup3;)</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label>
+                                    Reference Liquid (Right Tube)
+                                </label>
+                                <input type="text" value="Water (ρ = 1.00 g/cm³)" disabled style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--teal-subtle); color: var(--text-muted); font-weight: 600;">
+                            </div>
+
+                            <div class="control-group">
+                                <label>Pinch Clip / Valve Toggle</label>
+                                <button id="clip-btn" class="toggle-btn" style="width: 100%; height: 38px; font-size: 0.9rem; font-weight: 600; gap: 8px;">
+                                    <i class="fa-solid fa-lock-open"></i> Open Valve (Unclamp)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Suction Control & Action Buttons -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Vacuum & Data Operations
+                            </h2>
+                            <div class="control-group">
+                                <label for="suction-range">
+                                    Suction / Pressure Adjustment
+                                    <span class="value-tag" id="suction-val">0%</span>
+                                </label>
+                                <input type="range" id="suction-range" min="0" max="100" value="0" disabled>
+                                <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; display: block;">Open valve first to enable suction controls.</small>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button id="record-btn" class="toggle-btn" style="flex: 1; height: 40px; background-color: var(--teal-dark); color: #fff; font-size: 0.85rem; font-weight: 600; gap: 6px;">
+                                    <i class="fa-solid fa-plus"></i> Record Data
+                                </button>
+                                <button id="clear-btn" class="toggle-btn" style="height: 40px; background-color: #fef2f2; border-color: #fecaca; color: #991b1b; font-size: 0.85rem; font-weight: 600; gap: 6px; padding: 0 16px;">
+                                    <i class="fa-solid fa-trash"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table & Chart Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table"></i>
+                            Recorded Measurements & Graph Analysis
+                        </h2>
+                        
+                        <div class="table-responsive">
+                            <table class="data-table" id="obs-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>h<sub>l</sub> (Liquid Height) [cm]</th>
+                                        <th>h<sub>w</sub> (Water Height) [cm]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 24px; position: relative; height: 250px; width: 100%;">
+                            <canvas id="hw-hl-chart"></canvas>
+                        </div>
+
+                        <div class="equation-box">
+                            <strong>Formula Reference:</strong> $h_l \cdot \rho_l = h_w \cdot \rho_w$<br>
+                            Gradient ($m$) of $h_w$ vs $h_l$ graph = $\frac{\rho_l}{\rho_w}$ &nbsp;&rightarrow;&nbsp; <strong>$\rho_l = m \cdot \rho_w$</strong>
+                            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
+                            <strong>Gradient ($m$):</strong> <span id="gradient-val">--</span> &nbsp;|&nbsp; 
+                            <strong>Experimental Relative Density:</strong> <span id="exp-density-val">--</span> &nbsp;|&nbsp; 
+                            <strong>Actual Density:</strong> <span id="actual-density-val" style="color: var(--teal-dark); font-weight: bold;">0.80</span> g/cm³
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>
+                    Designed by 
+                    <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" class="footer-link">Hexa Solutions</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Hare's Apparatus Simulator Logic
+        let state = {
+            clipOpen: false,
+            suction: 0,
+            liquidDensity: 0.8,
+            waterDensity: 1.0,
+            recordedPoints: []
+        };
+
+        const liquidSelect = document.getElementById('liquid-select');
+        const clipBtn = document.getElementById('clip-btn');
+        const clipStatusBadge = document.getElementById('clip-status-badge');
+        const clipStatusText = document.getElementById('clipStatusText');
+        const suctionRange = document.getElementById('suction-range');
+        const suctionValDisplay = document.getElementById('suction-val');
+        const recordBtn = document.getElementById('record-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const obsTableBody = document.querySelector('#obs-table tbody');
+        
+        const tubeLeft = document.getElementById('tube-left-liquid');
+        const tubeRight = document.getElementById('tube-right-water');
+        const meniscusLeft = document.getElementById('meniscus-left');
+        const meniscusRight = document.getElementById('meniscus-right');
+        const lineHl = document.getElementById('line-hl');
+        const lineHw = document.getElementById('line-hw');
+        const textHl = document.getElementById('text-hl');
+        const textHw = document.getElementById('text-hw');
+        const gradientVal = document.getElementById('gradient-val');
+        const expDensityVal = document.getElementById('exp-density-val');
+        const actualDensityVal = document.getElementById('actual-density-val');
+
+        // Setup Chart.js with Theme Colors
+        const ctx = document.getElementById('hw-hl-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Data Points (hw vs hl)',
+                        data: [],
+                        backgroundColor: '#177D81',
+                        pointRadius: 6
+                    },
+                    {
+                        label: 'Fit Line',
+                        data: [],
+                        type: 'line',
+                        borderColor: '#D98E18',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: { display: true, text: 'h_l - Liquid Height (cm)', color: '#0f2728' },
+                        min: 0,
+                        max: 30
+                    },
+                    y: {
+                        title: { display: true, text: 'h_w - Water Height (cm)', color: '#0f2728' },
+                        min: 0,
+                        max: 30
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        const BASE_Y = 400;
+        const MAX_HEIGHT_PX = 250;
+        const MAX_HEIGHT_CM = 30;
+
+        function getCurrentHeights() {
+            const maxWaterH = (state.suction / 100) * 25;
+            const hw = maxWaterH; 
+            const hl = hw / state.liquidDensity;
+
+            return {
+                hl: Math.min(hl, MAX_HEIGHT_CM),
+                hw: Math.min(hw, MAX_HEIGHT_CM)
+            };
+        }
+
+        function updateVisuals() {
+            const { hl, hw } = getCurrentHeights();
+
+            const hlPx = (hl / MAX_HEIGHT_CM) * MAX_HEIGHT_PX;
+            const hwPx = (hw / MAX_HEIGHT_CM) * MAX_HEIGHT_PX;
+
+            tubeLeft.setAttribute('y', BASE_Y - hlPx);
+            tubeLeft.setAttribute('height', hlPx);
+            meniscusLeft.setAttribute('cy', BASE_Y - hlPx);
+
+            tubeRight.setAttribute('y', BASE_Y - hwPx);
+            tubeRight.setAttribute('height', hwPx);
+            meniscusRight.setAttribute('cy', BASE_Y - hwPx);
+
+            lineHl.setAttribute('y1', BASE_Y);
+            lineHl.setAttribute('y2', BASE_Y - hlPx);
+            textHl.setAttribute('y', BASE_Y - hlPx / 2);
+            textHl.textContent = `h_l = ${hl.toFixed(1)} cm`;
+
+            lineHw.setAttribute('y1', BASE_Y);
+            lineHw.setAttribute('y2', BASE_Y - hwPx);
+            textHw.setAttribute('y', BASE_Y - hwPx / 2);
+            textHw.textContent = `h_w = ${hw.toFixed(1)} cm`;
+        }
+
+        liquidSelect.addEventListener('change', (e) => {
+            state.liquidDensity = parseFloat(e.target.value);
+            actualDensityVal.textContent = state.liquidDensity.toFixed(2);
+            updateVisuals();
+        });
+
+        clipBtn.addEventListener('click', () => {
+            state.clipOpen = !state.clipOpen;
+            if (state.clipOpen) {
+                clipBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Close Valve (Pinch Clip)';
+                clipStatusBadge.className = 'status-badge status-balanced';
+                clipStatusBadge.querySelector('i').className = 'fa-solid fa-lock-open';
+                clipStatusText.textContent = 'Valve Open';
+                suctionRange.disabled = false;
+            } else {
+                clipBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Open Valve (Unclamp)';
+                clipStatusBadge.className = 'status-badge status-unbalanced';
+                clipStatusBadge.querySelector('i').className = 'fa-solid fa-lock';
+                clipStatusText.textContent = 'Valve Closed (Pinch Clip)';
+                suctionRange.disabled = true;
+            }
+        });
+
+        suctionRange.addEventListener('input', (e) => {
+            state.suction = parseFloat(e.target.value);
+            suctionValDisplay.textContent = `${state.suction}%`;
+            updateVisuals();
+        });
+
+        recordBtn.addEventListener('click', () => {
+            const { hl, hw } = getCurrentHeights();
+
+            if (hl <= 0.1 || hw <= 0.1) return;
+
+            const noiseL = (Math.random() - 0.5) * 0.2;
+            const noiseW = (Math.random() - 0.5) * 0.2;
+
+            const recHl = parseFloat((hl + noiseL).toFixed(1));
+            const recHw = parseFloat((hw + noiseW).toFixed(1));
+
+            state.recordedPoints.push({ hl: recHl, hw: recHw });
+            renderTableAndChart();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            state.recordedPoints = [];
+            renderTableAndChart();
+        });
+
+        function renderTableAndChart() {
+            obsTableBody.innerHTML = '';
+            state.recordedPoints.forEach((pt, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${index + 1}</strong></td>
+                    <td>${pt.hl.toFixed(1)}</td>
+                    <td>${pt.hw.toFixed(1)}</td>
+                `;
+                obsTableBody.appendChild(row);
+            });
+
+            const scatterData = state.recordedPoints.map(pt => ({ x: pt.hl, y: pt.hw }));
+            chart.data.datasets[0].data = scatterData;
+
+            if (state.recordedPoints.length >= 2) {
+                let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+                const n = state.recordedPoints.length;
+
+                state.recordedPoints.forEach(pt => {
+                    sumX += pt.hl;
+                    sumY += pt.hw;
+                    sumXY += (pt.hl * pt.hw);
+                    sumX2 += (pt.hl * pt.hl);
+                });
+
+                const gradient = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                
+                const maxX = Math.max(...state.recordedPoints.map(p => p.x || p.hl), 25);
+                chart.data.datasets[1].data = [
+                    { x: 0, y: 0 },
+                    { x: maxX, y: gradient * maxX }
+                ];
+
+                gradientVal.textContent = gradient.toFixed(3);
+                expDensityVal.textContent = (gradient * state.waterDensity).toFixed(3) + ' g/cm³';
+            } else {
+                chart.data.datasets[1].data = [];
+                gradientVal.textContent = '--';
+                expDensityVal.textContent = '--';
+            }
+
+            chart.update();
+
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        updateVisuals();
+    </script>
+</body>
+</html>
