@@ -41,7 +41,6 @@ window.adminLogin = async () => {
     errBox.textContent = e.message.replace('Firebase: ', '');
   }
 };
-
 window.adminLogout = async () => { await signOut(auth); };
 
 onAuthStateChanged(auth, (user) => {
@@ -116,7 +115,6 @@ function setupAdPreview() {
     document.getElementById(id).addEventListener('input', updatePreview)
   );
 }
-
 function updatePreview() {
   document.getElementById('previewImg').src = document.getElementById('adImageUrl').value || 'https://via.placeholder.com/400x225?text=16:9+Ad+Preview';
   document.getElementById('previewBtn').textContent = document.getElementById('adBtnName').value || 'Button Name';
@@ -166,7 +164,7 @@ async function loadAds() {
       <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
       <div class="info"><h4>${a.buttonName} <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">${a.status.toUpperCase()}</span></h4>
       <p>📝 ${a.description || 'No description'}</p>
-      <p>🔗 ${a.buttonUrl}</p><p>⏰ Remind after ${a.remindDays} days</p></div>
+      <p> ${a.buttonUrl}</p><p> Remind after ${a.remindDays} days</p></div>
       <div class="actions">
         <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
         <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -261,25 +259,61 @@ window.exportPDF = async () => {
   pdf.addImage(imgData, 'PNG', 5, 20, pdfW - 10, pdfH - 10); pdf.save(`ScienceLab_Analytics_${new Date().toISOString().split('T')[0]}.pdf`); toast('PDF downloaded');
 };
 
-// ============ YOUTUBE GUIDES ============
+// ============ YOUTUBE GUIDES (UPDATED WITH DESCRIPTION) ============
 window.saveYouTubeGuide = async () => {
-  const practicalId = document.getElementById('ytPractical').value, url = document.getElementById('ytUrl').value.trim(), title = document.getElementById('ytTitle').value.trim();
+  const practicalId = document.getElementById('ytPractical').value;
+  const url = document.getElementById('ytUrl').value.trim();
+  const title = document.getElementById('ytTitle').value.trim();
+  const description = document.getElementById('ytDescription').value.trim(); // NEW
+  
   if (!url) return toast('Please enter YouTube URL', true);
   const p = PRACTICALS.find(x => x.id === practicalId);
+  
   try {
-    const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', practicalId)); const existing = await getDocs(q);
-    if (!existing.empty) { await updateDoc(doc(db, 'youtubeGuides', existing.docs[0].id), { youtubeUrl: url, title: title || p.name, updatedAt: serverTimestamp() }); toast('Guide updated'); } 
-    else { await addDoc(collection(db, 'youtubeGuides'), { practicalId, practicalName: p.name, youtubeUrl: url, title: title || p.name, createdAt: serverTimestamp() }); toast('Guide added'); }
-    document.getElementById('ytUrl').value = ''; document.getElementById('ytTitle').value = ''; loadYouTubeGuides(); loadStats();
+    const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', practicalId));
+    const existing = await getDocs(q);
+    if (!existing.empty) {
+      await updateDoc(doc(db, 'youtubeGuides', existing.docs[0].id), {
+        youtubeUrl: url, title: title || p.name, description: description, updatedAt: serverTimestamp()
+      });
+      toast('Guide updated');
+    } else {
+      await addDoc(collection(db, 'youtubeGuides'), {
+        practicalId, practicalName: p.name, youtubeUrl: url,
+        title: title || p.name, description: description, createdAt: serverTimestamp()
+      });
+      toast('Guide added');
+    }
+    document.getElementById('ytUrl').value = '';
+    document.getElementById('ytTitle').value = '';
+    document.getElementById('ytDescription').value = ''; // NEW
+    loadYouTubeGuides();
+    loadStats();
   } catch (e) { toast('Error: ' + e.message, true); }
 };
+
 async function loadYouTubeGuides() {
-  const snap = await getDocs(collection(db, 'youtubeGuides')); const list = document.getElementById('ytList');
+  const snap = await getDocs(collection(db, 'youtubeGuides'));
+  const list = document.getElementById('ytList');
   if (snap.empty) { list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No guides yet</p>'; return; }
   list.innerHTML = '';
   snap.docs.forEach(d => {
-    const g = d.data(); const ytId = g.youtubeUrl.match(/(?:v=|youtu\.be\/)([^"&?\/\s]{11})/)?.[1]; const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/120x70';
-    list.innerHTML += `<div class="list-item"><img class="thumb" src="${thumb}" style="width:120px; height:70px;"><div class="info"><h4>${g.practicalName}</h4><p>📹 ${g.title || 'Untitled'}</p><p>🔗 ${g.youtubeUrl}</p></div><div class="actions"><a href="${g.youtubeUrl}" target="_blank" class="icon-btn"><i class="fa-solid fa-play"></i></a><button class="icon-btn danger" onclick="deleteGuide('${d.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
+    const g = d.data();
+    const ytId = g.youtubeUrl.match(/(?:v=|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+    const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/120x70';
+    list.innerHTML += `<div class="list-item">
+      <img class="thumb" src="${thumb}" style="width:120px; height:70px;">
+      <div class="info">
+        <h4>${g.practicalName}</h4>
+        <p>📹 ${g.title || 'Untitled'}</p>
+        <p>📝 ${g.description || 'No description'}</p>
+        <p>🔗 ${g.youtubeUrl}</p>
+      </div>
+      <div class="actions">
+        <a href="${g.youtubeUrl}" target="_blank" class="icon-btn" title="Watch"><i class="fa-solid fa-play"></i></a>
+        <button class="icon-btn danger" onclick="deleteGuide('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
   });
 }
 window.deleteGuide = async (id) => { if (!confirm('Delete?')) return; await deleteDoc(doc(db, 'youtubeGuides', id)); toast('Deleted'); loadYouTubeGuides(); loadStats(); };
