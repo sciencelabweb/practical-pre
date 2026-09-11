@@ -1,262 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScienceLab: Rate Our App & Feedback</title>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .rate-container {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .star-rating {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            font-size: 2rem;
-            color: #cbd5e1;
-            cursor: pointer;
-            margin: 20px 0;
-        }
-        .star-rating i:hover,
-        .star-rating i.active {
-            color: var(--accent-yellow);
-        }
-        .feedback-textarea {
-            width: 100%;
-            height: 120px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            resize: vertical;
-            background-color: var(--bg-card);
-            margin-bottom: 20px;
-            outline: none;
-        }
-        .feedback-textarea:focus {
-            border-color: var(--teal-dark);
-        }
-        .success-msg {
-            display: none;
-            background-color: var(--teal-subtle);
-            color: var(--teal-dark);
-            border: 1px solid var(--teal-light);
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-top: 15px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScienceLab: Rate Our App & Feedback</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="app-layout">
-        <!-- Mobile Overlay -->
-        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <i class="fa-solid fa-flask"></i>
+        ScienceLab
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="12.html" class="nav-item">
+        <i class="fa-solid fa-microscope"></i> Travelling Microscope
+        <span class="menu-tag">Free</span>
+      </a>
+      <a href="10.html" class="nav-item">
+        <i class="fa-solid fa-circle-dot"></i> Micrometer Gauge
+      </a>
+      <a href="11.html" class="nav-item">
+        <i class="fa-solid fa-compass-drafting"></i> Spherometer Lab
+      </a>
+      <a href="2.html" class="nav-item">
+        <i class="fa-solid fa-arrows-up-down"></i> Forces Simulator
+      </a>
+      <a href="3.html" class="nav-item">
+        <i class="fa-solid fa-scale-balanced"></i> Moments Simulator
+      </a>
+      <a href="4.html" class="nav-item">
+        <i class="fa-solid fa-temperature-half"></i> Hare's Apparatus
+        <span class="menu-tag">Free</span>
+      </a>
+      <a href="5.html" class="nav-item">
+        <i class="fa-solid fa-beaker"></i> U-Tube Density
+      </a>
+      <a href="6.html" class="nav-item">
+        <i class="fa-solid fa-flask-vial"></i> Liquid Density
+      </a>
+      <a href="7.html" class="nav-item">
+        <i class="fa-solid fa-clock"></i> Simple Pendulum
+      </a>
+      <a href="8.html" class="nav-item">
+        <i class="fa-solid fa-wave-square"></i> Helical Spring
+      </a>
+      <a href="13.html" class="nav-item">
+        <i class="fa-solid fa-guitar"></i> Sonometer Practical
+      </a>
+      <a href="14.html" class="nav-item">
+        <i class="fa-solid fa-tower-broadcast"></i> Resonance Tube Practical
+      </a>
+      <a href="15.html" class="nav-item">
+        <i class="fa-solid fa-droplet"></i> Relative Humidity
+        <span class="menu-tag">Free</span>
+      </a>
+      <a href="16.html" class="nav-item">
+        <i class="fa-solid fa-gauge-high"></i> Gas Law Simulator
+      </a>
+      <a href="premium.html" class="nav-item">
+        <i class="fa-solid fa-crown"></i> Go Premium (Rs 999)
+      </a>
+      <a href="rate.html" class="nav-item active">
+        <i class="fa-solid fa-star"></i> Rate Our App
+      </a>
+    </nav>
+  </aside>
 
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-container">
-                    <i class="fa-solid fa-flask-vial fa-lg"></i>
-                    <span>ScienceLab</span>
-                </div>
-                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="12.html" class="nav-item">
-                    <i class="fa-solid fa-microscope"></i>
-                    <span>Travelling Microscope</span>
-                    <span class="menu-tag">Free</span>
-                </a>
-                <a href="10.html" class="nav-item">
-                    <i class="fa-solid fa-microscope"></i>
-                    <span>Micrometer Gauge</span>
-                </a>
-                <a href="11.html" class="nav-item">
-                    <i class="fa-solid fa-microscope"></i>
-                    <span>Spherometer Lab</span>
-                </a>
-                <a href="2.html" class="nav-item">
-                    <i class="fa-solid fa-diagram-project"></i>
-                    <span>Forces Simulator</span>
-                </a>
-                <a href="3.html" class="nav-item">
-                    <i class="fa-solid fa-scale-balanced"></i>
-                    <span>Moments Simulator</span>
-                </a>
-                <a href="4.html" class="nav-item">
-                    <i class="fa-solid fa-vial-circle-check"></i>
-                    <span>Hare's Apparatus</span>
-                    <span class="menu-tag">Free</span>
-                </a>
-                <a href="5.html" class="nav-item">
-                    <i class="fa-solid fa-vial"></i>
-                    <span>U-Tube Density</span>
-                </a>
-                <a href="6.html" class="nav-item">
-                    <i class="fa-solid fa-vial"></i>
-                    <span>Liquid Density</span>
-                </a>
-                <a href="7.html" class="nav-item">
-                    <i class="fa-solid fa-stopwatch"></i>
-                    <span>Simple Pendulum</span>
-                </a>
-                <a href="8.html" class="nav-item">
-                    <i class="fa-solid fa-wave-square"></i>
-                    <span>Helical Spring</span>
-                </a>
-                <a href="13.html" class="nav-item">
-                    <i class="fa-solid fa-wave-square"></i>
-                    <span>Sonometer Practical</span>
-                </a>
-                <a href="14.html" class="nav-item">
-                    <i class="fa-solid fa-wave-square"></i>
-                    <span>Resonance Tube Practical</span>
-                </a>
-                <a href="15.html" class="nav-item">
-                    <i class="fa-solid fa-droplet"></i>
-                    <span>Relative Humidity</span>
-                    <span class="menu-tag">Free</span>
-                </a>
-                <a href="16.html" class="nav-item">
-                    <i class="fa-solid fa-temperature-high"></i>
-                    <span>Gas Law Simulator</span>
-                </a>
-                <!-- Extra Links for Navigation completeness -->
-                <a href="premium.html" class="nav-item" style="color: var(--accent-yellow); font-weight: 700;">
-                    <i class="fa-solid fa-crown"></i>
-                    <span>Go Premium (Rs 999)</span>
-                </a>
-                <a href="rate.html" class="nav-item active">
-                    <i class="fa-solid fa-star"></i>
-                    <span>Rate Our App</span>
-                </a>
-            </nav>
-        </aside>
+  <!-- Overlay for mobile -->
+  <div class="overlay" id="overlay"></div>
 
-        <!-- Main Content Wrapper -->
-        <div class="main-wrapper" id="mainWrapper">
-            <!-- Top Header Bar -->
-            <header class="top-header">
-                <div class="header-left">
-                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-                </div>
-                <div class="header-title">
-                    <h1>Rate & Feedback</h1>
-                </div>
-                <div class="header-right"></div>
-            </header>
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <!-- Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="toggle-btn" id="toggleBtn">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+      <div class="header-title">
+        <h1>Rate & Feedback</h1>
+      </div>
+      <div></div>
+    </header>
 
-            <!-- Main Content Area -->
-            <main class="content-body">
-                <div class="container rate-container">
-                    <div class="card">
-                        <h2 class="card-title" style="justify-content: center;">
-                            <i class="fa-solid fa-star"></i>
-                            How would you rate ScienceLab?
-                        </h2>
-                        <p class="theory-text">Your feedback helps us refine simulations and add new physics practical setups.</p>
-                        
-                        <!-- Interactive Star Rating -->
-                        <div class="star-rating" id="starRating">
-                            <i class="fa-solid fa-star" data-value="1"></i>
-                            <i class="fa-solid fa-star" data-value="2"></i>
-                            <i class="fa-solid fa-star" data-value="3"></i>
-                            <i class="fa-solid fa-star" data-value="4"></i>
-                            <i class="fa-solid fa-star" data-value="5"></i>
-                        </div>
-
-                        <div class="control-group" style="text-align: left;">
-                            <label for="feedbackText">Tell us what you like or what we can improve:</label>
-                            <textarea id="feedbackText" class="feedback-textarea" placeholder="Mention features, performance feedback, or missing apparatus requests..."></textarea>
-                        </div>
-
-                        <button class="btn" id="submitFeedback">
-                            <i class="fa-solid fa-paper-plane"></i> Submit Feedback
-                        </button>
-
-                        <div class="success-msg" id="successMsg">
-                            <i class="fa-solid fa-circle-check"></i> Thank you! Your review has been recorded successfully.
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <!-- Footer -->
-            <footer class="footer">
-                <div class="footer-links-group">
-                    <a href="https://www.learny.study" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-learny">Learny App</a>
-                    <span style="color: var(--text-muted);">|</span>
-                    <a href="https://t.me/sciencepicco" target="_blank" rel="noopener noreferrer" class="footer-custom-link footer-science">Science Picco</a>
-                </div>
-                <p>
-                    Designed by 
-                    <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" class="footer-link">Hexa Solutions</a>
-                </p>
-            </footer>
+    <!-- Content Body -->
+    <div class="content-body">
+      <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-title">
+          <i class="fa-solid fa-star" style="color: #D98E18;"></i> Rate & Feedback
         </div>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
+          Your feedback helps us refine simulations and add new physics practical setups.
+        </p>
+
+        <form id="feedbackForm">
+          <!-- Interactive Star Rating -->
+          <div class="control-group">
+            <label>How would you rate ScienceLab?</label>
+            <div style="display: flex; gap: 8px; font-size: 2rem; color: #cbd5e1; cursor: pointer; margin-bottom: 8px;" id="starContainer">
+              <span data-value="1" class="star">★</span>
+              <span data-value="2" class="star">★</span>
+              <span data-value="3" class="star">★</span>
+              <span data-value="4" class="star">★</span>
+              <span data-value="5" class="star">★</span>
+            </div>
+            <input type="hidden" id="ratingValue" name="rating" value="5">
+            <p style="font-size: 0.85rem; color: var(--teal-dark); font-weight: 600;" id="ratingText">Selected: 5 Stars</p>
+          </div>
+
+          <!-- Message Textarea -->
+          <div class="control-group">
+            <label for="feedbackMessage">Tell us what you like or what we can improve:</label>
+            <textarea id="feedbackMessage" name="message" rows="4" placeholder="e.g., The micrometer simulator is great, but please add more specimens..." style="width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 12px; font-family: inherit; font-size: 1rem; resize: vertical; outline: none;"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn" id="submitBtn" style="margin-top: 8px;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Feedback
+          </button>
+          
+          <!-- Success Message (Hidden by default) -->
+          <div id="successMessage" style="display: none; margin-top: 16px; padding: 14px; background: #dcfce7; color: #166534; border-radius: 12px; text-align: center; font-weight: 600; border: 1px solid #86efac;">
+            <i class="fa-solid fa-check-circle"></i> Thank you! Your review has been recorded successfu.
+          </div>
+        </form>
+      </div>
     </div>
 
-<script src="menu.js"></script>
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainWrapper = document.getElementById('mainWrapper');
-            const overlay = document.getElementById('overlay');
-            
-            if (window.innerWidth <= 992) {
-                sidebar.classList.toggle('mobile-open');
-                overlay.classList.toggle('active');
-            } else {
-                sidebar.classList.toggle('collapsed');
-                mainWrapper.classList.toggle('expanded');
-            }
-        }
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-links-group">
+        <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+          <i class="fa-solid fa-graduation-cap"></i> Learny App
+        </a>
+        <span style="color: var(--text-muted);">|</span>
+        <a href="https://t.me/sciencepicco" class="footer-custom-link footer-science" target="_blank">
+          <i class="fa-brands fa-telegram"></i> Science Picco
+        </a>
+      </div>
+      <p>
+        Designed by 
+        <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a>
+      </p>
+    </footer>
+  </div>
+</div>
 
-        // Star Rating Logic
-        const stars = document.querySelectorAll('#starRating i');
-        let selectedRating = 0;
+<!-- Sidebar Toggle Script -->
+<script>
+  const toggleBtn = document.getElementById('toggleBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+  });
+  
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+  });
+</script>
 
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.getAttribute('data-value'));
-                stars.forEach((s, idx) => {
-                    if (idx < selectedRating) {
-                        s.classList.add('active');
-                    } else {
-                        s.classList.remove('active');
-                    }
-                });
-            });
-        });
-
-        document.getElementById('submitFeedback').addEventListener('click', () => {
-            if (selectedRating === 0) {
-                alert('Please select a star rating before submitting.');
-                return;
-            }
-            document.getElementById('successMsg').style.display = 'block';
-            document.getElementById('feedbackText').value = '';
-            setTimeout(() => {
-                stars.forEach(s => s.classList.remove('active'));
-                selectedRating = 0;
-            }, 1500);
-        });
-    </script>
-    <script type="module">
+<!-- Firebase Feedback Submission Script -->
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -272,18 +189,46 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const form = document.querySelector('form');
+  // 1. Star Rating Interaction Logic
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('ratingValue');
+  const ratingText = document.getElementById('ratingText');
+
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      const value = parseInt(star.getAttribute('data-value'));
+      ratingInput.value = value;
+      ratingText.textContent = `Selected: ${value} Star${value > 1 ? 's' : ''}`;
+      
+      // Color the stars
+      stars.forEach(s => {
+        if (parseInt(s.getAttribute('data-value')) <= value) {
+          s.style.color = '#D98E18'; // Amber/Yellow for selected
+        } else {
+          s.style.color = '#cbd5e1'; // Gray for unselected
+        }
+      });
+    });
+  });
+
+  // Initialize stars to 5 on load
+  stars.forEach(s => s.style.color = '#D98E18');
+
+  // 2. Form Submission Logic
+  const form = document.getElementById('feedbackForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const successMsg = document.getElementById('successMessage');
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      // 1. Get Rating (finds any checked radio button)
-      const ratingEl = document.querySelector('input[name="rating"]:checked') || document.querySelector('input[type="radio"]:checked');
-      const rating = ratingEl ? parseInt(ratingEl.value) : 5;
-      
-      // 2. Get Message (finds textarea or message input)
-      const msgEl = document.querySelector('textarea') || document.querySelector('input[name="message"]') || document.querySelector('input[name="feedback"]');
-      const message = msgEl ? msgEl.value.trim() : '';
+      const rating = parseInt(ratingInput.value) || 5;
+      const message = document.getElementById('feedbackMessage').value.trim();
+
+      // Disable button to prevent double submission
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
       try {
         await addDoc(collection(db, 'feedbacks'), {
@@ -292,14 +237,32 @@
           page: 'rate.html',
           createdAt: serverTimestamp()
         });
-        alert("Thank you! Your review has been recorded successfull.");
-        form.reset(); // Clear the form after success
+        
+        // Show success, reset form
+        successMsg.style.display = 'block';
+        form.reset();
+        ratingInput.value = 5;
+        ratingText.textContent = 'Selected: 5 Stars';
+        stars.forEach(s => s.style.color = '#D98E18');
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          successMsg.style.display = 'none';
+        }, 5000);
+        
       } catch (err) {
         console.error("Feedback error:", err);
-        alert("Failed to submit feedback. Please check your connection.");
+        alert("Failed to submit feedback. Please check your internet connection.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Feedback';
       }
     });
   }
 </script>
+
+<!-- Popup Ad Script (Loads ads from Firebase) -->
+<script type="module" src="ad-popup.js"></script>
+
 </body>
 </html>
