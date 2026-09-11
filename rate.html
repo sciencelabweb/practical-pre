@@ -277,5 +277,37 @@ document.querySelector('form')?.addEventListener('submit', async (e) => {
   // Show your existing success message
 });
 </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyCqZ2z6cLSV-cygTigtgc6TyKcRgxeYoy4",
+    authDomain: "sciencelab-admin.firebaseapp.com",
+    projectId: "sciencelab-admin",
+    storageBucket: "sciencelab-admin.firebasestorage.app",
+    messagingSenderId: "79590520524",
+    appId: "1:79590520524:web:41bc1b93236e98107e7469",
+    measurementId: "G-VPRS1JY8D2"
+  });
+  const db = getFirestore(app);
+
+  // Assuming your form has a submit button or you can attach this to your existing submit logic
+  document.querySelector('form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rating = document.querySelector('input[name="rating"]:checked')?.value || 5;
+    const message = document.querySelector('textarea')?.value || '';
+    
+    await addDoc(collection(db, 'feedbacks'), {
+      rating: parseInt(rating),
+      message: message,
+      page: 'rate.html',
+      createdAt: serverTimestamp()
+    });
+    
+    // Show your existing success message here
+    alert("Thank you! Your review has been recorded successfully.");
+  });
+</script>
 </body>
 </html>
