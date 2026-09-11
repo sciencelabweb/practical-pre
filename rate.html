@@ -210,7 +210,52 @@
         </div>
     </div>
 
+<script src="menu.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
 
+        // Star Rating Logic
+        const stars = document.querySelectorAll('#starRating i');
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-value'));
+                stars.forEach((s, idx) => {
+                    if (idx < selectedRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        document.getElementById('submitFeedback').addEventListener('click', () => {
+            if (selectedRating === 0) {
+                alert('Please select a star rating before submitting.');
+                return;
+            }
+            document.getElementById('successMsg').style.display = 'block';
+            document.getElementById('feedbackText').value = '';
+            setTimeout(() => {
+                stars.forEach(s => s.classList.remove('active'));
+                selectedRating = 0;
+            }, 1500);
+        });
+    </script>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -247,7 +292,7 @@
           page: 'rate.html',
           createdAt: serverTimestamp()
         });
-        alert("Thank you! Your review has been recorded successful.");
+        alert("Thank you! Your review has been recorded successfull.");
         form.reset(); // Clear the form after success
       } catch (err) {
         console.error("Feedback error:", err);
