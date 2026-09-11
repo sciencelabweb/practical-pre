@@ -9,6 +9,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const PRACTICALS = [
+  { id: '1', name: 'Home', file: 'index.html' },
   { id: '2', name: 'Forces Simulator', file: '2.html' },
   { id: '3', name: 'Moments Simulator', file: '3.html' },
   { id: '4', name: "Hare's Apparatus", file: '4.html' },
