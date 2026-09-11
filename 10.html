@@ -609,7 +609,7 @@ function closeAuthModal() {
     };
   })();
 </script>
-    <script type="module">
+   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -631,49 +631,65 @@ function closeAuthModal() {
   // ==========================================
   // 1. TRACK VIEW (STRICTLY ONCE PER DAY)
   // ==========================================
-  const today = new Date().toISOString().split('T')[0]; // Format: "2026-09-11"
+  const today = new Date().toISOString().split('T')[0];
   const viewKey = `viewed_${PRACTICAL_ID}_${today}`;
   
   if (!localStorage.getItem(viewKey)) {
     await addDoc(collection(db, 'views'), {
-      practicalId: PRACTICAL_ID,
-      date: today,
-      count: 1,
-      timestamp: serverTimestamp()
+      practicalId: PRACTICAL_ID, date: today, count: 1, timestamp: serverTimestamp()
     });
-    localStorage.setItem(viewKey, '1'); // Lock it for the rest of the day
-    console.log("✅ View tracked for", PRACTICAL_ID);
+    localStorage.setItem(viewKey, '1');
   }
 
   // ==========================================
-  // 2. LOAD YOUTUBE GUIDE (If assigned in Admin)
+  // 2. LOAD YOUTUBE GUIDE (NEW DESIGN)
   // ==========================================
   const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', PRACTICAL_ID));
   const snap = await getDocs(q);
+  
   if (!snap.empty) {
     const g = snap.docs[0].data();
-    const ytId = g.youtubeUrl.match(/(?:v=|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
     
-    if (ytId) {
-      const box = document.createElement('div');
-      box.className = 'card'; // Uses your existing style.css card design
-      box.style.marginTop = '24px';
-      box.innerHTML = `
-        <div class="card-title"><i class="fa-brands fa-youtube" style="color:#dc2626;"></i> ${g.title || 'Video Guide'}</div>
-        <div style="position:relative; padding-bottom:56.25%; height:0; border-radius:12px; overflow:hidden; border: 1px solid var(--border-color);">
-          <iframe src="https://www.youtube.com/embed/${ytId}" style="position:absolute; inset:0; width:100%; height:100%; border:0;" allowfullscreen loading="lazy"></iframe>
-        </div>`;
-      
-      // Intelligently find where to append the video (fallback selectors)
-      const target = document.querySelector('.content-body') || document.querySelector('.container') || document.querySelector('main') || document.body;
-      target.appendChild(box);
+    // Create the Guide Card
+    const guideCard = document.createElement('div');
+    guideCard.className = 'card';
+    guideCard.style.cssText = 'margin-top: 32px; border-left: 5px solid #dc2626;';
+    
+    guideCard.innerHTML = `
+      <div class="card-title" style="border-bottom-color: #fee2e2;">
+        <i class="fa-brands fa-youtube" style="color:#dc2626; background:#fee2e2;"></i> 
+        Video Guide
+      </div>
+      <h3 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.15rem; font-weight: 700;">
+        ${g.title || 'Step-by-Step Guide'}
+      </h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6;">
+        ${g.description || 'Watch the complete video guide for this practical experiment.'}
+      </p>
+      <a href="${g.youtubeUrl}" target="_blank" rel="noopener noreferrer" 
+         style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; 
+                background: #dc2626; color: #fff; border-radius: 12px; 
+                text-decoration: none; font-weight: 700; font-size: 1rem;
+                box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3); transition: all 0.2s;">
+        <i class="fa-solid fa-play"></i> Watch Now
+      </a>
+    `;
+
+    // Add hover effect to button
+    const btn = guideCard.querySelector('a');
+    btn.onmouseenter = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 6px 20px rgba(220, 38, 38, 0.4)'; };
+    btn.onmouseleave = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 4px 14px rgba(220, 38, 38, 0.3)'; };
+
+    // Append to the end of the content body
+    const target = document.querySelector('.content-body');
+    if (target) {
+      target.appendChild(guideCard);
     }
   }
 </script>
 
-<!-- ========================================== -->
-<!-- 3. LOAD POPUP AD (Required on all user pages) -->
-<!-- ========================================== -->
+<!-- Include the ad popup on every page -->
+
 <script type="module" src="ad-popup.js"></script>
 </body>
 </html>
