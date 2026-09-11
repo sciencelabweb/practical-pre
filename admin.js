@@ -9,7 +9,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const PRACTICALS = [
-  { id: '1', name: 'Home', file: 'index.html' },
+    { id: '1', name: 'Home', file: 'index.html' },
   { id: '2', name: 'Forces Simulator', file: '2.html' },
   { id: '3', name: 'Moments Simulator', file: '3.html' },
   { id: '4', name: "Hare's Apparatus", file: '4.html' },
@@ -29,6 +29,35 @@ const PRACTICALS = [
 let viewsChart = null;
 let editingAdId = null;
 
+// ============ HELPER FUNCTIONS (IP & DEVICE) ============
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let os = "Unknown OS";
+  if (ua.indexOf("Win") !== -1) os = "Windows";
+  else if (ua.indexOf("Mac") !== -1) os = "MacOS";
+  else if (ua.indexOf("Linux") !== -1) os = "Linux";
+  else if (ua.indexOf("Android") !== -1) os = "Android";
+  else if (ua.indexOf("like Mac") !== -1) os = "iOS";
+
+  let browser = "Unknown Browser";
+  if (ua.indexOf("Chrome") !== -1 && ua.indexOf("Edg") === -1) browser = "Chrome";
+  else if (ua.indexOf("Safari") !== -1 && ua.indexOf("Chrome") === -1) browser = "Safari";
+  else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
+  else if (ua.indexOf("Edg") !== -1) browser = "Edge";
+
+  return `${os} / ${browser}`;
+}
+
+async function fetchAdminIp() {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    return 'Unavailable';
+  }
+}
+
 // ============ AUTH ============
 window.adminLogin = async () => {
   const email = document.getElementById('loginEmail').value.trim();
@@ -42,13 +71,26 @@ window.adminLogin = async () => {
     errBox.textContent = e.message.replace('Firebase: ', '');
   }
 };
-window.adminLogout = async () => { await signOut(auth); };
 
-onAuthStateChanged(auth, (user) => {
+window.adminLogout = async () => {
+  await signOut(auth);
+  // Clear session details on logout
+  document.getElementById('adminIp').textContent = '---';
+  document.getElementById('adminDevice').textContent = '---';
+  document.getElementById('adminLoginTime').textContent = '---';
+};
+
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminLayout').classList.add('active');
     document.getElementById('adminEmail').textContent = user.email;
+    
+    // Populate Session Info
+    document.getElementById('adminIp').textContent = await fetchAdminIp();
+    document.getElementById('adminDevice').textContent = getDeviceInfo();
+    document.getElementById('adminLoginTime').textContent = new Date().toLocaleString();
+
     initDashboard();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
@@ -165,7 +207,7 @@ async function loadAds() {
       <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
       <div class="info"><h4>${a.buttonName} <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">${a.status.toUpperCase()}</span></h4>
       <p>📝 ${a.description || 'No description'}</p>
-      <p>🔗 ${a.buttonUrl}</p><p>⏰ Remind after ${a.remindDays} days</p></div>
+      <p> ${a.buttonUrl}</p><p> Remind after ${a.remindDays} days</p></div>
       <div class="actions">
         <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
         <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -252,68 +294,30 @@ window.applyDateFilter = () => {
   renderChart(filtered); renderAnalyticsTable(filtered); toast('Filter applied');
 };
 
-// ============ PDF EXPORT (UPDATED: Shows Total Views per Practical) ============
+// ============ PDF EXPORT ============
 window.exportPDF = async () => {
   toast('Generating PDF Report...');
   const { jsPDF } = window.jspdf;
-  
-  // Calculate total views per practical from all loaded data
   const counts = {};
-  allViewsData.forEach(v => {
-    counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0);
-  });
+  allViewsData.forEach(v => { counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0); });
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  
-  // Build HTML table rows
   let tableRows = '';
   sorted.forEach(([id, count], index) => {
     const p = PRACTICALS.find(x => x.id === id);
     const name = p ? p.name : `Practical ${id}`;
-    tableRows += `
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 14px; text-align: left; color: #333; font-size: 14px;">${index + 1}. ${name}</td>
-        <td style="padding: 14px; text-align: right; font-weight: bold; color: #177D81; font-size: 14px;">${count.toLocaleString()}</td>
-      </tr>`;
+    tableRows += `<tr style="border-bottom: 1px solid #eee;"> <td style="padding: 14px; text-align: left; color: #333; font-size: 14px;">${index + 1}. ${name}</td> <td style="padding: 14px; text-align: right; font-weight: bold; color: #177D81; font-size: 14px;">${count.toLocaleString()}</td> </tr>`;
   });
-
-  // Create a hidden container specifically for the PDF
   const pdfContainer = document.createElement('div');
   pdfContainer.style.cssText = 'position: absolute; left: -9999px; width: 800px; background: #fff; padding: 40px; font-family: "Plus Jakarta Sans", sans-serif;';
-  pdfContainer.innerHTML = `
-    <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #177D81; padding-bottom: 20px;">
-      <h1 style="color: #177D81; margin: 0; font-size: 28px; font-weight: 800;">ScienceLab Analytics Report</h1>
-      <p style="color: #666; margin-top: 10px; font-size: 16px; font-weight: 600;">Total Page Views per Practical</p>
-      <p style="color: #999; font-size: 12px; margin-top: 5px;">Generated on: ${new Date().toLocaleString()} | By Hexa Solutions</3p>
-    </div>
-    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-      <thead>
-        <tr style="background-color: #f0f7f5;">
-          <th style="padding: 14px; text-align: left; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Practical Name</th>
-          <th style="padding: 14px; text-align: right; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Total Views</th>
-        </tr>
-      </thead>
-      <tbody>${tableRows}</tbody>
-    </table>
-    <div style="margin-top: 40px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
-      Powered by <strong style="color:#177D81;">Hexa Solutions</strong> (hexasolutions.online)
-    </div>
-  `;
-  
+  pdfContainer.innerHTML = `<div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #177D81; padding-bottom: 20px;"> <h1 style="color: #177D81; margin: 0; font-size: 28px; font-weight: 800;">ScienceLab Analytics Report</h1> <p style="color: #666; margin-top: 10px; font-size: 16px; font-weight: 600;">Total Page Views per Practical</p> <p style="color: #999; font-size: 12px; margin-top: 5px;">Generated on: ${new Date().toLocaleString()} | By Hexa Solutions</p> </div> <table style="width: 100%; border-collapse: collapse; margin-top: 20px;"> <thead> <tr style="background-color: #f0f7f5;"> <th style="padding: 14px; text-align: left; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Practical Name</th> <th style="padding: 14px; text-align: right; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Total Views</th> </tr> </thead> <tbody>${tableRows}</tbody> </table> <div style="margin-top: 40px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;"> Powered by <strong style="color:#177D81;">Hexa Solutions</strong> (hexasolutions.online) </div>`;
   document.body.appendChild(pdfContainer);
-  
-  // Render the hidden container to canvas
   const canvas = await html2canvas(pdfContainer, { scale: 2, backgroundColor: '#ffffff' });
   const imgData = canvas.toDataURL('image/png');
-  
-  // Generate PDF
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-  
   pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
   pdf.save(`ScienceLab_Total_Views_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-  
-  // Clean up
   document.body.removeChild(pdfContainer);
   toast('PDF downloaded successfully!');
 };
@@ -324,18 +328,14 @@ window.saveYouTubeGuide = async () => {
   const url = document.getElementById('ytUrl').value.trim();
   const title = document.getElementById('ytTitle').value.trim();
   const description = document.getElementById('ytDescription') ? document.getElementById('ytDescription').value.trim() : '';
-  
   if (!url) return toast('Please enter YouTube URL', true);
-  
   let fixedUrl = url;
   if (!url.startsWith('http://') && !url.startsWith('https://')) fixedUrl = 'https://' + url;
-  
   const p = PRACTICALS.find(x => x.id === practicalId);
   try {
     const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', practicalId));
     const existing = await getDocs(q);
     if (existing.size >= 5) return toast('Maximum 5 guides allowed per practical. Delete one first.', true);
-    
     await addDoc(collection(db, 'youtubeGuides'), {
       practicalId, practicalName: p.name, youtubeUrl: fixedUrl,
       title: title || 'Guide ' + (existing.size + 1), description: description, createdAt: serverTimestamp()
@@ -351,14 +351,12 @@ async function loadYouTubeGuides() {
   const snap = await getDocs(collection(db, 'youtubeGuides'));
   const list = document.getElementById('ytList');
   if (snap.empty) { list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No guides yet</p>'; return; }
-  
   const guidesByPractical = {};
   snap.docs.forEach(doc => {
     const data = doc.data();
     if (!guidesByPractical[data.practicalId]) guidesByPractical[data.practicalId] = [];
     guidesByPractical[data.practicalId].push({ id: doc.id, ...data });
   });
-  
   list.innerHTML = '';
   Object.keys(guidesByPractical).forEach(practicalId => {
     const guides = guidesByPractical[practicalId];
