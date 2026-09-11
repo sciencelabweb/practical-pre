@@ -8,7 +8,6 @@ import {
   query, orderBy, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ============ PRACTICALS LIST (sync with your site) ============
 const PRACTICALS = [
   { id: '2', name: 'Forces Simulator', file: '2.html' },
   { id: '3', name: 'Moments Simulator', file: '3.html' },
@@ -43,9 +42,7 @@ window.adminLogin = async () => {
   }
 };
 
-window.adminLogout = async () => {
-  await signOut(auth);
-};
+window.adminLogout = async () => { await signOut(auth); };
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -65,44 +62,28 @@ window.switchSection = (id, el) => {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   el.classList.add('active');
-  const titles = {
-    dashboard: 'Dashboard Overview',
-    ads: 'Popup Ads Manager',
-    feedbacks: 'User Feedbacks',
-    analytics: 'Views Analytics',
-    youtube: 'YouTube Video Guides'
-  };
+  const titles = { dashboard: 'Dashboard Overview', ads: 'Popup Ads Manager', feedbacks: 'User Feedbacks', analytics: 'Views Analytics', youtube: 'YouTube Video Guides' };
   document.getElementById('sectionTitle').textContent = titles[id];
 };
 
-// ============ TOAST ============
 function toast(msg, isError = false) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.toggle('error', isError);
-  t.classList.add('show');
+  t.textContent = msg; t.classList.toggle('error', isError); t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 // ============ DASHBOARD ============
 async function initDashboard() {
   populatePracticalDropdowns();
-  loadStats();
-  loadAds();
-  loadFeedbacks();
-  loadAnalytics();
-  loadYouTubeGuides();
+  loadStats(); loadAds(); loadFeedbacks(); loadAnalytics(); loadYouTubeGuides();
   setupAdPreview();
-  // Default date range: last 30 days
-  const today = new Date();
-  const from = new Date(); from.setDate(today.getDate() - 30);
+  const today = new Date(), from = new Date(); from.setDate(today.getDate() - 30);
   document.getElementById('dateTo').value = today.toISOString().split('T')[0];
   document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
 }
 
 function populatePracticalDropdowns() {
-  const sel1 = document.getElementById('practicalFilter');
-  const sel2 = document.getElementById('ytPractical');
+  const sel1 = document.getElementById('practicalFilter'), sel2 = document.getElementById('ytPractical');
   PRACTICALS.forEach(p => {
     sel1.innerHTML += `<option value="${p.id}">${p.name}</option>`;
     sel2.innerHTML += `<option value="${p.id}">${p.name}</option>`;
@@ -111,90 +92,66 @@ function populatePracticalDropdowns() {
 
 async function loadStats() {
   const [adsSnap, fbSnap, viewsSnap, ytSnap] = await Promise.all([
-    getDocs(collection(db, 'ads')),
-    getDocs(collection(db, 'feedbacks')),
-    getDocs(collection(db, 'views')),
-    getDocs(collection(db, 'youtubeGuides'))
+    getDocs(collection(db, 'ads')), getDocs(collection(db, 'feedbacks')),
+    getDocs(collection(db, 'views')), getDocs(collection(db, 'youtubeGuides'))
   ]);
-  const activeAds = adsSnap.docs.filter(d => d.data().status === 'active').length;
-  document.getElementById('statAds').textContent = activeAds;
+  document.getElementById('statAds').textContent = adsSnap.docs.filter(d => d.data().status === 'active').length;
   document.getElementById('statFeedbacks').textContent = fbSnap.size;
   document.getElementById('statGuides').textContent = ytSnap.size;
   
-  let totalViews = 0;
-  const counts = {};
-  viewsSnap.docs.forEach(d => {
-    const v = d.data();
-    totalViews += v.count || 0;
-    counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0);
-  });
+  let totalViews = 0; const counts = {};
+  viewsSnap.docs.forEach(d => { const v = d.data(); totalViews += v.count || 0; counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0); });
   document.getElementById('statViews').textContent = totalViews.toLocaleString();
 
-  // Top 5 table
-  const sorted = Object.entries(counts)
-    .sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const tbody = document.querySelector('#topPracticalsTable tbody');
-  tbody.innerHTML = '';
-  sorted.forEach(([id, count], i) => {
+  const tbody = document.querySelector('#topPracticalsTable tbody'); tbody.innerHTML = '';
+  Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5).forEach(([id, count], i) => {
     const p = PRACTICALS.find(x => x.id === id);
-    tbody.innerHTML += `<tr>
-      <td><strong>${i + 1}</strong></td>
-      <td>${p ? p.name : 'Unknown'}</td>
-      <td><strong style="color:var(--teal-dark);">${count.toLocaleString()}</strong></td>
-    </tr>`;
+    tbody.innerHTML += `<tr><td><strong>${i + 1}</strong></td><td>${p ? p.name : 'Unknown'}</td><td><strong style="color:var(--teal-dark);">${count.toLocaleString()}</strong></td></tr>`;
   });
 }
 
 // ============ ADS ============
 function setupAdPreview() {
-  const img = document.getElementById('adImageUrl');
-  const btn = document.getElementById('adBtnName');
-  const days = document.getElementById('adRemindDays');
-  [img, btn, days].forEach(el => el.addEventListener('input', updatePreview));
+  ['adImageUrl', 'adBtnName', 'adRemindDays', 'adDescription'].forEach(id => 
+    document.getElementById(id).addEventListener('input', updatePreview)
+  );
 }
 
 function updatePreview() {
-  const img = document.getElementById('adImageUrl').value;
-  const btn = document.getElementById('adBtnName').value;
-  const days = document.getElementById('adRemindDays').value;
-  document.getElementById('previewImg').src = img || 'https://via.placeholder.com/400x200?text=Ad+Preview';
-  document.getElementById('previewBtn').textContent = btn || 'Button Name';
-  document.getElementById('previewDays').textContent = days || 3;
+  document.getElementById('previewImg').src = document.getElementById('adImageUrl').value || 'https://via.placeholder.com/400x225?text=16:9+Ad+Preview';
+  document.getElementById('previewBtn').textContent = document.getElementById('adBtnName').value || 'Button Name';
+  document.getElementById('previewDays').textContent = document.getElementById('adRemindDays').value || 3;
+  document.getElementById('previewDesc').textContent = document.getElementById('adDescription').value || 'Popup description text will appear here...';
 }
 
 window.saveAd = async () => {
   const data = {
     imageUrl: document.getElementById('adImageUrl').value.trim(),
     buttonName: document.getElementById('adBtnName').value.trim(),
+    description: document.getElementById('adDescription').value.trim(),
     buttonUrl: document.getElementById('adBtnUrl').value.trim(),
     remindDays: parseInt(document.getElementById('adRemindDays').value) || 3,
     status: document.getElementById('adStatus').value,
     updatedAt: serverTimestamp()
   };
-  if (!data.imageUrl || !data.buttonName || !data.buttonUrl) {
-    return toast('Please fill all ad fields', true);
-  }
+  if (!data.imageUrl || !data.buttonName || !data.buttonUrl) return toast('Please fill image, button name, and URL', true);
   try {
     if (editingAdId) {
       await updateDoc(doc(db, 'ads', editingAdId), data);
-      toast('Ad updated successfully');
-      editingAdId = null;
+      toast('Ad updated successfully'); editingAdId = null;
       document.getElementById('saveAdBtn').innerHTML = '<i class="fa-solid fa-save"></i> Save Ad';
     } else {
       data.createdAt = serverTimestamp();
       await addDoc(collection(db, 'ads'), data);
       toast('Ad created successfully');
     }
-    clearAdForm();
-    loadAds();
-    loadStats();
+    clearAdForm(); loadAds(); loadStats();
   } catch (e) { toast('Error: ' + e.message, true); }
 };
 
 function clearAdForm() {
-  ['adImageUrl', 'adBtnName', 'adBtnUrl'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('adRemindDays').value = 3;
-  document.getElementById('adStatus').value = 'active';
+  ['adImageUrl', 'adBtnName', 'adBtnUrl', 'adDescription'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('adRemindDays').value = 3; document.getElementById('adStatus').value = 'active';
   updatePreview();
 }
 
@@ -207,20 +164,13 @@ async function loadAds() {
     const a = d.data();
     list.innerHTML += `<div class="list-item">
       <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
-      <div class="info">
-        <h4>${a.buttonName}
-          <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">
-            ${a.status.toUpperCase()}
-          </span>
-        </h4>
-        <p>🔗 ${a.buttonUrl}</p>
-        <p>⏰ Remind after ${a.remindDays} days</p>
-      </div>
+      <div class="info"><h4>${a.buttonName} <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">${a.status.toUpperCase()}</span></h4>
+      <p>📝 ${a.description || 'No description'}</p>
+      <p>🔗 ${a.buttonUrl}</p><p>⏰ Remind after ${a.remindDays} days</p></div>
       <div class="actions">
         <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
         <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    </div>`;
+      </div></div>`;
   });
 }
 
@@ -229,252 +179,107 @@ window.editAd = async (id) => {
   const d = snap.docs.find(x => x.id === id).data();
   document.getElementById('adImageUrl').value = d.imageUrl;
   document.getElementById('adBtnName').value = d.buttonName;
+  document.getElementById('adDescription').value = d.description || '';
   document.getElementById('adBtnUrl').value = d.buttonUrl;
   document.getElementById('adRemindDays').value = d.remindDays;
   document.getElementById('adStatus').value = d.status;
   editingAdId = id;
   document.getElementById('saveAdBtn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Ad';
   updatePreview();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 window.deleteAd = async (id) => {
   if (!confirm('Delete this ad?')) return;
-  await deleteDoc(doc(db, 'ads', id));
-  toast('Ad deleted');
-  loadAds();
-  loadStats();
+  await deleteDoc(doc(db, 'ads', id)); toast('Ad deleted'); loadAds(); loadStats();
 };
 
-// ============ FEEDBACKS (UPDATED WITH DELETE BUTTON) ============
+// ============ FEEDBACKS ============
 async function loadFeedbacks() {
   const snap = await getDocs(query(collection(db, 'feedbacks'), orderBy('createdAt', 'desc')));
   const list = document.getElementById('feedbacksList');
-  if (snap.empty) { 
-    list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No feedbacks yet</p>'; 
-    return; 
-  }
+  if (snap.empty) { list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No feedbacks yet</p>'; return; }
   list.innerHTML = '';
   snap.docs.forEach(d => {
     const f = d.data();
     const stars = '★'.repeat(f.rating || 0) + '☆'.repeat(5 - (f.rating || 0));
     const date = f.createdAt?.toDate ? f.createdAt.toDate().toLocaleString() : '—';
-    
-    list.innerHTML += `
-      <div class="feedback-card" style="position: relative;">
-        <button onclick="deleteFeedback('${d.id}')" title="Delete feedback" style="
-          position: absolute; top: 14px; right: 14px;
-          width: 32px; height: 32px; border-radius: 8px;
-          background: #fff; border: 1.5px solid var(--border-color);
-          cursor: pointer; color: var(--text-muted);
-          display: flex; align-items: center; justify-content: center;
-          transition: all 0.2s;
-        " onmouseover="this.style.background='#fee2e2'; this.style.color='#dc2626'; this.style.borderColor='#fecaca';" 
-           onmouseout="this.style.background='#fff'; this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-        <div class="fb-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-right: 40px;">
-          <div class="stars" style="color: #D98E18; font-weight: 700; font-size: 1.05rem;">${stars}</div>
-          <div class="fb-date" style="font-size: 0.8rem; color: var(--text-muted);">${date}</div>
-        </div>
-        <div class="fb-msg" style="color: var(--text-main); line-height: 1.55; font-size: 0.95rem; word-wrap: break-word;">
-          ${f.message || '<em style="color:var(--text-muted);">No message</em>'}
-        </div>
-        <div style="margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
-          From: <strong>${f.page || 'Unknown page'}</strong>
-        </div>
-      </div>`;
+    list.innerHTML += `<div class="feedback-card" style="position:relative;">
+      <button onclick="deleteFeedback('${d.id}')" title="Delete" style="position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:8px; background:#fff; border:1.5px solid var(--border-color); cursor:pointer; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fff'"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-right:40px;"><span style="color:#D98E18; font-weight:700;">${stars}</span><span style="font-size:0.8rem; color:var(--text-muted);">${date}</span></div>
+      <div style="color:var(--text-main); line-height:1.55;">${f.message || '<em style="color:var(--text-muted);">No message</em>'}</div>
+      <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">From: <strong>${f.page || 'Unknown'}</strong></div>
+    </div>`;
   });
 }
-
-// NEW: Delete feedback function
 window.deleteFeedback = async (id) => {
-  if (!confirm('Delete this feedback permanently?')) return;
-  try {
-    await deleteDoc(doc(db, 'feedbacks', id));
-    toast('Feedback deleted');
-    loadFeedbacks();
-    loadStats(); // Update the feedback counter in dashboard
-  } catch (e) {
-    toast('Error: ' + e.message, true);
-  }
+  if (!confirm('Delete this feedback?')) return;
+  await deleteDoc(doc(db, 'feedbacks', id)); toast('Deleted'); loadFeedbacks(); loadStats();
 };
 
 // ============ ANALYTICS ============
 let allViewsData = [];
-
 async function loadAnalytics() {
   const snap = await getDocs(collection(db, 'views'));
   allViewsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderChart(allViewsData);
-  renderAnalyticsTable(allViewsData);
+  renderChart(allViewsData); renderAnalyticsTable(allViewsData);
 }
-
 function renderChart(data) {
   const ctx = document.getElementById('viewsChart').getContext('2d');
-  // Group by date
   const byDate = {};
-  data.forEach(v => {
-    const date = v.date;
-    if (!byDate[date]) byDate[date] = {};
-    byDate[date][v.practicalId] = (byDate[date][v.practicalId] || 0) + (v.count || 0);
-  });
+  data.forEach(v => { if (!byDate[v.date]) byDate[v.date] = {}; byDate[v.date][v.practicalId] = (byDate[v.date][v.practicalId] || 0) + (v.count || 0); });
   const dates = Object.keys(byDate).sort();
   const practicalIds = [...new Set(data.map(v => v.practicalId))];
   const colors = ['#177D81', '#D98E18', '#0d9488', '#dc2626', '#2563eb', '#c084fc', '#38bdf8', '#166534'];
-
   const datasets = practicalIds.map((pid, i) => {
     const p = PRACTICALS.find(x => x.id === pid);
-    return {
-      label: p ? p.name : pid,
-      data: dates.map(d => byDate[d][pid] || 0),
-      borderColor: colors[i % colors.length],
-      backgroundColor: colors[i % colors.length] + '22',
-      tension: 0.35, fill: true, pointRadius: 3, borderWidth: 2.5
-    };
+    return { label: p ? p.name : pid, data: dates.map(d => byDate[d][pid] || 0), borderColor: colors[i % colors.length], backgroundColor: colors[i % colors.length] + '22', tension: 0.35, fill: true, pointRadius: 3, borderWidth: 2.5 };
   });
-
   if (viewsChart) viewsChart.destroy();
-  viewsChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: dates, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { padding: 14, font: { weight: '600' } } },
-        tooltip: { backgroundColor: '#0f2728', padding: 12, cornerRadius: 8 }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: '#BDDED6' }, ticks: { precision: 0 } },
-        x: { grid: { display: false } }
-      }
-    }
-  });
+  viewsChart = new Chart(ctx, { type: 'line', data: { labels: dates, datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } } });
 }
-
 function renderAnalyticsTable(data) {
-  const counts = {};
-  data.forEach(v => {
-    counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0);
-  });
+  const counts = {}; data.forEach(v => { counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0); });
   const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const tbody = document.querySelector('#analyticsTable tbody');
-  tbody.innerHTML = '';
-  sorted.forEach(([id, count]) => {
-    const p = PRACTICALS.find(x => x.id === id);
-    const pct = ((count / total) * 100).toFixed(1);
-    tbody.innerHTML += `<tr>
-      <td><strong>${p ? p.name : id}</strong></td>
-      <td>${count.toLocaleString()}</td>
-      <td>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="flex:1; height:8px; background:var(--teal-subtle); border-radius:4px; overflow:hidden;">
-            <div style="width:${pct}%; height:100%; background:var(--teal-dark);"></div>
-          </div>
-          <span style="font-size:0.8rem; font-weight:700; color:var(--teal-dark);">${pct}%</span>
-        </div>
-      </td>
-    </tr>`;
+  const tbody = document.querySelector('#analyticsTable tbody'); tbody.innerHTML = '';
+  Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([id, count]) => {
+    const p = PRACTICALS.find(x => x.id === id); const pct = ((count / total) * 100).toFixed(1);
+    tbody.innerHTML += `<tr><td><strong>${p ? p.name : id}</strong></td><td>${count.toLocaleString()}</td><td><div style="display:flex; align-items:center; gap:8px;"><div style="flex:1; height:8px; background:var(--teal-subtle); border-radius:4px;"><div style="width:${pct}%; height:100%; background:var(--teal-dark);"></div></div><span style="font-size:0.8rem; font-weight:700; color:var(--teal-dark);">${pct}%</span></div></td></tr>`;
   });
 }
-
 window.applyDateFilter = () => {
-  const from = document.getElementById('dateFrom').value;
-  const to = document.getElementById('dateTo').value;
-  const pid = document.getElementById('practicalFilter').value;
+  const from = document.getElementById('dateFrom').value, to = document.getElementById('dateTo').value, pid = document.getElementById('practicalFilter').value;
   let filtered = allViewsData;
-  if (from) filtered = filtered.filter(v => v.date >= from);
-  if (to) filtered = filtered.filter(v => v.date <= to);
-  if (pid !== 'all') filtered = filtered.filter(v => v.practicalId === pid);
-  renderChart(filtered);
-  renderAnalyticsTable(filtered);
-  toast('Filter applied');
+  if (from) filtered = filtered.filter(v => v.date >= from); if (to) filtered = filtered.filter(v => v.date <= to); if (pid !== 'all') filtered = filtered.filter(v => v.practicalId === pid);
+  renderChart(filtered); renderAnalyticsTable(filtered); toast('Filter applied');
 };
-
 window.exportPDF = async () => {
-  toast('Generating PDF...');
-  const { jsPDF } = window.jspdf;
-  const element = document.getElementById('chartExportArea');
-  const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF('l', 'mm', 'a4');
-  const pdfW = pdf.internal.pageSize.getWidth();
-  const pdfH = (canvas.height * pdfW) / canvas.width;
-  pdf.setFillColor(23, 125, 129);
-  pdf.rect(0, 0, pdfW, 15, 'F');
-  pdf.setTextColor(255); pdf.setFontSize(14); pdf.setFont(undefined, 'bold');
-  pdf.text('ScienceLab - Views Analytics Report', 10, 10);
-  pdf.setFontSize(9); pdf.setFont(undefined, 'normal');
-  pdf.text(`Generated: ${new Date().toLocaleString()} | By Hexa Solutions`, pdfW - 10, 10, { align: 'right' });
-  pdf.addImage(imgData, 'PNG', 5, 20, pdfW - 10, pdfH - 10);
-  pdf.save(`ScienceLab_Analytics_${new Date().toISOString().split('T')[0]}.pdf`);
-  toast('PDF downloaded');
+  toast('Generating PDF...'); const { jsPDF } = window.jspdf;
+  const canvas = await html2canvas(document.getElementById('chartExportArea'), { scale: 2, backgroundColor: '#ffffff' });
+  const imgData = canvas.toDataURL('image/png'); const pdf = new jsPDF('l', 'mm', 'a4'); const pdfW = pdf.internal.pageSize.getWidth(); const pdfH = (canvas.height * pdfW) / canvas.width;
+  pdf.setFillColor(23, 125, 129); pdf.rect(0, 0, pdfW, 15, 'F'); pdf.setTextColor(255); pdf.setFontSize(14); pdf.setFont(undefined, 'bold'); pdf.text('ScienceLab - Views Analytics Report', 10, 10);
+  pdf.setFontSize(9); pdf.setFont(undefined, 'normal'); pdf.text(`Generated: ${new Date().toLocaleString()} | By Hexa Solutions`, pdfW - 10, 10, { align: 'right' });
+  pdf.addImage(imgData, 'PNG', 5, 20, pdfW - 10, pdfH - 10); pdf.save(`ScienceLab_Analytics_${new Date().toISOString().split('T')[0]}.pdf`); toast('PDF downloaded');
 };
 
 // ============ YOUTUBE GUIDES ============
 window.saveYouTubeGuide = async () => {
-  const practicalId = document.getElementById('ytPractical').value;
-  const url = document.getElementById('ytUrl').value.trim();
-  const title = document.getElementById('ytTitle').value.trim();
+  const practicalId = document.getElementById('ytPractical').value, url = document.getElementById('ytUrl').value.trim(), title = document.getElementById('ytTitle').value.trim();
   if (!url) return toast('Please enter YouTube URL', true);
   const p = PRACTICALS.find(x => x.id === practicalId);
   try {
-    // Check if already exists → update
-    const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', practicalId));
-    const existing = await getDocs(q);
-    if (!existing.empty) {
-      await updateDoc(doc(db, 'youtubeGuides', existing.docs[0].id), {
-        youtubeUrl: url, title: title || p.name, updatedAt: serverTimestamp()
-      });
-      toast('Guide updated');
-    } else {
-      await addDoc(collection(db, 'youtubeGuides'), {
-        practicalId, practicalName: p.name, youtubeUrl: url,
-        title: title || p.name, createdAt: serverTimestamp()
-      });
-      toast('Guide added');
-    }
-    document.getElementById('ytUrl').value = '';
-    document.getElementById('ytTitle').value = '';
-    loadYouTubeGuides();
-    loadStats();
+    const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', practicalId)); const existing = await getDocs(q);
+    if (!existing.empty) { await updateDoc(doc(db, 'youtubeGuides', existing.docs[0].id), { youtubeUrl: url, title: title || p.name, updatedAt: serverTimestamp() }); toast('Guide updated'); } 
+    else { await addDoc(collection(db, 'youtubeGuides'), { practicalId, practicalName: p.name, youtubeUrl: url, title: title || p.name, createdAt: serverTimestamp() }); toast('Guide added'); }
+    document.getElementById('ytUrl').value = ''; document.getElementById('ytTitle').value = ''; loadYouTubeGuides(); loadStats();
   } catch (e) { toast('Error: ' + e.message, true); }
 };
-
 async function loadYouTubeGuides() {
-  const snap = await getDocs(collection(db, 'youtubeGuides'));
-  const list = document.getElementById('ytList');
+  const snap = await getDocs(collection(db, 'youtubeGuides')); const list = document.getElementById('ytList');
   if (snap.empty) { list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">No guides yet</p>'; return; }
   list.innerHTML = '';
   snap.docs.forEach(d => {
-    const g = d.data();
-    const ytId = extractYTId(g.youtubeUrl);
-    const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/120x70';
-    list.innerHTML += `<div class="list-item">
-      <img class="thumb" src="${thumb}" style="width:120px; height:70px;">
-      <div class="info">
-        <h4>${g.practicalName}</h4>
-        <p>📹 ${g.title || 'Untitled'}</p>
-        <p>🔗 ${g.youtubeUrl}</p>
-      </div>
-      <div class="actions">
-        <a href="${g.youtubeUrl}" target="_blank" class="icon-btn" title="Watch"><i class="fa-solid fa-play"></i></a>
-        <button class="icon-btn danger" onclick="deleteGuide('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    </div>`;
+    const g = d.data(); const ytId = g.youtubeUrl.match(/(?:v=|youtu\.be\/)([^"&?\/\s]{11})/)?.[1]; const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/120x70';
+    list.innerHTML += `<div class="list-item"><img class="thumb" src="${thumb}" style="width:120px; height:70px;"><div class="info"><h4>${g.practicalName}</h4><p>📹 ${g.title || 'Untitled'}</p><p>🔗 ${g.youtubeUrl}</p></div><div class="actions"><a href="${g.youtubeUrl}" target="_blank" class="icon-btn"><i class="fa-solid fa-play"></i></a><button class="icon-btn danger" onclick="deleteGuide('${d.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
   });
 }
-
-window.deleteGuide = async (id) => {
-  if (!confirm('Delete this guide?')) return;
-  await deleteDoc(doc(db, 'youtubeGuides', id));
-  toast('Guide deleted');
-  loadYouTubeGuides();
-  loadStats();
-};
-
-function extractYTId(url) {
-  const m = url.match(/(?:youtube.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu.be\/)([^"&?\/\s]{11})/);
-  return m ? m[1] : null;
-}
+window.deleteGuide = async (id) => { if (!confirm('Delete?')) return; await deleteDoc(doc(db, 'youtubeGuides', id)); toast('Deleted'); loadYouTubeGuides(); loadStats(); };
