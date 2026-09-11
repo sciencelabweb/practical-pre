@@ -185,7 +185,7 @@
       </div>
     </section>
 
-    <!-- YOUTUBE GUIDES -->
+       <!-- YOUTUBE GUIDES -->
     <section class="admin-section" id="sec-youtube">
       <div class="card">
         <div class="card-title"><i class="fa-brands fa-youtube"></i> Assign YouTube Guide to Practical</div>
@@ -194,7 +194,11 @@
           <div class="form-field"><label>YouTube Video URL</label><input type="url" id="ytUrl" placeholder="https://youtube.com/watch?v=..."></div>
         </div>
         <div class="form-row full">
-          <div class="form-field"><label>Video Title (optional)</label><input type="text" id="ytTitle" placeholder="How to use Micrometer Screw Gauge"></div>
+          <div class="form-field"><label>Video Title</label><input type="text" id="ytTitle" placeholder="How to use Micrometer Screw Gauge"></div>
+        </div>
+        <!-- NEW: Description Field -->
+        <div class="form-row full">
+          <div class="form-field"><label>Video Description</label><input type="text" id="ytDescription" placeholder="Brief description of what students will learn..."></div>
         </div>
         <button class="btn" onclick="saveYouTubeGuide()" style="width:100%"><i class="fa-solid fa-plus"></i> Save Video Guide</button>
       </div>
@@ -203,8 +207,6 @@
         <div id="ytList"></div>
       </div>
     </section>
-  </main>
-</div>
 
 <div class="toast" id="toast"></div>
 <script type="module" src="admin.js"></script>
