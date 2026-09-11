@@ -309,5 +309,50 @@ document.querySelector('form')?.addEventListener('submit', async (e) => {
     alert("Thank you! Your review has been recorded successfully.");
   });
 </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqZ2z6cLSV-cygTigtgc6TyKcRgxeYoy4",
+    authDomain: "sciencelab-admin.firebaseapp.com",
+    projectId: "sciencelab-admin",
+    storageBucket: "sciencelab-admin.firebasestorage.app",
+    messagingSenderId: "79590520524",
+    appId: "1:79590520524:web:41bc1b93236e98107e7469",
+    measurementId: "G-VPRS1JY8D2"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // 1. Get Rating (finds any checked radio button)
+      const ratingEl = document.querySelector('input[name="rating"]:checked') || document.querySelector('input[type="radio"]:checked');
+      const rating = ratingEl ? parseInt(ratingEl.value) : 5;
+      
+      // 2. Get Message (finds textarea or message input)
+      const msgEl = document.querySelector('textarea') || document.querySelector('input[name="message"]') || document.querySelector('input[name="feedback"]');
+      const message = msgEl ? msgEl.value.trim() : '';
+
+      try {
+        await addDoc(collection(db, 'feedbacks'), {
+          rating: rating,
+          message: message,
+          page: 'rate.html',
+          createdAt: serverTimestamp()
+        });
+        alert("Thank you! Your review has been recorded successfully.");
+        form.reset(); // Clear the form after success
+      } catch (err) {
+        console.error("Feedback error:", err);
+        alert("Failed to submit feedback. Please check your connection.");
+      }
+    });
+  }
+</script>
 </body>
 </html>
