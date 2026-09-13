@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Oscillations of a Helical Spring</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>වර්නියර් කැලිපරය</span>
+                </a>
+                  <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>චල අන්වීක්ෂය</span>
+                      <span class="menu-tag">Free</span>
+                </a>
+<a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>ඉස්කුරුප්පු ආමානය</span>
+                </a>
+ <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>ගෝලමානය</span>
+                </a>
+ 
+<a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>බල සමාන්තරාස්‍රය</span>
+                </a>
+<a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>බල ඝුර්ණ මූලදර්මය</span>
+                </a>
+ <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>හෙයාර් උපකරණය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+ <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U නලය</span>
+                </a>
+ <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>ද්‍රවයක ඝනත්වය</span>
+                </a>
+ <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>සරල අවලම්බය</span>
+                </a>
+ <a href="8.html" class="nav-item active">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>හෙලික්සීය දුන්න</span>
+                </a>
+ <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-guitar"></i>
+                    <span>ධ්වනිමානය</span>
+                </a>
+<a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>ධ්වනි වේගය</span>
+                </a>
+ <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>තුෂාරංකය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+<a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>P,T සම්බන්ධය</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a> 
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>හෙලික්සීය දුන්න</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card Box -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory & Objective
+                        </h2>
+                        <p class="theory-text">
+                            හෙලික්සීය දුන්නකින් අවලම්බනය කර ඇති වස්තුවක ස්කන්ධය හා දෝලන කාලාවර්තය අතර සම්බන්ධතාව සත්‍යාපනය කිරීම
+                        </p>
+                    </div>
+
+                    <!-- Controls & Canvas Grid -->
+                    <div class="controls-grid">
+                        
+                        <!-- Canvas Simulation Card -->
+                        <div class="card canvas-card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-cubes-stacked"></i>
+                                Apparatus Simulation
+                            </h2>
+                            <canvas id="simCanvas" width="280" height="320"></canvas>
+                            <div class="status-badge status-balanced" style="margin-top: 15px;">
+                                <i class="fa-solid fa-stopwatch"></i>
+                                <span id="timerDisplay">00:00.00</span>
+                            </div>
+                            <div class="theory-text" style="margin-top: 6px;">
+                                දෝලන: <strong id="oscCount">0</strong> / 50
+                            </div>
+                        </div>
+
+                        <!-- Controls Card -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-sliders"></i>
+                                Control Panel
+                            </h2>
+                            <div class="control-group">
+                                <label for="massSlider">
+                                    එල්ලන ලද ස්කන්ධය (<i>m</i>)
+                                    <span class="value-tag" id="massVal">50 g</span>
+                                </label>
+                                <input type="range" id="massSlider" min="50" max="350" step="50" value="50">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                                <button id="startBtn" class="btn">
+                                    <i class="fa-solid fa-play"></i> දෝලනය අරඹන්න (50 Osc)
+                                </button>
+                                <button id="resetBtn" class="btn btn-secondary">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                                <button id="recordBtn" class="btn" style="background-color: #0d9488;" disabled>
+                                    <i class="fa-solid fa-floppy-disk"></i> දත්ත සටහන් කරන්න
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Analysis and Table Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table"></i>
+                            Readings & Analysis
+                        </h2>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2"><i>m</i> (g)</th>
+                                        <th colspan="2" style="text-align: center;">දෝලන 50කට කාලය (s)</th>
+                                        <th rowspan="2"><i>T</i> (s)</th>
+                                        <th rowspan="2"><i>T</i><sup>2</sup> (s<sup>2</sup>)</th>
+                                    </tr>
+                                    <tr>
+                                        <th>පලමු වතාව</th>
+                                        <th>දෙවන වතාව</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+                            <button id="clearTableBtn" class="btn btn-secondary" style="width: auto; padding: 6px 14px; font-size: 0.85rem;">
+                                <i class="fa-solid fa-trash-can"></i> Clear Table
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Graph Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-chart-line"></i>
+                            Graph: <i>T</i><sup>2</sup> vs <i>m</i>
+                        </h2>
+                        <div style="position: relative; width: 100%; height: 320px; margin-top: 10px;">
+                            <canvas id="graphCanvas"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+           <footer class="footer">
+      <div class="footer-links-group">
+        <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+          <i class="fa-solid fa-graduation-cap"></i> Learny App
+        </a>
+        <span style="color: var(--text-muted);">|</span>
+        <a href="https://t.me/sciencepicco" class="footer-custom-link footer-science" target="_blank">
+          <i class="fa-brands fa-telegram"></i> Science Picco
+        </a>
+      </div>
+      <p>
+        Designed by 
+        <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a>
+      </p>
+    </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Physics Parameters
+        const k = 25; // Spring constant (N/m)
+        const TARGET_OSC = 50;
+
+        // Simulation State Variables
+        let mass = 0.05; // mass in kg (50g default)
+        let animating = false;
+        let startTime = 0;
+        let elapsedTime = 0;
+        let currentOscillations = 0;
+        let animReqId = null;
+
+        // Dataset Structure
+        let dataset = [
+            { massG: 50, t1: null, t2: null, period: null, periodSq: null },
+            { massG: 100, t1: null, t2: null, period: null, periodSq: null },
+            { massG: 150, t1: null, t2: null, period: null, periodSq: null },
+            { massG: 200, t1: null, t2: null, period: null, periodSq: null },
+            { massG: 250, t1: null, t2: null, period: null, periodSq: null },
+            { massG: 300, t1: null, t2: null, period: null, periodSq: null }
+        ];
+
+        // Canvas Elements
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const oscCountDisplay = document.getElementById('oscCount');
+
+        // UI Controls
+        const massSlider = document.getElementById('massSlider');
+        const massVal = document.getElementById('massVal');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const clearTableBtn = document.getElementById('clearTableBtn');
+
+        // Initialize Chart.js Graph using CSS theme colors
+        const graphCtx = document.getElementById('graphCanvas').getContext('2d');
+        const chart = new Chart(graphCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'T² vs m',
+                    data: [],
+                    backgroundColor: '#177D81',
+                    borderColor: '#177D81',
+                    showLine: true,
+                    fill: false,
+                    tension: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: { display: true, text: 'Mass, m (g)' },
+                        min: 0,
+                        max: 350
+                    },
+                    y: {
+                        title: { display: true, text: 'Period Squared, T² (s²)' },
+                        min: 0
+                    }
+                }
+            }
+        });
+
+        // Drawing Apparatus
+        function drawApparatus(yDisplacement = 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Stand Base and Rod
+            ctx.fillStyle = '#4e6c6d';
+            ctx.fillRect(30, 300, 140, 10); // Base
+            ctx.fillRect(50, 20, 10, 280);   // Vertical rod
+            ctx.fillRect(50, 30, 80, 8);    // Top clamp arm
+
+            // Pointer Clamp on Support
+            ctx.fillStyle = '#0f2728';
+            ctx.fillRect(45, 180, 20, 12);
+            // Indicator Reference Line
+            ctx.strokeStyle = '#D98E18';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(65, 186);
+            ctx.lineTo(170, 186);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Helical Spring Drawing
+            const startX = 110;
+            const startY = 38;
+            const restLength = 110 + (mass * 80);
+            const currentLength = restLength + yDisplacement;
+            const turns = 14;
+
+            ctx.strokeStyle = '#177D81';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            
+            for (let i = 0; i <= turns; i++) {
+                const y = startY + (currentLength / turns) * i;
+                const x = startX + (i % 2 === 0 ? 12 : -12);
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(startX, startY + currentLength);
+            ctx.stroke();
+
+            // Suspended Mass Block
+            const blockY = startY + currentLength;
+            ctx.fillStyle = '#0f2728';
+            ctx.fillRect(startX - 15, blockY, 30, 30);
+            
+            // Weight detail
+            ctx.fillStyle = '#BDDED6';
+            ctx.fillRect(startX - 12, blockY + 5, 24, 4);
+
+            // Horizontal Indicator Pointer attached to Mass
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX, blockY);
+            ctx.lineTo(startX + 40, blockY);
+            ctx.stroke();
+        }
+
+        // Update Simulation Frame
+        function updateSim(timestamp) {
+            if (!startTime) startTime = timestamp;
+            
+            const realTimeSec = (timestamp - startTime) / 1000;
+            const T = 2 * Math.PI * Math.sqrt(mass / k);
+            
+            const amplitude = 20; 
+            const omega = (2 * Math.PI) / T;
+            const yDisplacement = amplitude * Math.cos(omega * realTimeSec);
+
+            currentOscillations = Math.floor(realTimeSec / T);
+
+            if (currentOscillations >= TARGET_OSC) {
+                elapsedTime = TARGET_OSC * T;
+                currentOscillations = TARGET_OSC;
+                stopSimulation();
+            } else {
+                elapsedTime = realTimeSec;
+                animReqId = requestAnimationFrame(updateSim);
+            }
+
+            timerDisplay.textContent = formatTime(elapsedTime);
+            oscCountDisplay.textContent = currentOscillations;
+            drawApparatus(yDisplacement);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const millis = Math.floor((seconds % 1) * 100);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(millis).padStart(2, '0')}`;
+        }
+
+        // Start Practical Run
+        startBtn.addEventListener('click', () => {
+            if (animating) return;
+            animating = true;
+            startTime = 0;
+            startBtn.disabled = true;
+            massSlider.disabled = true;
+            recordBtn.disabled = true;
+            animReqId = requestAnimationFrame(updateSim);
+        });
+
+        // Stop Simulation
+        function stopSimulation() {
+            animating = false;
+            cancelAnimationFrame(animReqId);
+            recordBtn.disabled = false;
+            drawApparatus(0);
+        }
+
+        // Reset Controls
+        resetBtn.addEventListener('click', () => {
+            animating = false;
+            cancelAnimationFrame(animReqId);
+            startTime = 0;
+            elapsedTime = 0;
+            currentOscillations = 0;
+            timerDisplay.textContent = "00:00.00";
+            oscCountDisplay.textContent = "0";
+            startBtn.disabled = false;
+            massSlider.disabled = false;
+            recordBtn.disabled = true;
+            drawApparatus(0);
+        });
+
+        // Update Mass Slider
+        massSlider.addEventListener('input', (e) => {
+            const g = parseInt(e.target.value);
+            massVal.textContent = `${g} g`;
+            mass = g / 1000;
+            drawApparatus(0);
+        });
+
+        // Record Data to Table
+        recordBtn.addEventListener('click', () => {
+            const mG = parseInt(massSlider.value);
+            const row = dataset.find(d => d.massG === mG);
+            const simulatedTime = elapsedTime + (Math.random() * 0.12 - 0.06);
+
+            if (row.t1 === null) {
+                row.t1 = simulatedTime;
+            } else {
+                row.t2 = simulatedTime;
+            }
+
+            if (row.t1 !== null && row.t2 !== null) {
+                const avg50 = (row.t1 + row.t2) / 2;
+                row.period = avg50 / 50;
+                row.periodSq = Math.pow(row.period, 2);
+            } else if (row.t1 !== null) {
+                row.period = row.t1 / 50;
+                row.periodSq = Math.pow(row.period, 2);
+            }
+
+            updateTableAndGraph();
+            recordBtn.disabled = true;
+        });
+
+        // Render Data Table & Plot
+        function updateTableAndGraph() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            const graphData = [];
+
+            dataset.forEach(d => {
+                const tr = document.createElement('tr');
+
+                const t1Str = d.t1 !== null ? d.t1.toFixed(2) : '-';
+                const t2Str = d.t2 !== null ? d.t2.toFixed(2) : '-';
+                const tStr = d.period !== null ? d.period.toFixed(3) : '-';
+                const t2SqStr = d.periodSq !== null ? d.periodSq.toFixed(4) : '-';
+
+                tr.innerHTML = `
+                    <td><strong>${d.massG}</strong></td>
+                    <td>${t1Str}</td>
+                    <td>${t2Str}</td>
+                    <td>${tStr}</td>
+                    <td>${t2SqStr}</td>
+                `;
+                tbody.appendChild(tr);
+
+                if (d.periodSq !== null) {
+                    graphData.push({ x: d.massG, y: d.periodSq });
+                }
+            });
+
+            chart.data.datasets[0].data = graphData;
+            chart.update();
+        }
+
+        // Clear Table Data
+        clearTableBtn.addEventListener('click', () => {
+            dataset.forEach(d => {
+                d.t1 = null;
+                d.t2 = null;
+                d.period = null;
+                d.periodSq = null;
+            });
+            updateTableAndGraph();
+        });
+
+        // Initial Setup
+        drawApparatus(0);
+        updateTableAndGraph();
+    </script>
+</body>
+</html>
