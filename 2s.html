@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Parallelogram Law of Forces</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Shared External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+               <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>වර්නියර් කැලිපරය</span>
+                </a>
+                  <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>චල අන්වීක්ෂය</span>
+                      <span class="menu-tag">Free</span>
+                </a>
+<a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>ඉස්කුරුප්පු ආමානය</span>
+                </a>
+ <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>ගෝලමානය</span>
+                </a>
+ 
+<a href="2.html" class="nav-item active">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>බල සමාන්තරාස්‍රය</span>
+                </a>
+<a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>බල ඝුර්ණ මූලදර්මය</span>
+                </a>
+ <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>හෙයාර් උපකරණය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+ <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U නලය</span>
+                </a>
+ <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>ද්‍රවයක ඝනත්වය</span>
+                </a>
+ <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>සරල අවලම්බය</span>
+                </a>
+ <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>හෙලික්සීය දුන්න</span>
+                </a>
+ <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-guitar"></i>
+                    <span>ධ්වනිමානය</span>
+                </a>
+<a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>ධ්වනි වේගය</span>
+                </a>
+ <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>තුෂාරංකය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+<a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>P,T සම්බන්ධය</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>බල සමාන්තරාස්‍ර මූලධර්මය</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory & Apparatus
+                        </h2>
+                        <p class="theory-text">
+                            බලවල සමාන්තරාස්‍ර නියමය තහවුරු කිරීම
+                        </p>
+                    </div>
+
+                    <!-- Main Grid: Simulation Canvas & Controls -->
+                    <div class="controls-grid">
+                        
+                        <!-- Canvas Card -->
+                        <div class="card canvas-card" style="margin-bottom: 0;">
+                            <canvas id="simCanvas" width="750" height="480"></canvas>
+                        </div>
+
+                        <!-- Controls Panel -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-sliders"></i>
+                                Force Controls
+                            </h2>
+
+                            <div class="control-group">
+                                <label>
+                                    P බලය (වම් පස භාරය)
+                                    <span class="value-tag"><span id="valP">120</span> g</span>
+                                </label>
+                                <input type="range" id="weightP" min="50" max="250" step="5" value="120">
+                            </div>
+
+                            <div class="control-group">
+                                <label>
+                                    Q බලය (දකුනු පස භාරය)
+                                    <span class="value-tag"><span id="valQ">150</span> g</span>
+                                </label>
+                                <input type="range" id="weightQ" min="50" max="250" step="5" value="150">
+                            </div>
+
+                            <div class="control-group">
+                                <label>
+                                    R බලය (මැද භාරය)
+                                    <span class="value-tag"><span id="valR">200</span> g</span>
+                                </label>
+                                <input type="range" id="weightR" min="50" max="300" step="5" value="200">
+                            </div>
+
+                            <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" id="showParallelogram" checked style="accent-color: var(--teal-dark); width: 16px; height: 16px;">
+                                    සමාන්තරාස්‍ර දෛශික පෙන්වන්න
+                                </label>
+
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">
+                                    <input type="checkbox" id="showCalculations" checked style="accent-color: var(--teal-dark); width: 16px; height: 16px;">
+                                    ගණනය කිරීම් පෙන්වන්න
+                                </label>
+                            </div>
+
+                            <button class="btn" id="recordBtn" style="margin-top: 16px;">
+                                <i class="fa-solid fa-plus-circle"></i> නිරීක්ෂණය සටහන් කරන්න
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Observation Data Table Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table"></i>
+                            නිරීක්ෂණ වගුව
+                        </h2>
+                        <div class="table-responsive">
+                            <table class="data-table" id="obsTable">
+                                <thead>
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>P (g)</th>
+                                        <th>Q (g)</th>
+                                        <th>R (g) [Equilibrant]</th>
+                                        <th>Angle θ</th>
+                                        <th>Calculated R'</th>
+                                        <th>% Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+      <div class="footer-links-group">
+        <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+          <i class="fa-solid fa-graduation-cap"></i> Learny App
+        </a>
+        <span style="color: var(--text-muted);">|</span>
+        <a href="https://t.me/sciencepicco" class="footer-custom-link footer-science" target="_blank">
+          <i class="fa-brands fa-telegram"></i> Science Picco
+        </a>
+      </div>
+      <p>
+        Designed by 
+        <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a>
+      </p>
+    </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Canvas Simulator Logic
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const inputP = document.getElementById('weightP');
+        const inputQ = document.getElementById('weightQ');
+        const inputR = document.getElementById('weightR');
+        const valP = document.getElementById('valP');
+        const valQ = document.getElementById('valQ');
+        const valR = document.getElementById('valR');
+        const showParallelogram = document.getElementById('showParallelogram');
+        const showCalculations = document.getElementById('showCalculations');
+        const recordBtn = document.getElementById('recordBtn');
+        const obsTable = document.getElementById('obsTable').getElementsByTagName('tbody')[0];
+
+        const pulleyL = { x: 150, y: 100 };
+        const pulleyR = { x: 600, y: 100 };
+        const board = { x: 100, y: 60, width: 550, height: 320 };
+        const paper = { x: 180, y: 80, width: 390, height: 260 };
+
+        let recordCount = 0;
+
+        function updateValues() {
+            valP.textContent = inputP.value;
+            valQ.textContent = inputQ.value;
+            valR.textContent = inputR.value;
+        }
+
+        function calculateEquilibrium(P, Q, R) {
+            if (R >= (P + Q) || P >= (Q + R) || Q >= (P + R)) {
+                return { valid: false };
+            }
+
+            let cosTheta = (R * R - P * P - Q * Q) / (2 * P * Q);
+            let theta = Math.acos(cosTheta);
+
+            let phi1 = Math.acos((P * P + R * R - Q * Q) / (2 * P * R));
+            let phi2 = Math.acos((Q * Q + R * R - P * P) / (2 * Q * R));
+
+            return {
+                valid: true,
+                thetaRad: theta,
+                thetaDeg: (theta * 180 / Math.PI),
+                phi1: phi1,
+                phi2: phi2
+            };
+        }
+
+        function drawApparatus() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Wooden Board
+            ctx.fillStyle = '#e0c398';
+            ctx.strokeStyle = '#8d5b2c';
+            ctx.lineWidth = 3;
+            ctx.fillRect(board.x, board.y, board.width, board.height);
+            ctx.strokeRect(board.x, board.y, board.width, board.height);
+
+            // Paper
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#cccccc';
+            ctx.lineWidth = 1;
+            ctx.fillRect(paper.x, paper.y, paper.width, paper.height);
+            ctx.strokeRect(paper.x, paper.y, paper.width, paper.height);
+
+            // Pins
+            const pinPositions = [
+                { x: paper.x + 10, y: paper.y + 10 },
+                { x: paper.x + paper.width - 10, y: paper.y + 10 },
+                { x: paper.x + 10, y: paper.y + paper.height - 10 },
+                { x: paper.x + paper.width - 10, y: paper.y + paper.height - 10 }
+            ];
+            ctx.fillStyle = '#dc2626';
+            pinPositions.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Pulleys
+            [pulleyL, pulleyR].forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
+                ctx.fillStyle = '#BDDED6';
+                ctx.fill();
+                ctx.strokeStyle = '#177D81';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#177D81';
+                ctx.fill();
+            });
+
+            const P = parseFloat(inputP.value);
+            const Q = parseFloat(inputQ.value);
+            const R = parseFloat(inputR.value);
+
+            const eq = calculateEquilibrium(P, Q, R);
+
+            if (!eq.valid) {
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 15px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Unbalanced System (Forces do not satisfy triangle inequality)', canvas.width / 2, 210);
+                ctx.textAlign = 'left';
+                return;
+            }
+
+            const ox = (paper.x + paper.width / 2);
+            const oy = (paper.y + paper.height / 2) - 20;
+
+            // Strings
+            ctx.strokeStyle = '#0f2728';
+            ctx.lineWidth = 1.5;
+
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(pulleyL.x, pulleyL.y);
+            ctx.lineTo(pulleyL.x, pulleyL.y + 120);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(pulleyR.x, pulleyR.y);
+            ctx.lineTo(pulleyR.x, pulleyR.y + 120);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(ox, oy + 150);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(ox, oy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f2728';
+            ctx.fill();
+
+            ctx.fillStyle = '#0f2728';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('O', ox - 12, oy - 8);
+
+            drawPan(pulleyL.x, pulleyL.y + 120, P, 'P');
+            drawPan(pulleyR.x, pulleyR.y + 120, Q, 'Q');
+            drawPan(ox, oy + 150, R, 'R');
+
+            const scale = 0.6;
+            const pVecX = ox - (P * scale) * Math.sin(eq.phi1);
+            const pVecY = oy - (P * scale) * Math.cos(eq.phi1);
+            const qVecX = ox + (Q * scale) * Math.sin(eq.phi2);
+            const qVecY = oy - (Q * scale) * Math.cos(eq.phi2);
+
+            const sVecX = pVecX + (qVecX - ox);
+            const sVecY = pVecY + (qVecY - oy);
+
+            if (showParallelogram.checked) {
+                drawArrow(ox, oy, pVecX, pVecY, '#dc2626', 2);
+                ctx.fillText(`P (${P}g)`, pVecX - 30, pVecY - 5);
+
+                drawArrow(ox, oy, qVecX, qVecY, '#16a34a', 2);
+                ctx.fillText(`Q (${Q}g)`, qVecX + 10, qVecY - 5);
+
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = '#4e6c6d';
+
+                ctx.beginPath();
+                ctx.moveTo(pVecX, pVecY);
+                ctx.lineTo(sVecX, sVecY);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(qVecX, qVecY);
+                ctx.lineTo(sVecX, sVecY);
+                ctx.stroke();
+
+                ctx.setLineDash([]);
+
+                drawArrow(ox, oy, sVecX, sVecY, '#9333ea', 2.5);
+                ctx.fillStyle = '#9333ea';
+                ctx.fillText(`R' (Resultant)`, sVecX - 35, sVecY - 10);
+            }
+
+            if (showCalculations.checked) {
+                ctx.fillStyle = '#0f2728';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.fillText(`Angle θ: ${eq.thetaDeg.toFixed(1)}°`, paper.x + 15, paper.y + 25);
+                
+                const rCalc = Math.sqrt(P * P + Q * Q + 2 * P * Q * Math.cos(eq.thetaRad));
+                ctx.fillText(`Calculated R': ${rCalc.toFixed(1)} g`, paper.x + 15, paper.y + 45);
+                ctx.fillText(`Equilibrant R: ${R} g`, paper.x + 15, paper.y + 65);
+            }
+        }
+
+        function drawPan(x, y, weight, label) {
+            ctx.strokeStyle = '#4e6c6d';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y + 15);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x + 15, y + 15);
+            ctx.stroke();
+
+            ctx.fillStyle = '#BDDED6';
+            ctx.fillRect(x - 20, y + 15, 40, 5);
+
+            ctx.fillStyle = '#177D81';
+            ctx.fillRect(x - 10, y + 5, 20, 10);
+
+            ctx.fillStyle = '#0f2728';
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${label}=${weight}g`, x, y + 32);
+            ctx.textAlign = 'left';
+        }
+
+        function drawArrow(fromx, fromy, tox, toy, color, width) {
+            const headlen = 8;
+            const angle = Math.atan2(toy - fromy, tox - fromx);
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(tox, toy);
+            ctx.fill();
+        }
+
+        function recordObservation() {
+            const P = parseFloat(inputP.value);
+            const Q = parseFloat(inputQ.value);
+            const R = parseFloat(inputR.value);
+
+            const eq = calculateEquilibrium(P, Q, R);
+
+            if (!eq.valid) {
+                alert("Cannot record: Current system is not in equilibrium!");
+                return;
+            }
+
+            const rCalc = Math.sqrt(P * P + Q * Q + 2 * P * Q * Math.cos(eq.thetaRad));
+            const error = Math.abs((R - rCalc) / R) * 100;
+
+            recordCount++;
+            const row = obsTable.insertRow();
+            row.innerHTML = `
+                <td>${recordCount}</td>
+                <td>${P}</td>
+                <td>${Q}</td>
+                <td>${R}</td>
+                <td>${eq.thetaDeg.toFixed(1)}°</td>
+                <td>${rCalc.toFixed(1)}</td>
+                <td style="font-weight: bold; color: ${error <= 5 ? '#16a34a' : '#dc2626'};">${error.toFixed(2)}%</td>
+            `;
+        }
+
+        [inputP, inputQ, inputR].forEach(input => {
+            input.addEventListener('input', () => {
+                updateValues();
+                drawApparatus();
+            });
+        });
+
+        showParallelogram.addEventListener('change', drawApparatus);
+        showCalculations.addEventListener('change', drawApparatus);
+        recordBtn.addEventListener('click', recordObservation);
+
+        updateValues();
+        drawApparatus();
+    </script>
+</body>
+</html>
