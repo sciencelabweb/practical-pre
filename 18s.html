@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Vernier Caliper Simulator</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
+    
+  
+    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        
+        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+    </div>
+
+    <!-- Box 2: Success Screen -->
+    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
+        
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+    </div>
+
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+
+window.addEventListener("DOMContentLoaded", () => {
+    const isVerified = localStorage.getItem("site_premium_verified");
+    if (!isVerified) {
+        document.getElementById("authModal").style.display = "flex";
+    }
+});
+
+async function verifyPremiumId() {
+    const inputId = document.getElementById("premiumIdInput").value.trim();
+    const btn = document.getElementById("verifyBtn");
+    const errorText = document.getElementById("authError");
+
+    if (!inputId) {
+        errorText.style.display = "block";
+        errorText.innerText = "Please enter an ID.";
+        return;
+    }
+
+    btn.innerText = "Verifying...";
+    btn.disabled = true;
+    errorText.style.display = "none";
+
+    try {
+        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
+        const data = await response.json();
+
+        if (data.status === "success") {
+            localStorage.setItem("site_premium_verified", "true");
+            document.getElementById("authStep1").style.display = "none";
+            document.getElementById("authStep2").style.display = "block";
+        } else {
+            errorText.style.display = "block";
+            errorText.innerText = "Invalid Premium ID. Access denied.";
+            btn.innerText = "Verify & Continue";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        errorText.style.display = "block";
+        errorText.innerText = "Connection error. Please try again.";
+        btn.innerText = "Verify & Continue";
+        btn.disabled = false;
+    }
+}
+
+function closeAuthModal() {
+    document.getElementById("authModal").style.display = "none";
+}
+</script>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+ <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="18.html" class="nav-item active">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>වර්නියර් කැලිපරය</span>
+                </a>
+                  <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>චල අන්වීක්ෂය</span>
+                      <span class="menu-tag">Free</span>
+                </a>
+<a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>ඉස්කුරුප්පු ආමානය</span>
+                </a>
+ <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>ගෝලමානය</span>
+                </a>
+ 
+<a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>බල සමාන්තරාස්‍රය</span>
+                </a>
+<a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>බල ඝුර්ණ මූලදර්මය</span>
+                </a>
+ <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>හෙයාර් උපකරණය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+ <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U නලය</span>
+                </a>
+ <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>ද්‍රවයක ඝනත්වය</span>
+                </a>
+ <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>සරල අවලම්බය</span>
+                </a>
+ <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>හෙලික්සීය දුන්න</span>
+                </a>
+ <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-guitar"></i>
+                    <span>ධ්වනිමානය</span>
+                </a>
+<a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>ධ්වනි වේගය</span>
+                </a>
+ <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>තුෂාරංකය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+<a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>P,T සම්බන්ධය</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Vernier Caliper Simulator</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Theory Card Box -->
+                    <div class="card theory-card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            Theory & Principle
+                        </h2>
+                        <p class="theory-text">
+                            වර්නියර් කැලිපරයක භාවිතය
+                        </p>
+                        <div class="formula">
+                            කුඩාම මිනුම (LC) = ප්‍රධාන පරිමාණයේ කොටසක දිග - වර්නියර් පරිමාණයේ කොටසක දිග = 1.0 mm - 0.9 mm = 0.1 mm (0.01 cm)
+                        </div>
+                    </div>
+
+                    <!-- Canvas Simulation Card -->
+                    <div class="card canvas-card">
+                        <canvas id="caliperCanvas" width="800" height="340"></canvas>
+                        <div id="readoutDisplay" class="status-badge status-balanced" style="margin-top: 20px; font-size: 1.05rem;">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Reading: 0.00 mm (0.000 cm)</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls Grid -->
+                    <div class="controls-grid">
+                        <!-- Adjustment Card -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-sliders"></i>
+                                Position & Specimen Adjustment
+                            </h2>
+                            <div class="control-group">
+                                <label for="positionSlider">
+                                    වස්තුවේ දිග
+                                    <span class="value-tag"><span id="pos-val">0.00</span> mm</span>
+                                </label>
+                                <input type="range" id="positionSlider" min="0" max="70" value="0" step="0.05">
+                            </div>
+                            <div class="control-group" style="margin-top: 15px;">
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn" id="zeroBtn">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset Zero
+                                    </button>
+                                    <button class="btn btn-secondary" id="randomBtn">
+                                        <i class="fa-solid fa-shuffle"></i> වස්තුවක් එක්කරන්න
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View Options Card -->
+                        <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-eye"></i>
+                                View & Lens Controls
+                            </h2>
+                            <div class="control-group">
+                                <label>විශාලනය සහ පරීක්ෂා කිරීම</label>
+                                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                                    <button class="btn" id="zoomBtn">
+                                        <i class="fa-solid fa-magnifying-glass"></i> විශාල කරන්න
+                                    </button>
+                                    <button class="btn btn-secondary" id="toggleReadoutBtn">
+                                        <i class="fa-solid fa-eye-slash"></i> පාඨාංක සගවන්න
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="equation-box" style="margin-top: 15px;">
+                                <strong>Reading Formula:</strong><br>
+                                Total = Main Scale Reading + (Vernier Coincidence × Least Count)
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+           <footer class="footer">
+      <div class="footer-links-group">
+        <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+          <i class="fa-solid fa-graduation-cap"></i> Learny App
+        </a>
+        <span style="color: var(--text-muted);">|</span>
+        <a href="https://t.me/sciencepiccoorg" class="footer-custom-link footer-science" target="_blank">
+          <i class="fa-brands fa-telegram"></i> Science Picco
+        </a>
+      </div>
+      <p>
+        Designed by 
+        <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a>
+      </p>
+    </footer>
+        </div>
+    </div>
+
+    <script src="menu.js"></script>
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        const canvas = document.getElementById('caliperCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('positionSlider');
+        const readout = document.getElementById('readoutDisplay');
+        const toggleBtn = document.getElementById('toggleReadoutBtn');
+        const randomBtn = document.getElementById('randomBtn');
+        const zeroBtn = document.getElementById('zeroBtn');
+        const zoomBtn = document.getElementById('zoomBtn');
+        const posVal = document.getElementById('pos-val');
+
+        // State variables
+        let position = 0; // mm (0 to 70mm)
+        let showReading = true;
+        let showZoom = false;
+        let isDragging = false;
+        let objectWidth = 0;
+
+        // Base geometry configuration
+        const scaleFactor = 7; // Pixels per mm
+        const originX = 130;
+        const mainBeamY = 150;
+        const beamHeight = 40;
+        const maxMM = 70;
+
+        function drawCaliper() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const shiftX = position * scaleFactor;
+
+            // --- 1. DRAW FIXED PART (Main Scale & Fixed Jaws) ---
+            ctx.fillStyle = '#d0d7de';
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1.5;
+
+            // Main Beam
+            ctx.fillRect(originX - 100, mainBeamY, 660, beamHeight);
+            ctx.strokeRect(originX - 100, mainBeamY, 660, beamHeight);
+
+            // Fixed Lower Jaw
+            ctx.beginPath();
+            ctx.moveTo(originX - 15, mainBeamY + beamHeight);
+            ctx.lineTo(originX - 15, mainBeamY + beamHeight + 110);
+            ctx.quadraticCurveTo(originX - 8, mainBeamY + beamHeight + 130, originX, mainBeamY + beamHeight + 130);
+            ctx.lineTo(originX, mainBeamY + beamHeight);
+            ctx.fillStyle = '#b0b8c0';
+            ctx.fill();
+            ctx.stroke();
+
+            // Fixed Upper Jaw
+            ctx.beginPath();
+            ctx.moveTo(originX - 15, mainBeamY);
+            ctx.lineTo(originX - 15, mainBeamY - 50);
+            ctx.quadraticCurveTo(originX - 8, mainBeamY - 60, originX, mainBeamY - 60);
+            ctx.lineTo(originX, mainBeamY);
+            ctx.fill();
+            ctx.stroke();
+
+            // --- Main Scale Markings (mm) ---
+            ctx.fillStyle = '#000';
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+
+            for (let mm = 0; mm <= maxMM; mm++) {
+                const x = originX + (mm * scaleFactor);
+                let markHeight = 8;
+
+                if (mm % 10 === 0) {
+                    markHeight = 18;
+                    ctx.fillText(mm / 10, x, mainBeamY + markHeight + 12);
+                } else if (mm % 5 === 0) {
+                    markHeight = 13;
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(x, mainBeamY + beamHeight);
+                ctx.lineTo(x, mainBeamY + beamHeight - markHeight);
+                ctx.stroke();
+            }
+
+            // --- 2. DRAW OBJECT ---
+            if (objectWidth > 0) {
+                ctx.fillStyle = '#D98E18';
+                ctx.fillRect(originX, mainBeamY + beamHeight + 5, objectWidth * scaleFactor, 115);
+                ctx.strokeStyle = '#0f2728';
+                ctx.strokeRect(originX, mainBeamY + beamHeight + 5, objectWidth * scaleFactor, 115);
+            }
+
+            // --- 3. DRAW MOVABLE PART (Vernier Scale & Sliding Jaws) ---
+            const vX = originX + shiftX;
+
+            // Depth Probe Rod
+            ctx.fillStyle = '#888';
+            ctx.fillRect(originX + (maxMM * scaleFactor) + 10, mainBeamY + (beamHeight / 2) - 2, shiftX + 20, 4);
+            ctx.strokeRect(originX + (maxMM * scaleFactor) + 10, mainBeamY + (beamHeight / 2) - 2, shiftX + 20, 4);
+
+            // Movable Body
+            ctx.fillStyle = 'rgba(218, 225, 233, 0.92)';
+            ctx.fillRect(vX - 20, mainBeamY - 5, 85, beamHeight + 35);
+            ctx.strokeRect(vX - 20, mainBeamY - 5, 85, beamHeight + 35);
+
+            // Movable Lower Jaw
+            ctx.beginPath();
+            ctx.moveTo(vX, mainBeamY + beamHeight);
+            ctx.lineTo(vX, mainBeamY + beamHeight + 130);
+            ctx.quadraticCurveTo(vX - 8, mainBeamY + beamHeight + 130, vX - 15, mainBeamY + beamHeight + 110);
+            ctx.lineTo(vX - 15, mainBeamY + beamHeight);
+            ctx.fillStyle = '#c0c8d0';
+            ctx.fill();
+            ctx.stroke();
+
+            // Movable Upper Jaw
+            ctx.beginPath();
+            ctx.moveTo(vX, mainBeamY);
+            ctx.lineTo(vX, mainBeamY - 60);
+            ctx.quadraticCurveTo(vX - 8, mainBeamY - 60, vX - 15, mainBeamY - 50);
+            ctx.lineTo(vX - 15, mainBeamY);
+            ctx.fill();
+            ctx.stroke();
+
+            // Vernier Scale Markings (0.1mm precision)
+            ctx.fillStyle = '#000';
+            ctx.font = '10px Inter, sans-serif';
+            for (let v = 0; v <= 10; v++) {
+                const vx = vX + (v * 0.9 * scaleFactor);
+                let markHeight = 10;
+                if (v % 5 === 0) markHeight = 14;
+
+                ctx.beginPath();
+                ctx.moveTo(vx, mainBeamY + beamHeight);
+                ctx.lineTo(vx, mainBeamY + beamHeight + markHeight);
+                ctx.stroke();
+
+                if (v % 5 === 0) {
+                    ctx.fillText(v, vx, mainBeamY + beamHeight + markHeight + 10);
+                }
+            }
+
+            // --- 4. DRAW MAGNIFYING LENS (If Active) ---
+            if (showZoom) {
+                drawZoomLens(vX + 30, mainBeamY + beamHeight);
+            }
+        }
+
+        function drawZoomLens(targetX, targetY) {
+            const zoomRadius = 65;
+            const magFactor = 2.2;
+            const lensX = 400; // Fixed upper center view
+            const lensY = 75;
+
+            ctx.save();
+
+            // Lens Frame Shadow & Border
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(lensX, lensY, zoomRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#177D81';
+            ctx.stroke();
+
+            // Clip magnified view inside lens circle
+            ctx.beginPath();
+            ctx.arc(lensX, lensY, zoomRadius - 2, 0, Math.PI * 2);
+            ctx.clip();
+
+            // Render Magnified Scale Content
+            ctx.save();
+            ctx.translate(lensX, lensY);
+            ctx.scale(magFactor, magFactor);
+            ctx.translate(-targetX, -targetY);
+
+            const shiftX = position * scaleFactor;
+            const vX = originX + shiftX;
+
+            // Main scale beam
+            ctx.fillStyle = '#d0d7de';
+            ctx.fillRect(originX - 100, mainBeamY, 660, beamHeight);
+            ctx.strokeRect(originX - 100, mainBeamY, 660, beamHeight);
+
+            // Main Scale ticks
+            ctx.fillStyle = '#000';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            for (let mm = 0; mm <= maxMM; mm++) {
+                const x = originX + (mm * scaleFactor);
+                let markHeight = 8;
+                if (mm % 10 === 0) {
+                    markHeight = 18;
+                    ctx.fillText(mm / 10, x, mainBeamY + markHeight + 10);
+                } else if (mm % 5 === 0) {
+                    markHeight = 13;
+                }
+                ctx.beginPath();
+                ctx.moveTo(x, mainBeamY + beamHeight);
+                ctx.lineTo(x, mainBeamY + beamHeight - markHeight);
+                ctx.stroke();
+            }
+
+            // Vernier slide region
+            ctx.fillStyle = 'rgba(218, 225, 233, 0.9)';
+            ctx.fillRect(vX - 20, mainBeamY + beamHeight - 1, 85, 30);
+            ctx.strokeRect(vX - 20, mainBeamY + beamHeight - 1, 85, 30);
+
+            // Vernier ticks
+            for (let v = 0; v <= 10; v++) {
+                const vx = vX + (v * 0.9 * scaleFactor);
+                let markHeight = 10;
+                if (v % 5 === 0) markHeight = 14;
+
+                ctx.beginPath();
+                ctx.moveTo(vx, mainBeamY + beamHeight);
+                ctx.lineTo(vx, mainBeamY + beamHeight + markHeight);
+                ctx.stroke();
+
+                if (v % 5 === 0) {
+                    ctx.fillText(v, vx, mainBeamY + beamHeight + markHeight + 9);
+                }
+            }
+            ctx.restore();
+
+            // Reticle / Alignment Indicator Line
+            ctx.strokeStyle = 'rgba(217, 142, 24, 0.8)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(lensX, lensY - zoomRadius);
+            ctx.lineTo(lensX, lensY + zoomRadius);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function updateUI() {
+            slider.value = position;
+            posVal.textContent = position.toFixed(2);
+            if (showReading) {
+                readout.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Reading: ${position.toFixed(2)} mm (${(position / 10).toFixed(3)} cm)</span>`;
+            } else {
+                readout.innerHTML = `<i class="fa-solid fa-circle-question"></i> <span>Reading: ??? mm</span>`;
+            }
+            drawCaliper();
+        }
+
+        function getCanvasX(evt) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+            return (clientX - rect.left) * (canvas.width / rect.width);
+        }
+
+        let startX = 0;
+        function startDrag(evt) {
+            const canvasX = getCanvasX(evt);
+            const slideX = originX + (position * scaleFactor);
+
+            if (canvasX >= slideX - 30 && canvasX <= slideX + 100) {
+                isDragging = true;
+                startX = canvasX - (position * scaleFactor);
+            }
+        }
+
+        function moveDrag(evt) {
+            if (!isDragging) return;
+            evt.preventDefault();
+            const canvasX = getCanvasX(evt);
+            let newPos = (canvasX - startX) / scaleFactor;
+            
+            newPos = Math.max(0, Math.min(maxMM, newPos));
+            position = parseFloat(newPos.toFixed(2));
+            updateUI();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        // Event Listeners
+        slider.addEventListener('input', (e) => {
+            position = parseFloat(e.target.value);
+            updateUI();
+        });
+
+        zoomBtn.addEventListener('click', () => {
+            showZoom = !showZoom;
+            zoomBtn.classList.toggle('btn-secondary', !showZoom);
+            zoomBtn.classList.toggle('active-toggle', showZoom);
+            updateUI();
+        });
+
+        toggleBtn.addEventListener('click', () => {
+            showReading = !showReading;
+            toggleBtn.innerHTML = showReading ? '<i class="fa-solid fa-eye-slash"></i> Hide Reading' : '<i class="fa-solid fa-eye"></i> Show Reading';
+            updateUI();
+        });
+
+        randomBtn.addEventListener('click', () => {
+            objectWidth = parseFloat((Math.random() * (maxMM - 10) + 5).toFixed(2));
+            position = objectWidth;
+            updateUI();
+        });
+
+        zeroBtn.addEventListener('click', () => {
+            objectWidth = 0;
+            position = 0;
+            updateUI();
+        });
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', moveDrag);
+        window.addEventListener('mouseup', stopDrag);
+
+        // Touch Events
+        canvas.addEventListener('touchstart', startDrag, { passive: false });
+        window.addEventListener('touchmove', moveDrag, { passive: false });
+        window.addEventListener('touchend', stopDrag);
+
+        // Initial setup
+        updateUI();
+    </script>
+</body>
+</html>
