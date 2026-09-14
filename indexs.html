@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScienceLab: Physics Virtual Laboratory Dashboard</title>
+    <!-- FontAwesome Icons -->
+    <script>(function(s){s.dataset.zone='11181252',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+     <style>
+    /* Quick Stats Custom Responsive Layout (2x2 Mobile, 1x4 Desktop) with compact mobile sizes */
+    .quick-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+    @media (max-width: 768px) {
+        .quick-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .quick-stats-grid .card {
+            padding: 10px !important;
+            gap: 10px !important;
+            border-radius: 12px !important;
+        }
+        .quick-stats-grid .card > div:first-child {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 8px !important;
+            font-size: 0.95rem !important;
+        }
+        .quick-stats-grid h3 {
+            font-size: 0.95rem !important;
+        }
+        .quick-stats-grid p {
+            font-size: 0.7rem !important;
+        }
+    }
+
+    /* Sponsored Tab Styling */
+        .sponsored-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .sponsor-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .sponsor-card:hover {
+            border-color: var(--teal-dark);
+            transform: translateY(-2px);
+        }
+        .sponsor-card h4 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sponsor-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .sponsor-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .btn-learny {
+            background-color: #f3e8ff;
+            color: #9333ea;
+            border: 1px solid #d8b4fe;
+        }
+        .btn-learny:hover {
+            background-color: #e9d5ff;
+        }
+        .btn-science {
+            background-color: #e0f2fe;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+        }
+        .btn-science:hover {
+            background-color: #bae6fd;
+        }
+        @media (max-width: 768px) {
+            .dashboard-banner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+   
+<body>
+
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>වර්නියර් කැලිපරය</span>
+                </a>
+                  <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>චල අන්වීක්ෂය</span>
+                      <span class="menu-tag">Free</span>
+                </a>
+<a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>ඉස්කුරුප්පු ආමානය</span>
+                </a>
+ <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>ගෝලමානය</span>
+                </a>
+ 
+<a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>බල සමාන්තරාස්‍රය</span>
+                </a>
+<a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>බල ඝුර්ණ මූලදර්මය</span>
+                </a>
+ <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>හෙයාර් උපකරණය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+ <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U නලය</span>
+                </a>
+ <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>ද්‍රවයක ඝනත්වය</span>
+                </a>
+ <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>සරල අවලම්බය</span>
+                </a>
+ <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>හෙලික්සීය දුන්න</span>
+                </a>
+ <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-guitar"></i>
+                    <span>ධ්වනිමානය</span>
+                </a>
+<a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>ධ්වනි වේගය</span>
+                </a>
+ <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>තුෂාරංකය</span>
+     <span class="menu-tag">Free</span>
+                </a>
+<a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>P,T සම්බන්ධය</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a> 
+                 <a href="developer.html" class="nav-item"><i class="fas fa-code"></i> Developer</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Student Portal Dashboard</h1>
+                </div>
+               <div class="header-right">
+        <a href="10.html" class="lang-toggle-btn" title="Switch to English">
+            <i class="fas fa-language"></i>
+        </a>
+    </div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <main class="content-body">
+                <div class="container">
+                    
+                    <!-- Greeting Banner Card with Custom Icon -->
+                    <div class="card greeting-card" style="display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f0f7f5 0%, #BDDED6 100%); border: 1px solid var(--teal-light);">
+                        <div>
+                            <span id="time-badge" style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--teal-dark); background: #ffffff; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px;">Loading...</span>
+                            <h2 id="greeting-text" style="font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 4px;">Welcome back, Student!</h2>
+                           
+                        </div>
+                        <div class="greeting-icon-container" style="display: flex; align-items: center; justify-content: center; padding: 10px;">
+                            <img src="https://i.postimg.cc/Vk9Ct5Yh/AIRetouch-20260910-133025804.png" alt="Student Greeting Icon" style="width: 85px; height: 85px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Grid (2x2 on Mobile, 1x4 on Desktop with compact mobile scale) -->
+                    <div class="quick-stats-grid">
+                        <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 16px;">
+                            <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--teal-subtle); color: var(--teal-dark); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">14+</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Active Lab Sims</p>
+                            </div>
+                        </div>
+                        <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 16px;">
+                            <div style="width: 50px; height: 50px; border-radius: 12px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">Interactive</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Real-time Calculations</p>
+                            </div>
+                        </div>
+                        <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 16px;">
+                            <div style="width: 50px; height: 50px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">A/L & O/L</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Physics Syllabus Ready</p>
+                            </div>
+                        </div>
+                        <div class="card" style="display: flex; align-items: center; gap: 16px; padding: 16px;">
+                            <div style="width: 50px; height: 50px; border-radius: 12px; background: #f3e8ff; color: #9333ea; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">100%</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Accurate Results</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Lab Access Section -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-rocket"></i>
+                            Featured Physics Simulators
+                        </h2>
+                        <div class="controls-grid" style="margin-top: 15px;">
+                            <a href="10.html" class="card" style="text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: block;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(23,125,129,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                                    <i class="fa-solid fa-microscope" style="font-size: 1.2rem; color: var(--teal-dark);"></i>
+                                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--primary);">Micrometer Screw Gauge</h3>
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Practice measuring small dimensions like wire thickness and steel ball diameters precisely.</p>
+                            </a>
+                            <a href="7.html" class="card" style="text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: block;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(23,125,129,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                                    <i class="fa-solid fa-stopwatch" style="font-size: 1.2rem; color: var(--teal-dark);"></i>
+                                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--primary);">Simple Pendulum</h3>
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Investigate the relationship between pendulum length and time period to calculate acceleration due to gravity.</p>
+                            </a>
+                        </div>
+                    </div>
+
+                  <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-handshake"></i>
+                            Sponsored Partners & Platforms
+                        </h2>
+                        <div class="sponsored-grid">
+                            <div class="sponsor-card">
+                                <h4><i class="fa-solid fa-graduation-cap" style="color: #9333ea;"></i> Learny App</h4>
+                                <p>Your ultimate companion for smart studying, conceptual learning resources, and academic tools.</p>
+                                <a href="https://www.learny.study" target="_blank" rel="noopener noreferrer" class="sponsor-btn btn-learny">
+                                    Visit Learny App <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            </div>
+                            <div class="sponsor-card">
+                                <h4><i class="fa-solid fa-atom" style="color: #0284c7;"></i> Science Picco</h4>
+                                <p>Explore fascinating scientific updates, experimental insights, and physics discussions via Telegram.</p>
+                                <a href="https://t.me/sciencepicco" target="_blank" rel="noopener noreferrer" class="sponsor-btn btn-science">
+                                    Join Science Picco <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Announcements / Study Tips Card -->
+                    <div class="card">
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-bullhorn"></i>
+                            Student Study Notice
+                        </h2>
+                        <div class="equation-box">
+                            <strong>Tip for Practical Exams:</strong> Always take a minimum of three independent sets of readings (e.g., at different positions along a wire) and calculate the mean to eliminate zero errors and parallax observation mistakes.
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+           <footer class="footer">
+      <div class="footer-links-group">
+        <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+          <i class="fa-solid fa-graduation-cap"></i> Learny App
+        </a>
+        <span style="color: var(--text-muted);">|</span>
+        <a href="https://t.me/sciencepiccoorg" class="footer-custom-link footer-science" target="_blank">
+          <i class="fa-brands fa-telegram"></i> Science Picco
+        </a>
+      </div>
+      <p>
+        Designed by 
+        <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a>
+      </p>
+    </footer>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Dynamic Time-based Greeting Logic
+        function updateGreeting() {
+            const now = new Date();
+            const hours = now.getHours();
+            const greetingText = document.getElementById('greeting-text');
+            const timeBadge = document.getElementById('time-badge');
+
+            let timeOfDay = "";
+            let badgeText = "";
+
+            if (hours < 12) {
+                timeOfDay = "Good Morning";
+                badgeText = "🌅 Morning Session";
+            } else if (hours < 17) {
+                timeOfDay = "Good Afternoon";
+                badgeText = "☀️ Afternoon Study";
+            } else {
+                timeOfDay = "Good Evening";
+                badgeText = "🌙 Evening Revision";
+            }
+
+            greetingText.innerHTML = `${timeOfDay}, Student!`;
+            timeBadge.innerHTML = badgeText;
+        }
+
+        updateGreeting();
+    </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ⚠️ IMPORTANT: Change this ID for each page (e.g., '2' for 2.html, '12' for 12.html)
+  const PRACTICAL_ID = '1'; 
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqZ2z6cLSV-cygTigtgc6TyKcRgxeYoy4",
+    authDomain: "sciencelab-admin.firebaseapp.com",
+    projectId: "sciencelab-admin",
+    storageBucket: "sciencelab-admin.firebasestorage.app",
+    messagingSenderId: "79590520524",
+    appId: "1:79590520524:web:41bc1b93236e98107e7469",
+    measurementId: "G-VPRS1JY8D2"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ==========================================
+  // 1. TRACK VIEW ON EVERY PAGE RELOAD
+  // ==========================================
+  const today = new Date().toISOString().split('T')[0];
+  await addDoc(collection(db, 'views'), {
+    practicalId: PRACTICAL_ID,
+    date: today,
+    count: 1,
+    timestamp: serverTimestamp()
+  });
+
+  // ==========================================
+  // 2. LOAD YOUTUBE GUIDES
+  // ==========================================
+  const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', PRACTICAL_ID));
+  const snap = await getDocs(q);
+  
+  if (!snap.empty) {
+    const guidesContainer = document.createElement('div');
+    guidesContainer.className = 'card';
+    guidesContainer.style.cssText = 'margin-top: 32px;';
+    guidesContainer.innerHTML = `<div class="card-title" style="border-bottom-color: #fee2e2;"><i class="fa-brands fa-youtube" style="color:#dc2626; background:#fee2e2;"></i> Video Guides (${snap.size})</div><div id="guidesList" style="display:flex; flex-direction:column; gap:20px;"></div>`;
+    
+    const list = guidesContainer.querySelector('#guidesList');
+    snap.docs.forEach((doc, index) => {
+      const g = doc.data();
+      let videoUrl = g.youtubeUrl;
+      if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) videoUrl = 'https://' + videoUrl;
+      
+      const guideCard = document.createElement('div');
+      guideCard.style.cssText = 'background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 16px; padding: 20px; border-left: 5px solid #dc2626;';
+      guideCard.innerHTML = `
+        <h3 style="margin:0 0 8px 0; color:var(--primary); font-size:1.1rem; font-weight:700;">${index + 1}. ${g.title || 'Video Guide'}</h3>
+        <p style="color:var(--text-muted); margin:0 0 16px 0; font-size:0.9rem; line-height:1.6;">${g.description || 'Watch this comprehensive video guide.'}</p>
+        <a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:#dc2626; color:#fff; border-radius:12px; text-decoration:none; font-weight:700; font-size:0.95rem; box-shadow:0 4px 14px rgba(220,38,38,0.3); transition:all 0.2s;">
+          <i class="fa-solid fa-play"></i> Watch Now
+        </a>`;
+      
+      const btn = guideCard.querySelector('a');
+      btn.onmouseenter = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 6px 20px rgba(220,38,38,0.4)'; };
+      btn.onmouseleave = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 4px 14px rgba(220,38,38,0.3)'; };
+      list.appendChild(guideCard);
+    });
+    
+    const target = document.querySelector('.content-body');
+    if (target) target.appendChild(guidesContainer);
+  }
+</script>
+<script type="module" src="ad-popup.js"></script>
+</body>
+</html>
