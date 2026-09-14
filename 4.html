@@ -310,7 +310,32 @@ function closeAuthModal() {
                     <!-- Controls Grid -->
                     <div class="controls-grid">
                         <!-- Liquid Selection & Controls -->
+                       
+                        <!-- Suction Control & Action Buttons -->
                         <div class="card">
+                            <h2 class="card-title">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Vacuum & Data Operations
+                            </h2>
+                            <div class="control-group">
+                                <label for="suction-range">
+                                    Suction / Pressure Adjustment
+                                    <span class="value-tag" id="suction-val">0%</span>
+                                </label>
+                                <input type="range" id="suction-range" min="0" max="100" value="0" disabled>
+                                <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; display: block;">Open valve first to enable suction controls.</small>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button id="record-btn" class="toggle-btn" style="flex: 1; height: 40px; background-color: var(--teal-dark); color: #fff; font-size: 0.85rem; font-weight: 600; gap: 6px;">
+                                    <i class="fa-solid fa-plus"></i> Record Data
+                                </button>
+                                <button id="clear-btn" class="toggle-btn" style="height: 40px; background-color: #fef2f2; border-color: #fecaca; color: #991b1b; font-size: 0.85rem; font-weight: 600; gap: 6px; padding: 0 16px;">
+                                    <i class="fa-solid fa-trash"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                         <div class="card">
                             <h2 class="card-title">
                                 <i class="fa-solid fa-sliders"></i>
                                 Apparatus Controls
@@ -342,30 +367,6 @@ function closeAuthModal() {
                             </div>
                         </div>
 
-                        <!-- Suction Control & Action Buttons -->
-                        <div class="card">
-                            <h2 class="card-title">
-                                <i class="fa-solid fa-gauge-high"></i>
-                                Vacuum & Data Operations
-                            </h2>
-                            <div class="control-group">
-                                <label for="suction-range">
-                                    Suction / Pressure Adjustment
-                                    <span class="value-tag" id="suction-val">0%</span>
-                                </label>
-                                <input type="range" id="suction-range" min="0" max="100" value="0" disabled>
-                                <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; display: block;">Open valve first to enable suction controls.</small>
-                            </div>
-
-                            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                                <button id="record-btn" class="toggle-btn" style="flex: 1; height: 40px; background-color: var(--teal-dark); color: #fff; font-size: 0.85rem; font-weight: 600; gap: 6px;">
-                                    <i class="fa-solid fa-plus"></i> Record Data
-                                </button>
-                                <button id="clear-btn" class="toggle-btn" style="height: 40px; background-color: #fef2f2; border-color: #fecaca; color: #991b1b; font-size: 0.85rem; font-weight: 600; gap: 6px; padding: 0 16px;">
-                                    <i class="fa-solid fa-trash"></i> Clear
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Data Table & Chart Card -->
