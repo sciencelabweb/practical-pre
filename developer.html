@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer - Dilakshana Rathnayake | ScienceLab</title>
+    <!-- FontAwesome for Professional Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Your Existing Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Page-Specific Additions for Developer Page */
+        .developer-profile-card {
+            text-align: center;
+            padding: 40px 28px;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            font-size: 3rem;
+            color: white;
+            box-shadow: var(--shadow-md);
+            border: 4px solid var(--bg-main);
+        }
+        .profile-title {
+            color: var(--teal-dark);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+        .profile-bio {
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .contact-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+            border-color: var(--teal-dark);
+        }
+        .contact-item i {
+            font-size: 1.4rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background-color: var(--teal-subtle);
+            color: var(--teal-dark);
+        }
+        .contact-item.whatsapp:hover i { background-color: #25D366; color: white; }
+        .contact-item.telegram:hover i { background-color: #0088cc; color: white; }
+        .contact-item.instagram:hover i { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
+        .contact-item.facebook:hover i { background-color: #1877F2; color: white; }
+        .contact-item.email:hover i { background-color: #EA4335; color: white; }
+
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: var(--text-main);
+            background-color: var(--bg-card);
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            resize: vertical;
+        }
+        textarea:focus {
+            border-color: var(--teal-dark);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px var(--teal-subtle);
+        }
+        .status-message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+        .status-message.success {
+            display: block;
+            background-color: var(--teal-subtle);
+            color: var(--teal-dark);
+            border: 1px solid var(--teal-light);
+        }
+        .status-message.error {
+            display: block;
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fas fa-flask"></i> ScienceLab
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="18.html" class="nav-item"><i class="fas fa-ruler-combined"></i> Vernier Caliper</a>
+                <a href="12.html" class="nav-item"><i class="fas fa-microscope"></i> Travelling Microscope <span class="menu-tag">Free</span></a>
+                <a href="10.html" class="nav-item"><i class="fas fa-cog"></i> Micrometer Gauge</a>
+                <a href="11.html" class="nav-item"><i class="fas fa-circle"></i> Spherometer Lab</a>
+                <a href="2.html" class="nav-item"><i class="fas fa-weight-hanging"></i> Forces Simulator</a>
+                <a href="3.html" class="nav-item"><i class="fas fa-balance-scale"></i> Moments Simulator</a>
+                <a href="developer.html" class="nav-item active"><i class="fas fa-code"></i> Developer</a>
+                <a href="contact.html" class="nav-item"><i class="fas fa-envelope"></i> Contact & FAQs</a>
+            </nav>
+        </aside>
+
+        <!-- Overlay for Mobile -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-wrapper" id="mainWrapper">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1><i class="fas fa-laptop-code" style="color: var(--teal-dark); margin-right: 8px;"></i>Developer Profile</h1>
+                </div>
+                <div></div> <!-- Spacer for grid alignment -->
+            </header>
+
+            <div class="content-body">
+                <div class="container">
+                    
+                    <!-- Profile Card -->
+                    <div class="card developer-profile-card">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-astronaut"></i>
+                        </div>
+                        <h2 style="margin-bottom: 4px; color: var(--primary);">Dilakshana Rathnayake</h2>
+                        <p class="profile-title">Lead Developer & Creator</p>
+                        <p class="profile-bio">
+                            Passionate about creating interactive, professional, and visually engaging educational web experiences. 
+                            Dedicated to making science learning accessible, intuitive, and modern for everyone.
+                        </p>
+                    </div>
+
+                    <!-- Get In Touch Card -->
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-address-book"></i> Get In Touch</h3>
+                        <div class="contact-grid">
+                            <a href="https://wa.me/94774075773" target="_blank" class="contact-item whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>077 407 5773</span>
+                            </a>
+                            <a href="https://t.me/dilakshana_1" target="_blank" class="contact-item telegram">
+                                <i class="fab fa-telegram"></i>
+                                <span>@dilakshana_1</span>
+                            </a>
+                            <a href="https://instagram.com/infini8hex_" target="_blank" class="contact-item instagram">
+                                <i class="fab fa-instagram"></i>
+                                <span>@infini8hex_</span>
+                            </a>
+                            <a href="https://facebook.com/dilakshanarathnayake" target="_blank" class="contact-item facebook">
+                                <i class="fab fa-facebook"></i>
+                                <span>Dilakshana Rathnayake</span>
+                            </a>
+                            <a href="mailto:dilakshanarathnayake@gmail.com" class="contact-item email">
+                                <i class="fas fa-envelope"></i>
+                                <span>dilakshanarathnayake@gmail.com</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form Card -->
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-paper-plane"></i> Send a Message</h3>
+                        <form id="contactForm">
+                            <div class="control-group">
+                                <label>Your Name</label>
+                                <input type="text" id="senderName" required placeholder="Enter your full name">
+                            </div>
+                            <div class="control-group">
+                                <label>WhatsApp Phone Number</label>
+                                <input type="tel" id="senderWhatsapp" required placeholder="e.g., 077xxxxxxx">
+                            </div>
+                            <div class="control-group">
+                                <label>Description / Message</label>
+                                <textarea id="senderMessage" rows="5" required placeholder="How can I help you? Describe your inquiry here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                            <p id="formStatus" class="status-message"></p>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-links-group">
+                    <a href="https://www.learny.study" class="footer-custom-link footer-learny">Learny App</a>
+                    <span style="color: var(--text-muted);">|</span>
+                    <a href="https://t.me/sciencepicco" class="footer-custom-link footer-science">Science Picco</a>
+                </div>
+                <p>Designed by <a href="https://hexasolutions.online" class="footer-link">Hexa Solutions</a></p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- JavaScript for Sidebar and Telegram Form -->
+    <script>
+        // Sidebar Toggle Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+
+        // Telegram Bot Form Submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const status = document.getElementById('formStatus');
+            const name = document.getElementById('senderName').value;
+            const whatsapp = document.getElementById('senderWhatsapp').value;
+            const message = document.getElementById('senderMessage').value;
+
+            // Disable button and show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            // Format the message for Telegram (Markdown)
+            const text = `📬 *New Contact Form Submission*\n\n👤 *Name:* ${name}\n📱 *WhatsApp:* ${whatsapp}\n📝 *Message:* ${message}`;
+            
+            const botToken = '8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0';
+            const chatId = '8894629015';
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text,
+                    parse_mode: 'Markdown'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    status.textContent = '✅ Message sent successfully! I will get back to you soon.';
+                    status.className = 'status-message success';
+                    document.getElementById('contactForm').reset();
+                } else {
+                    throw new Error('Telegram API error');
+                }
+            })
+            .catch(error => {
+                status.textContent = '❌ Failed to send message. Please try again or contact me directly via WhatsApp.';
+                status.className = 'status-message error';
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+                
+                // Hide status message after 5 seconds
+                setTimeout(() => {
+                    status.className = 'status-message';
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
