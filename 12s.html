@@ -611,5 +611,73 @@ function closeAuthModal() {
 
         updateScaleDisplay();
     </script>
+     <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ⚠️ IMPORTANT: Change this ID for each page (e.g., '2' for 2.html, '12' for 12.html)
+  const PRACTICAL_ID = '12'; 
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqZ2z6cLSV-cygTigtgc6TyKcRgxeYoy4",
+    authDomain: "sciencelab-admin.firebaseapp.com",
+    projectId: "sciencelab-admin",
+    storageBucket: "sciencelab-admin.firebasestorage.app",
+    messagingSenderId: "79590520524",
+    appId: "1:79590520524:web:41bc1b93236e98107e7469",
+    measurementId: "G-VPRS1JY8D2"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ==========================================
+  // 1. TRACK VIEW ON EVERY PAGE RELOAD
+  // ==========================================
+  const today = new Date().toISOString().split('T')[0];
+  await addDoc(collection(db, 'views'), {
+    practicalId: PRACTICAL_ID,
+    date: today,
+    count: 1,
+    timestamp: serverTimestamp()
+  });
+
+  // ==========================================
+  // 2. LOAD YOUTUBE GUIDES
+  // ==========================================
+  const q = query(collection(db, 'youtubeGuides'), where('practicalId', '==', PRACTICAL_ID));
+  const snap = await getDocs(q);
+  
+  if (!snap.empty) {
+    const guidesContainer = document.createElement('div');
+    guidesContainer.className = 'card';
+    guidesContainer.style.cssText = 'margin-top: 32px;';
+    guidesContainer.innerHTML = `<div class="card-title" style="border-bottom-color: #fee2e2;"><i class="fa-brands fa-youtube" style="color:#dc2626; background:#fee2e2;"></i> Video Guides (${snap.size})</div><div id="guidesList" style="display:flex; flex-direction:column; gap:20px;"></div>`;
+    
+    const list = guidesContainer.querySelector('#guidesList');
+    snap.docs.forEach((doc, index) => {
+      const g = doc.data();
+      let videoUrl = g.youtubeUrl;
+      if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) videoUrl = 'https://' + videoUrl;
+      
+      const guideCard = document.createElement('div');
+      guideCard.style.cssText = 'background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 16px; padding: 20px; border-left: 5px solid #dc2626;';
+      guideCard.innerHTML = `
+        <h3 style="margin:0 0 8px 0; color:var(--primary); font-size:1.1rem; font-weight:700;">${index + 1}. ${g.title || 'Video Guide'}</h3>
+        <p style="color:var(--text-muted); margin:0 0 16px 0; font-size:0.9rem; line-height:1.6;">${g.description || 'Watch this comprehensive video guide.'}</p>
+        <a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:#dc2626; color:#fff; border-radius:12px; text-decoration:none; font-weight:700; font-size:0.95rem; box-shadow:0 4px 14px rgba(220,38,38,0.3); transition:all 0.2s;">
+          <i class="fa-solid fa-play"></i> Watch Now
+        </a>`;
+      
+      const btn = guideCard.querySelector('a');
+      btn.onmouseenter = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 6px 20px rgba(220,38,38,0.4)'; };
+      btn.onmouseleave = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 4px 14px rgba(220,38,38,0.3)'; };
+      list.appendChild(guideCard);
+    });
+    
+    const target = document.querySelector('.content-body');
+    if (target) target.appendChild(guidesContainer);
+  }
+</script>
+<script type="module" src="ad-popup.js"></script>
 </body>
 </html>
