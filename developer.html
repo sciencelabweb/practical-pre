@@ -73,6 +73,7 @@
             border-radius: 10px;
             background-color: var(--teal-subtle);
             color: var(--teal-dark);
+            transition: all 0.3s ease;
         }
         .contact-item.whatsapp:hover i { background-color: #25D366; color: white; }
         .contact-item.telegram:hover i { background-color: #0088cc; color: white; }
@@ -80,31 +81,65 @@
         .contact-item.facebook:hover i { background-color: #1877F2; color: white; }
         .contact-item.email:hover i { background-color: #EA4335; color: white; }
 
-        textarea {
+        /* === PREMIUM INPUT STYLING === */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .input-wrapper input,
+        .input-wrapper textarea {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px 14px 48px; /* Left padding makes room for the icon */
             border: 2px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 1rem;
             color: var(--text-main);
             background-color: var(--bg-card);
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: inherit;
-            resize: vertical;
         }
-        textarea:focus {
+        .input-wrapper textarea {
+            padding-top: 16px;
+            resize: vertical;
+            min-height: 120px;
+        }
+        /* Focus State Magic */
+        .input-wrapper:focus-within input,
+        .input-wrapper:focus-within textarea {
             border-color: var(--teal-dark);
             background-color: #ffffff;
-            box-shadow: 0 0 0 4px var(--teal-subtle);
+            box-shadow: 0 0 0 4px var(--teal-subtle), 0 8px 16px rgba(23, 125, 129, 0.08);
+            transform: translateY(-1px);
         }
+        .input-wrapper:focus-within .input-icon {
+            color: var(--teal-dark);
+            transform: scale(1.15);
+        }
+        .input-wrapper input::placeholder,
+        .input-wrapper textarea::placeholder {
+            color: #94a3a4;
+            font-weight: 500;
+        }
+
         .status-message {
             margin-top: 16px;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 12px;
             font-weight: 600;
             text-align: center;
             display: none;
+            animation: fadeIn 0.4s ease;
         }
         .status-message.success {
             display: block;
@@ -117,6 +152,10 @@
             background-color: #fef2f2;
             color: #991b1b;
             border: 1px solid #fecaca;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -168,7 +207,7 @@
                             <i class="fas fa-user-astronaut"></i>
                         </div>
                         <h2 style="margin-bottom: 4px; color: var(--primary);">Dilakshana Rathnayake</h2>
-                        <p class="profile-title">Lead Developer & Creator</p>
+                        <p class="profile-title">Lea Developer & Creator</p>
                         <p class="profile-bio">
                             Passionate about creating interactive, professional, and visually engaging educational web experiences. 
                             Dedicated to making science learning accessible, intuitive, and modern for everyone.
@@ -208,15 +247,24 @@
                         <form id="contactForm">
                             <div class="control-group">
                                 <label>Your Name</label>
-                                <input type="text" id="senderName" required placeholder="Enter your full name">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" id="senderName" required placeholder="Enter your full name">
+                                </div>
                             </div>
                             <div class="control-group">
                                 <label>WhatsApp Phone Number</label>
-                                <input type="tel" id="senderWhatsapp" required placeholder="e.g., 077xxxxxxx">
+                                <div class="input-wrapper">
+                                    <i class="fab fa-whatsapp input-icon"></i>
+                                    <input type="tel" id="senderWhatsapp" required placeholder="e.g., 077xxxxxxx">
+                                </div>
                             </div>
                             <div class="control-group">
                                 <label>Description / Message</label>
-                                <textarea id="senderMessage" rows="5" required placeholder="How can I help you? Describe your inquiry here..."></textarea>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-comment-dots input-icon" style="top: 18px;"></i>
+                                    <textarea id="senderMessage" required placeholder="How can I help you? Describe your inquiry here..."></textarea>
+                                </div>
                             </div>
                             <button type="submit" class="btn" id="submitBtn">
                                 <i class="fas fa-paper-plane"></i> Send Message
