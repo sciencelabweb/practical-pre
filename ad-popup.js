@@ -20,8 +20,11 @@ const db = getFirestore(app);
     const snap = await getDocs(query(collection(db, 'ads'), where('status', '==', 'active')));
     if (snap.empty) return;
 
-    const ad = snap.docs[0].data();
-    const adId = snap.docs[0].id;
+    // ✅ FIX: Randomly select an active ad instead of always picking the first one (snap.docs[0])
+    // This prevents them from showing in a predictable "one by one" sequence.
+    const randomIndex = Math.floor(Math.random() * snap.docs.length);
+    const ad = snap.docs[randomIndex].data();
+    const adId = snap.docs[randomIndex].id;
 
     const permanentlyDismissed = localStorage.getItem('ad_permanent_' + adId);
     if (permanentlyDismissed === 'true') return;
@@ -142,7 +145,6 @@ const db = getFirestore(app);
     `;
     footer.innerHTML = 'Ads by <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" style="color:#177D81; text-decoration:none; font-weight:700;">Hexa Solutions</a>';
     content.appendChild(footer);
-
     card.appendChild(content);
     overlay.appendChild(card);
 
@@ -153,6 +155,7 @@ const db = getFirestore(app);
       overlay.style.transition = 'opacity 0.3s ease'; overlay.style.opacity = '0';
       setTimeout(() => overlay.remove(), 300);
     };
+
     overlay.onclick = (e) => {
       if (e.target === overlay) {
         const ms = (ad.remindDays || 3) * 24 * 60 * 60 * 1000;
@@ -162,6 +165,7 @@ const db = getFirestore(app);
     };
 
     document.body.appendChild(overlay);
-
-  } catch (err) { console.error("Ad popup error:", err); }
+  } catch (err) { 
+    console.error("Ad popup error:", err); 
+  }
 })();
