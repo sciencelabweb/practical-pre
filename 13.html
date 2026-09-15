@@ -14,85 +14,56 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
-    
-  
-    <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
-            <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
-        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
-        
-        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
-        
-        <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
-        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
-    </div>
-
-    <!-- Box 2: Success Screen -->
-    <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
-        <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
-            <i class="fa-solid fa-circle-check"></i>
-        </div>
-        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
-        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
-        
-        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
-    </div>
-
+<!-- Example HTML for Premium Input in 3.html -->
+<div id="premiumLockScreen" class="card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+  <h3 style="color: var(--teal-dark); margin-bottom: 16px;"><i class="fa-solid fa-lock"></i> Premium Access Required</h3>
+  <p style="color: var(--text-muted); margin-bottom: 20px;">Ente your assigned Premium ID to continue.</p>
+  <input type="text" id="premiumIdInput" placeholder="Your Premium ID" style="text-transform: uppercase; text-align: center; letter-spacing: 2px; font-weight: bold; margin-bottom: 16px;">
+  <button class="btn" id="verifyPremiumBtn">Verify & Continue</button>
+  <p id="premiumErrorMsg" style="color: #dc2626; margin-top: 12px; font-size: 0.9rem; display: none;"></p>
 </div>
 
-<script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+<div id="premiumContent" style="display: none;">
+  <!-- Your actual 3.html simulator content goes here -->
+  <h2>Welcome, Premium Member!</h2>
+  <p>Your ID has been successfully verified. Enjoy your learning journey.</p>
+</div>
 
-window.addEventListener("DOMContentLoaded", () => {
-    const isVerified = localStorage.getItem("site_premium_verified");
-    if (!isVerified) {
-        document.getElementById("authModal").style.display = "flex";
-    }
-});
+<!-- Verification Script -->
+<script type="module">
+  import { verifyPremiumId } from './preid.js';
 
-async function verifyPremiumId() {
-    const inputId = document.getElementById("premiumIdInput").value.trim();
-    const btn = document.getElementById("verifyBtn");
-    const errorText = document.getElementById("authError");
+  // Check if already verified in this browser
+  if (localStorage.getItem('isPremiumVerified') === 'true') {
+    document.getElementById('premiumLockScreen').style.display = 'none';
+    document.getElementById('premiumContent').style.display = 'block';
+  }
 
-    if (!inputId) {
-        errorText.style.display = "block";
-        errorText.innerText = "Please enter an ID.";
-        return;
-    }
-
-    btn.innerText = "Verifying...";
+  document.getElementById('verifyPremiumBtn').addEventListener('click', async () => {
+    const inputId = document.getElementById('premiumIdInput').value;
+    const errorBox = document.getElementById('premiumErrorMsg');
+    const btn = document.getElementById('verifyPremiumBtn');
+    
     btn.disabled = true;
-    errorText.style.display = "none";
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+    errorBox.style.display = 'none';
 
-    try {
-        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
-        const data = await response.json();
-
-        if (data.status === "success") {
-            localStorage.setItem("site_premium_verified", "true");
-            document.getElementById("authStep1").style.display = "none";
-            document.getElementById("authStep2").style.display = "block";
-        } else {
-            errorText.style.display = "block";
-            errorText.innerText = "Invalid Premium ID. Access denied.";
-            btn.innerText = "Verify & Continue";
-            btn.disabled = false;
-        }
-    } catch (err) {
-        errorText.style.display = "block";
-        errorText.innerText = "Connection error. Please try again.";
-        btn.innerText = "Verify & Continue";
-        btn.disabled = false;
+    const result = await verifyPremiumId(inputId);
+    
+    if (result.valid) {
+      // Save verification state to localStorage
+      localStorage.setItem('isPremiumVerified', 'true');
+      localStorage.setItem('premiumUserName', result.userData.name);
+      
+      document.getElementById('premiumLockScreen').style.display = 'none';
+      document.getElementById('premiumContent').style.display = 'block';
+    } else {
+      errorBox.textContent = result.message;
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Verify & Continue';
     }
-}
-
-function closeAuthModal() {
-    document.getElementById("authModal").style.display = "none";
-}
+  });
 </script>
     <div class="app-layout">
         <!-- Mobile Overlay -->
