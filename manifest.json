@@ -1,7 +1,7 @@
 {
   "name": "Science Lab Pro",
-  "short_name": "Science Lab Pro",
-  "description": "Science Simulators",
+  "short_name": "Science Lab",
+  "description": "Interactive Physics and Science Simulators",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -9,15 +9,15 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "./icon192.jpg",
+      "src": "./icon192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon512.jpg",
+      "src": "./icon512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
