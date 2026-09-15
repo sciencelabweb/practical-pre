@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <!-- External Stylesheet -->
     <link rel="stylesheet" href="style.css">
+    <style>
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+</style>
 </head>
 <body>
 <!-- Premium Lock Screen -->
@@ -18,7 +25,7 @@
     <i class="fa-solid fa-crown"></i> Premium Access Required
   </h3>
   <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem;">
-    Enter your assigned Premium ID to continue to the simulator.
+    Enter your assigned Premiu ID to continue to the simulator.
   </p>
   
   <input type="text" id="premiumIdInput" placeholder="e.g., A7B9K2M4" 
@@ -296,15 +303,12 @@
         </div>
     </div>
 </div>
-    <script type="module">
+   <script type="module">
   import { verifyPremiumId } from './preid.js';
 
-  // Check if user already verified in this browser
-  if (localStorage.getItem('isPremiumVerified') === 'true') {
-    document.getElementById('premiumLockScreen').style.display = 'none';
-    document.getElementById('premiumContent').style.display = 'block';
-    document.getElementById('premiumUserName').textContent = localStorage.getItem('premiumUserName') || 'Premium Member';
-  }
+  // FORCE the lock screen to show every time the page loads
+  document.getElementById('premiumLockScreen').style.display = 'block';
+  document.getElementById('premiumContent').style.display = 'none';
 
   document.getElementById('verifyPremiumBtn').addEventListener('click', async () => {
     const inputId = document.getElementById('premiumIdInput').value;
@@ -318,21 +322,32 @@
     const result = await verifyPremiumId(inputId);
     
     if (result.valid) {
-      // Save verification state to localStorage so they don't have to re-enter it
-      localStorage.setItem('isPremiumVerified', 'true');
-      localStorage.setItem('premiumUserName', result.userData.name);
-      
+      // Hide lock screen, show simulator
       document.getElementById('premiumLockScreen').style.display = 'none';
       document.getElementById('premiumContent').style.display = 'block';
       document.getElementById('premiumUserName').textContent = result.userData.name;
+      
+      // FIX: Force the canvas to recalculate its size and redraw properly after being unhidden
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
+      
     } else {
       errorBox.textContent = result.message;
       errorBox.style.display = 'block';
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-unlock"></i> Verify & Continue';
+      // Shake animation for error feedback
+      document.getElementById('premiumIdInput').style.animation = "shake 0.4s ease-in-out";
+      setTimeout(() => {
+        document.getElementById('premiumIdInput').style.animation = "";
+      }, 400);
     }
   });
 </script>
+
+<!-- Add this tiny CSS snippet right before the script above to make the error shake -->
+
     <script>
         // Sidebar Toggle Logic
         function toggleSidebar() {
