@@ -19,7 +19,6 @@
 </style>
 </head>
 <body>
-<!-- PREMIUM AUTH MODAL (Always shows on load) -->
 <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
     
     <!-- Step 1: Input Screen -->
@@ -46,11 +45,100 @@
         
         <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#126367'" onmouseout="this.style.background='#177D81'">Access Simulator</button>
     </div>
-
 </div>
+<script type="module">
+  import { verifyPremiumId } from './preid.js';
 
-<!-- Add shake animation for wrong IDs -->
+  // Your Telegram Bot Credentials
+  const botToken = "8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0";
+  const chatId = "8894629015";
 
+  // 1. Fetch User IP Address
+  async function getUserIp() {
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      return data.ip;
+    } catch (e) {
+      return 'Unknown IP';
+    }
+  }
+
+  // 2. Send Telegram Notification
+  async function notifyTelegram(id, time, ip) {
+    const message = `🎉 *New Premium Login!*\n\n🆔 *ID:* \`${id}\`\n🕒 *Time:* ${time}\n🌐 *IP Address:* ${ip}`;
+    try {
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
+    } catch (e) {
+      console.error("Telegram notification failed:", e);
+    }
+  }
+
+  // 3. Unlock Content Function
+  function unlockContent() {
+    document.getElementById('authModal').style.display = 'none';
+    // Force canvas to redraw properly
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize')); 
+    }, 100);
+  }
+
+  // 4. Check if already verified (NEVER ASK AGAIN ON THIS DEVICE)
+  if (localStorage.getItem('premiumVerified') === 'true') {
+    unlockContent(); // Skip the popup entirely
+  } else {
+    // Show the modal for first-time users
+    document.getElementById('authModal').style.display = 'flex';
+    document.getElementById('authStep1').style.display = 'block';
+    document.getElementById('authStep2').style.display = 'none';
+    document.getElementById('premiumIdInput').value = '';
+    document.getElementById('authError').style.display = 'none';
+  }
+
+  // 5. Verification Logic
+  window.verifyPremiumId = async () => {
+    const inputId = document.getElementById('premiumIdInput').value.trim().toUpperCase();
+    const errorBox = document.getElementById('authError');
+    const btn = document.getElementById('verifyBtn');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+    errorBox.style.display = 'none';
+
+    const result = await verifyPremiumId(inputId);
+    
+    if (result.valid) {
+      // Save to localStorage so it NEVER asks again
+      localStorage.setItem('premiumVerified', 'true');
+      localStorage.setItem('premiumUserName', result.userData.name);
+      
+      // Show success screen (Step 2)
+      document.getElementById('authStep1').style.display = 'none';
+      document.getElementById('authStep2').style.display = 'block';
+      
+      // Send Telegram Notification with ID, Time, and IP
+      const userIp = await getUserIp();
+      const loginTime = new Date().toLocaleString();
+      notifyTelegram(inputId, loginTime, userIp);
+      
+    } else {
+      errorBox.textContent = result.message;
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Verify & Continue';
+      
+      // Shake animation for wrong input
+      const input = document.getElementById('premiumIdInput');
+      input.style.animation = "shake 0.4s ease-in-out";
+      setTimeout(() => { input.style.animation = ""; }, 400);
+    }
+  };
+
+  // 6. Close Modal (Triggered by the "Access Dashboard" button on Step 2)
+  window.closeAuthModal = () => {
+    unlockContent();
+  };
+</script>
 
     <div class="app-layout">
         <!-- Mobile Overlay -->
@@ -304,99 +392,7 @@
         </div>
     </div>
 </div>
- <script type="module">
-  import { verifyPremiumId } from './preid.js';
 
-  // Your Telegram Bot Credentials
-  const botToken = "8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0";
-  const chatId = "8894629015";
-
-  // 1. Fetch User IP Address
-  async function getUserIp() {
-    try {
-      const res = await fetch('https://api.ipify.org?format=json');
-      const data = await res.json();
-      return data.ip;
-    } catch (e) {
-      return 'Unknown IP';
-    }
-  }
-
-  // 2. Send Telegram Notification
-  async function notifyTelegram(id, time, ip) {
-    const message = `🎉 *New Premium Login!*\n\n🆔 *ID:* \`${id}\`\n🕒 *Time:* ${time}\n🌐 *IP Address:* ${ip}`;
-    try {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
-    } catch (e) {
-      console.error("Telegram notification failed:", e);
-    }
-  }
-
-  // 3. Unlock Content Function
-  function unlockContent() {
-    document.getElementById('authModal').style.display = 'none';
-    // Force canvas to redraw properly
-    setTimeout(() => {
-      window.dispatchEvent(new Event('resize')); 
-    }, 100);
-  }
-
-  // 4. Check if already verified (NEVER ASK AGAIN ON THIS DEVICE)
-  if (localStorage.getItem('premiumVerified') === 'true') {
-    unlockContent(); // Skip the popup entirely
-  } else {
-    // Show the modal for first-time users
-    document.getElementById('authModal').style.display = 'flex';
-    document.getElementById('authStep1').style.display = 'block';
-    document.getElementById('authStep2').style.display = 'none';
-    document.getElementById('premiumIdInput').value = '';
-    document.getElementById('authError').style.display = 'none';
-  }
-
-  // 5. Verification Logic
-  window.verifyPremiumId = async () => {
-    const inputId = document.getElementById('premiumIdInput').value.trim().toUpperCase();
-    const errorBox = document.getElementById('authError');
-    const btn = document.getElementById('verifyBtn');
-    
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
-    errorBox.style.display = 'none';
-
-    const result = await verifyPremiumId(inputId);
-    
-    if (result.valid) {
-      // Save to localStorage so it NEVER asks again
-      localStorage.setItem('premiumVerified', 'true');
-      localStorage.setItem('premiumUserName', result.userData.name);
-      
-      // Show success screen (Step 2)
-      document.getElementById('authStep1').style.display = 'none';
-      document.getElementById('authStep2').style.display = 'block';
-      
-      // Send Telegram Notification with ID, Time, and IP
-      const userIp = await getUserIp();
-      const loginTime = new Date().toLocaleString();
-      notifyTelegram(inputId, loginTime, userIp);
-      
-    } else {
-      errorBox.textContent = result.message;
-      errorBox.style.display = 'block';
-      btn.disabled = false;
-      btn.innerHTML = 'Verify & Continue';
-      
-      // Shake animation for wrong input
-      const input = document.getElementById('premiumIdInput');
-      input.style.animation = "shake 0.4s ease-in-out";
-      setTimeout(() => { input.style.animation = ""; }, 400);
-    }
-  };
-
-  // 6. Close Modal (Triggered by the "Access Dashboard" button on Step 2)
-  window.closeAuthModal = () => {
-    unlockContent();
-  };
-</script>
 
 <!-- Keep the shake animation CSS -->
 
@@ -418,7 +414,7 @@
             }
         }
 
-        // Simulator Logic
+        // Simulator Logi
         const canvas = document.getElementById('simCanvas');
         const ctx = canvas.getContext('2d');
 
