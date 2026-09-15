@@ -132,17 +132,19 @@ window.switchSection = (id, el) => {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   el.classList.add('active');
-  const titles = { 
-    dashboard: 'Dashboard Overview', 
-    ads: 'Popup Ads Manager', 
-    feedbacks: 'User Feedbacks', 
-    analytics: 'Views Analytics', 
-    youtube: 'YouTube Video Guides',
-    admins: 'Manage Admin Sessions' 
-  };
+ const titles = {
+  dashboard: 'Dashboard Overview',
+  ads: 'Popup Ads Manager',
+  feedbacks: 'User Feedbacks',
+  analytics: 'Views Analytics',
+  youtube: 'YouTube Video Guides',
+  admins: 'Manage Admin Sessions',
+  premium: 'Premium IDs Manager'   // ✅ ADD THIS LINE
+};
   document.getElementById('sectionTitle').textContent = titles[id];
   
-  if (id === 'admins') loadAdmins(); // Refresh table when opening section
+ if (id === 'admins') loadAdmins();
+if (id === 'premium' && typeof loadPremiumIds === 'function') loadPremiumIds();   // ✅ ADD THIS LINE
 };
 
 function toast(msg, isError = false) {
