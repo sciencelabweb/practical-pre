@@ -1,12 +1,22 @@
 // admin.js
-import { auth, db } from './firebase-config.js';
-import {
-  signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  collection, addDoc, getDocs, doc, deleteDoc, updateDoc,
-  query, orderBy, where, serverTimestamp, onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ✅ NEW FIREBASE CONFIGURATION
+const firebaseConfig = {
+  apiKey: "AIzaSyA3orxMYOhXIj9ceQPGG0y3Vupj8uHGkzE",
+  authDomain: "premiumid-f32c9.firebaseapp.com",
+  projectId: "premiumid-f32c9",
+  storageBucket: "premiumid-f32c9.firebasestorage.app",
+  messagingSenderId: "539865333401",
+  appId: "1:539865333401:web:56c60789c568bdd174c208",
+  measurementId: "G-TN3WK5X5QT"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 const PRACTICALS = [
   { id: '1', name: 'Home', file: 'index.html' },
@@ -40,13 +50,13 @@ function getDeviceInfo() {
   else if (ua.indexOf("Linux") !== -1) os = "Linux";
   else if (ua.indexOf("Android") !== -1) os = "Android";
   else if (ua.indexOf("like Mac") !== -1) os = "iOS";
-
+  
   let browser = "Unknown Browser";
   if (ua.indexOf("Chrome") !== -1 && ua.indexOf("Edg") === -1) browser = "Chrome";
   else if (ua.indexOf("Safari") !== -1 && ua.indexOf("Chrome") === -1) browser = "Safari";
   else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
   else if (ua.indexOf("Edg") !== -1) browser = "Edge";
-
+  
   return `${os} / ${browser}`;
 }
 
@@ -91,10 +101,8 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('adminLayout').classList.add('active');
     document.getElementById('adminEmail').textContent = user.email;
     
-    // Create Session Record
     const ip = await fetchAdminIp();
     const device = getDeviceInfo();
-    
     const sessionRef = await addDoc(collection(db, 'admin_sessions'), {
       uid: user.uid,
       email: user.email,
@@ -104,20 +112,18 @@ onAuthStateChanged(auth, async (user) => {
       isActive: true,
       terminated: false
     });
-    
     currentSessionId = sessionRef.id;
     sessionStorage.setItem('currentSessionId', currentSessionId);
-
-    // Listen for remote termination (Force Logout by another admin)
+    
     sessionUnsubscribe = onSnapshot(doc(db, 'admin_sessions', currentSessionId), (docSnap) => {
       if (docSnap.exists() && docSnap.data().terminated) {
         alert('⚠️ Your session was terminated by another administrator.');
         window.adminLogout();
       }
     });
-
+    
     initDashboard();
-    loadAdmins(); // Load the manage admins table
+    loadAdmins();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminLayout').classList.remove('active');
@@ -132,24 +138,27 @@ window.switchSection = (id, el) => {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   el.classList.add('active');
- const titles = {
-  dashboard: 'Dashboard Overview',
-  ads: 'Popup Ads Manager',
-  feedbacks: 'User Feedbacks',
-  analytics: 'Views Analytics',
-  youtube: 'YouTube Video Guides',
-  admins: 'Manage Admin Sessions',
-  premium: 'Premium IDs Manager'   // ✅ ADD THIS LINE
-};
+  
+  const titles = {
+    dashboard: 'Dashboard Overview',
+    ads: 'Popup Ads Manager',
+    feedbacks: 'User Feedbacks',
+    analytics: 'Views Analytics',
+    youtube: 'YouTube Video Guides',
+    premium: 'Premium IDs Manager', // ✅ ADDED
+    admins: 'Manage Admin Sessions'
+  };
   document.getElementById('sectionTitle').textContent = titles[id];
   
- if (id === 'admins') loadAdmins();
-if (id === 'premium' && typeof loadPremiumIds === 'function') loadPremiumIds();   // ✅ ADD THIS LINE
+  if (id === 'admins') loadAdmins();
+  if (id === 'premium') loadPremiumIds(); // ✅ ADDED
 };
 
 function toast(msg, isError = false) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.toggle('error', isError); t.classList.add('show');
+  t.textContent = msg; 
+  t.classList.toggle('error', isError); 
+  t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
@@ -183,7 +192,7 @@ async function loadStats() {
   let totalViews = 0; const counts = {};
   viewsSnap.docs.forEach(d => { const v = d.data(); totalViews += v.count || 0; counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0); });
   document.getElementById('statViews').textContent = totalViews.toLocaleString();
-
+  
   const tbody = document.querySelector('#topPracticalsTable tbody'); tbody.innerHTML = '';
   Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5).forEach(([id, count], i) => {
     const p = PRACTICALS.find(x => x.id === id);
@@ -193,10 +202,11 @@ async function loadStats() {
 
 // ============ ADS ============
 function setupAdPreview() {
-  ['adImageUrl', 'adBtnName', 'adRemindDays', 'adDescription'].forEach(id => 
+  ['adImageUrl', 'adBtnName', 'adRemindDays', 'adDescription'].forEach(id =>
     document.getElementById(id).addEventListener('input', updatePreview)
   );
 }
+
 function updatePreview() {
   document.getElementById('previewImg').src = document.getElementById('adImageUrl').value || 'https://via.placeholder.com/400x225?text=16:9+Ad+Preview';
   document.getElementById('previewBtn').textContent = document.getElementById('adBtnName').value || 'Button Name';
@@ -242,15 +252,7 @@ async function loadAds() {
   list.innerHTML = '';
   snap.docs.forEach(d => {
     const a = d.data();
-    list.innerHTML += `<div class="list-item">
-      <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'">
-      <div class="info"><h4>${a.buttonName} <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">${a.status.toUpperCase()}</span></h4>
-      <p> ${a.description || 'No description'}</p>
-      <p>🔗 ${a.buttonUrl}</p><p>⏰ Remind after ${a.remindDays} days</p></div>
-      <div class="actions">
-        <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
-        <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-      </div></div>`;
+    list.innerHTML += `<div class="list-item"> <img class="thumb" src="${a.imageUrl}" onerror="this.src='https://via.placeholder.com/70'"> <div class="info"><h4>${a.buttonName} <span style="font-size:0.7rem; padding:3px 8px; border-radius:6px; background:${a.status === 'active' ? '#dcfce7' : '#fee2e2'}; color:${a.status === 'active' ? '#166534' : '#991b1b'};">${a.status.toUpperCase()}</span></h4> <p> ${a.description || 'No description'}</p> <p>🔗 ${a.buttonUrl}</p><p>⏰ Remind after ${a.remindDays} days</p></div> <div class="actions"> <button class="icon-btn" onclick="editAd('${d.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button> <button class="icon-btn danger" onclick="deleteAd('${d.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button> </div></div>`;
   });
 }
 
@@ -283,14 +285,10 @@ async function loadFeedbacks() {
     const f = d.data();
     const stars = '★'.repeat(f.rating || 0) + '☆'.repeat(5 - (f.rating || 0));
     const date = f.createdAt?.toDate ? f.createdAt.toDate().toLocaleString() : '—';
-    list.innerHTML += `<div class="feedback-card" style="position:relative;">
-      <button onclick="deleteFeedback('${d.id}')" title="Delete" style="position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:8px; background:#fff; border:1.5px solid var(--border-color); cursor:pointer; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fff'"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>
-      <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-right:40px;"><span style="color:#D98E18; font-weight:700;">${stars}</span><span style="font-size:0.8rem; color:var(--text-muted);">${date}</span></div>
-      <div style="color:var(--text-main); line-height:1.55;">${f.message || '<em style="color:var(--text-muted);">No message</em>'}</div>
-      <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">From: <strong>${f.page || 'Unknown'}</strong></div>
-    </div>`;
+    list.innerHTML += `<div class="feedback-card" style="position:relative;"> <button onclick="deleteFeedback('${d.id}')" title="Delete" style="position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:8px; background:#fff; border:1.5px solid var(--border-color); cursor:pointer; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fff'"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button> <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-right:40px;"><span style="color:#D98E18; font-weight:700;">${stars}</span><span style="font-size:0.8rem; color:var(--text-muted);">${date}</span></div> <div style="color:var(--text-main); line-height:1.55;">${f.message || '<em style="color:var(--text-muted);">No message</em>'}</div> <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">From: <strong>${f.page || 'Unknown'}</strong></div> </div>`;
   });
 }
+
 window.deleteFeedback = async (id) => {
   if (!confirm('Delete this feedback?')) return;
   await deleteDoc(doc(db, 'feedbacks', id)); toast('Deleted'); loadFeedbacks(); loadStats();
@@ -303,6 +301,7 @@ async function loadAnalytics() {
   allViewsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderChart(allViewsData); renderAnalyticsTable(allViewsData);
 }
+
 function renderChart(data) {
   const ctx = document.getElementById('viewsChart').getContext('2d');
   const byDate = {};
@@ -317,6 +316,7 @@ function renderChart(data) {
   if (viewsChart) viewsChart.destroy();
   viewsChart = new Chart(ctx, { type: 'line', data: { labels: dates, datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } } });
 }
+
 function renderAnalyticsTable(data) {
   const counts = {}; data.forEach(v => { counts[v.practicalId] = (counts[v.practicalId] || 0) + (v.count || 0); });
   const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
@@ -326,6 +326,7 @@ function renderAnalyticsTable(data) {
     tbody.innerHTML += `<tr><td><strong>${p ? p.name : id}</strong></td><td>${count.toLocaleString()}</td><td><div style="display:flex; align-items:center; gap:8px;"><div style="flex:1; height:8px; background:var(--teal-subtle); border-radius:4px;"><div style="width:${pct}%; height:100%; background:var(--teal-dark);"></div></div><span style="font-size:0.8rem; font-weight:700; color:var(--teal-dark);">${pct}%</span></div></td></tr>`;
   });
 }
+
 window.applyDateFilter = () => {
   const from = document.getElementById('dateFrom').value, to = document.getElementById('dateTo').value, pid = document.getElementById('practicalFilter').value;
   let filtered = allViewsData;
@@ -399,20 +400,11 @@ async function loadYouTubeGuides() {
   Object.keys(guidesByPractical).forEach(practicalId => {
     const guides = guidesByPractical[practicalId];
     const practicalName = guides[0].practicalName;
-    list.innerHTML += `<div style="margin-bottom:24px; padding-bottom:16px; border-bottom:2px dashed var(--teal-light);">
-      <h4 style="color:var(--teal-dark); margin-bottom:12px; font-size:1.05rem;"><i class="fa-solid fa-flask"></i> ${practicalName} (${guides.length}/5)</h4>`;
+    list.innerHTML += `<div style="margin-bottom:24px; padding-bottom:16px; border-bottom:2px dashed var(--teal-light);"> <h4 style="color:var(--teal-dark); margin-bottom:12px; font-size:1.05rem;"><i class="fa-solid fa-flask"></i> ${practicalName} (${guides.length}/5)</h4>`;
     guides.forEach(g => {
       const ytId = extractYTId(g.youtubeUrl);
       const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : 'https://via.placeholder.com/120x70';
-      list.innerHTML += `<div class="list-item" style="margin-bottom:8px;">
-        <img class="thumb" src="${thumb}" style="width:120px; height:70px;">
-        <div class="info"><h4 style="font-size:0.9rem;">${g.title || 'Untitled'}</h4>
-        <p style="font-size:0.75rem;">📝 ${g.description || 'No description'}</p>
-        <p style="font-size:0.75rem; word-break:break-all;">🔗 ${g.youtubeUrl}</p></div>
-        <div class="actions">
-          <a href="${g.youtubeUrl}" target="_blank" class="icon-btn" title="Watch"><i class="fa-solid fa-play"></i></a>
-          <button class="icon-btn danger" onclick="deleteGuide('${g.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-        </div></div>`;
+      list.innerHTML += `<div class="list-item" style="margin-bottom:8px;"> <img class="thumb" src="${thumb}" style="width:120px; height:70px;"> <div class="info"><h4 style="font-size:0.9rem;">${g.title || 'Untitled'}</h4> <p style="font-size:0.75rem;">📝 ${g.description || 'No description'}</p> <p style="font-size:0.75rem; word-break:break-all;">🔗 ${g.youtubeUrl}</p></div> <div class="actions"> <a href="${g.youtubeUrl}" target="_blank" class="icon-btn" title="Watch"><i class="fa-solid fa-play"></i></a> <button class="icon-btn danger" onclick="deleteGuide('${g.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button> </div></div>`;
     });
     list.innerHTML += `</div>`;
   });
@@ -424,37 +416,31 @@ window.deleteGuide = async (id) => {
 };
 
 function extractYTId(url) {
-  const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+  const m = url.match(/(?:youtube.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu.be\/)([^"&?/\s]{11})/);
   return m ? m[1] : null;
 }
 
-// ============ MANAGE ADMINS (NEW SECTION) ============
+// ============ MANAGE ADMINS ============
 async function loadAdmins() {
   const tbody = document.querySelector('#adminsTable tbody');
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading sessions...</td></tr>';
-  
   try {
     const snap = await getDocs(query(collection(db, 'admin_sessions'), orderBy('loginTime', 'desc')));
     tbody.innerHTML = '';
-    
     if (snap.empty) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">No active sessions found.</td></tr>';
       return;
     }
-
     snap.docs.forEach(d => {
       const s = d.data();
       const loginTime = s.loginTime?.toDate ? s.loginTime.toDate().toLocaleString() : 'Just now';
       const isCurrent = d.id === currentSessionId;
-      
       const statusBadge = s.isActive 
         ? `<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">● Active</span>` 
         : `<span style="background:#f1f5f9; color:#64748b; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">○ Inactive</span>`;
-      
       const actionBtn = (!isCurrent && s.isActive) 
         ? `<button class="icon-btn danger" onclick="terminateSession('${d.id}')" title="Force Logout"><i class="fa-solid fa-right-from-bracket"></i></button>` 
         : `<button class="icon-btn" disabled style="opacity:0.5; cursor:not-allowed;" title="${isCurrent ? 'Current Session' : 'Already Inactive'}"><i class="fa-solid fa-ban"></i></button>`;
-
       tbody.innerHTML += `<tr>
         <td><strong>${s.email}</strong> ${isCurrent ? '<span style="font-size:0.7rem; background:var(--teal-subtle); color:var(--teal-dark); padding:2px 6px; border-radius:4px; margin-left:6px;">YOU</span>' : ''}</td>
         <td style="font-family:monospace; font-size:0.9rem;">${s.ip || 'N/A'}</td>
@@ -483,4 +469,152 @@ window.terminateSession = async (targetSessionId) => {
   } catch (e) {
     toast('Error terminating session: ' + e.message, true);
   }
+};
+
+// ==========================================================
+// ✅ PREMIUM ID MANAGEMENT SYSTEM (NEW)
+// ==========================================================
+const TG_TOKEN = '8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0';
+const TG_CHAT_ID = '8894629015';
+
+function generatePremiumId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id = '';
+  for (let i = 0; i < 8; i++) {
+    id += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return id;
+}
+
+async function notifyTelegram(title, message, color = '🟢') {
+  const time = new Date().toLocaleString();
+  const adminEmail = auth.currentUser?.email || 'Unknown';
+  const fullMessage = `${color} *${title}*\n\n${message}\n\n👤 *Admin:* ${adminEmail}\n🕒 *Time:* ${time}`;
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: fullMessage, parse_mode: 'Markdown' })
+    });
+  } catch (e) { console.error('Telegram notification failed:', e); }
+}
+
+window.generatePremiumId = async () => {
+  const name = document.getElementById('preidName').value.trim();
+  const phone = document.getElementById('preidPhone').value.trim();
+  const age = document.getElementById('preidAge').value.trim();
+
+  if (!name || !phone || !age) return toast('Please fill all fields (Name, Phone, Age)', true);
+  if (!/^\d{7,15}$/.test(phone)) return toast('Please enter a valid phone number', true);
+  if (isNaN(age) || parseInt(age) < 1 || parseInt(age) > 120) return toast('Please enter a valid age', true);
+
+  const btn = document.getElementById('generatePreidBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+
+  try {
+    let premiumCode = generatePremiumId();
+    let attempts = 0;
+    while (attempts < 5) {
+      const existing = await getDocs(query(collection(db, 'premiumIds'), where('code', '==', premiumCode)));
+      if (existing.empty) break;
+      premiumCode = generatePremiumId();
+      attempts++;
+    }
+
+    await addDoc(collection(db, 'premiumIds'), {
+      code: premiumCode,
+      name: name,
+      phone: phone,
+      age: parseInt(age),
+      status: 'active',
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser?.email || 'Unknown'
+    });
+
+    document.getElementById('preidName').value = '';
+    document.getElementById('preidPhone').value = '';
+    document.getElementById('preidAge').value = '';
+
+    await notifyTelegram('New Premium ID Generated', `🆔 *Code:* \`${premiumCode}\`\n👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n🎂 *Age:* ${age}`);
+    toast('✅ Premium ID generated: ' + premiumCode);
+    loadPremiumIds();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate Premium ID';
+  }
+};
+
+window.loadPremiumIds = async () => {
+  const tbody = document.querySelector('#premiumIdsTable tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>';
+  try {
+    const snap = await getDocs(query(collection(db, 'premiumIds'), orderBy('createdAt', 'desc')));
+    tbody.innerHTML = '';
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No Premium IDs generated yet.</td></tr>';
+      return;
+    }
+    snap.docs.forEach(d => {
+      const p = d.data();
+      const date = p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString() : '—';
+      const statusBadge = p.status === 'active'
+        ? `<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">● Active</span>`
+        : `<span style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">● Disabled</span>`;
+
+      const toggleBtn = p.status === 'active'
+        ? `<button class="icon-btn" onclick="togglePremiumStatus('${d.id}', 'disabled', '${p.code}')" title="Disable" style="color:#D98E18;"><i class="fa-solid fa-ban"></i></button>`
+        : `<button class="icon-btn" onclick="togglePremiumStatus('${d.id}', 'active', '${p.code}')" title="Enable" style="color:#166534;"><i class="fa-solid fa-check"></i></button>`;
+
+      tbody.innerHTML += `<tr>
+        <td><code style="background:var(--teal-subtle); color:var(--teal-dark); padding:4px 10px; border-radius:6px; font-weight:800; letter-spacing:1px; font-size:0.9rem; cursor:pointer;" onclick="copyPremiumId('${p.code}')" title="Click to copy">${p.code}</code></td>
+        <td><strong>${p.name}</strong></td>
+        <td style="font-family:monospace;">${p.phone}</td>
+        <td>${p.age}</td>
+        <td style="font-size:0.85rem;">${date}</td>
+        <td>${statusBadge}</td>
+        <td>
+          <div style="display:flex; gap:4px;">
+            ${toggleBtn}
+            <button class="icon-btn danger" onclick="deletePremiumId('${d.id}', '${p.code}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#dc2626;">Error loading Premium IDs.</td></tr>`;
+  }
+};
+
+window.togglePremiumStatus = async (id, newStatus, code) => {
+  const action = newStatus === 'active' ? 'enable' : 'disable';
+  if (!confirm(`Are you sure you want to ${action} Premium ID: ${code}?`)) return;
+  try {
+    await updateDoc(doc(db, 'premiumIds', id), { status: newStatus, updatedAt: serverTimestamp() });
+    const color = newStatus === 'active' ? '🟢' : '🔴';
+    const title = newStatus === 'active' ? 'Premium ID Re-enabled' : 'Premium ID Disabled';
+    await notifyTelegram(title, `🆔 *Code:* \`${code}\`\n📊 *New Status:* ${newStatus.toUpperCase()}`, color);
+    toast(`Premium ID ${action}d successfully`);
+    loadPremiumIds();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+};
+
+window.deletePremiumId = async (id, code) => {
+  if (!confirm(`Permanently delete Premium ID: ${code}? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db, 'premiumIds', id));
+    await notifyTelegram('Premium ID Deleted', `🆔 *Code:* \`${code}\`\n🗑️ *Action:* Permanently deleted`, '⚠️');
+    toast('Premium ID deleted');
+    loadPremiumIds();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+};
+
+window.copyPremiumId = (code) => {
+  navigator.clipboard.writeText(code).then(() => toast('📋 Copied: ' + code));
 };
