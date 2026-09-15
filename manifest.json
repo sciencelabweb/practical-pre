@@ -1,6 +1,6 @@
 {
   "name": "Science Lab Pro",
-  "short_name": "Science Lab",
+  "short_name": "Science Lab Pro",
   "description": "Interactive Physics and Science Simulators",
   "start_url": "./index.html",
   "display": "standalone",
