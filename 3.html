@@ -41,56 +41,108 @@
 
 </div>
 
-<script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-window.addEventListener("DOMContentLoaded", () => {
-    const isVerified = localStorage.getItem("site_premium_verified");
-    if (!isVerified) {
-        document.getElementById("authModal").style.display = "flex";
+// ✅ NEW FIREBASE CONFIGURATION
+const firebaseConfig = {
+  apiKey: "AIzaSyA3orxMYOhXIj9ceQPGG0y3Vupj8uHGkzE",
+  authDomain: "premiumid-f32c9.firebaseapp.com",
+  projectId: "premiumid-f32c9",
+  storageBucket: "premiumid-f32c9.firebasestorage.app",
+  messagingSenderId: "539865333401",
+  appId: "1:539865333401:web:56c60789c568bdd174c208",
+  measurementId: "G-TN3WK5X5QT"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const TG_TOKEN = '8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0';
+const TG_CHAT_ID = '8894629015';
+
+async function fetchUserIP() {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    return 'Unavailable';
+  }
+}
+
+async function notifyTelegram(premiumId, ip, name) {
+  const time = new Date().toLocaleString();
+  const device = navigator.userAgent.substring(0, 80);
+  const message = `🔔 *Premium Access Granted*\n\n🆔 *Premium ID:* \`${premiumId}\`\n👤 *User:* ${name}\n🕒 *Time:* ${time}\n🌐 *IP:* ${ip}\n📱 *Device:* ${device}`;
+  
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
+    });
+  } catch (e) { console.error(e); }
+}
+
+window.verifyPremiumAccess = async function() {
+  const input = document.getElementById('premiumIdInput');
+  const errorMsg = document.getElementById('premiumErrorMsg');
+  const successBox = document.getElementById('premiumSuccessBox');
+  const formBox = document.getElementById('premiumFormBox');
+  const btn = document.getElementById('verifyPremiumBtn');
+
+  const enteredId = input.value.trim().toUpperCase();
+  if (!enteredId) {
+    errorMsg.textContent = 'Please enter your Premium ID';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  errorMsg.style.display = 'none';
+
+  try {
+    const docSnap = await getDoc(doc(db, 'premiumIds', enteredId));
+    
+    if (!docSnap.exists()) {
+      errorMsg.textContent = '❌ Invalid Premium ID. Please check and try again.';
+      errorMsg.style.display = 'block';
+      return;
     }
+
+    const data = docSnap.data();
+    
+    if (data.status !== 'active') {
+      errorMsg.textContent = '⚠️ This Premium ID has been disabled. Please contact support.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    localStorage.setItem('premium_access_granted', 'true');
+    localStorage.setItem('premium_user_name', data.name || 'Member');
+    formBox.style.display = 'none';
+    successBox.style.display = 'block';
+    
+    const ip = await fetchUserIP();
+    notifyTelegram(enteredId, ip, data.name || 'Unknown');
+  } catch (error) {
+    console.error('Verification error:', error);
+    errorMsg.textContent = '⚠️ Connection error. Please check your internet and try again.';
+    errorMsg.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Verify & Continue';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('premium_access_granted') === 'true') {
+    document.getElementById('premiumModal').style.display = 'none';
+  }
 });
-
-async function verifyPremiumId() {
-    const inputId = document.getElementById("premiumIdInput").value.trim();
-    const btn = document.getElementById("verifyBtn");
-    const errorText = document.getElementById("authError");
-
-    if (!inputId) {
-        errorText.style.display = "block";
-        errorText.innerText = "Please enter an ID.";
-        return;
-    }
-
-    btn.innerText = "Verifying...";
-    btn.disabled = true;
-    errorText.style.display = "none";
-
-    try {
-        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
-        const data = await response.json();
-
-        if (data.status === "success") {
-            localStorage.setItem("site_premium_verified", "true");
-            document.getElementById("authStep1").style.display = "none";
-            document.getElementById("authStep2").style.display = "block";
-        } else {
-            errorText.style.display = "block";
-            errorText.innerText = "Invalid Premium ID. Access denied.";
-            btn.innerText = "Verify & Continue";
-            btn.disabled = false;
-        }
-    } catch (err) {
-        errorText.style.display = "block";
-        errorText.innerText = "Connection error. Please try again.";
-        btn.innerText = "Verify & Continue";
-        btn.disabled = false;
-    }
-}
-
-function closeAuthModal() {
-    document.getElementById("authModal").style.display = "none";
-}
 </script>
     <div class="app-layout">
         <!-- Mobile Overlay -->
