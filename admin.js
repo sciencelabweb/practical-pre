@@ -117,7 +117,8 @@ onAuthStateChanged(auth, async (user) => {
     });
 
     initDashboard();
-    loadAdmins(); // Load the manage admins table
+loadAdmins();
+loadPremiumIds(); // Load premium IDs table on login too
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminLayout').classList.remove('active');
@@ -132,18 +133,18 @@ window.switchSection = (id, el) => {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   el.classList.add('active');
- const titles = {
-  dashboard: 'Dashboard Overview',
-  ads: 'Popup Ads Manager',
-  feedbacks: 'User Feedbacks',
-  analytics: 'Views Analytics',
-  youtube: 'YouTube Video Guides',
-  admins: 'Manage Admin Sessions',
-  premium: 'Premium ID Management' // <-- ADD THIS
-};
+  const titles = {
+    dashboard: 'Dashboard Overview',
+    ads: 'Popup Ads Manager',
+    feedbacks: 'User Feedbacks',
+    analytics: 'Views Analytics',
+    youtube: 'YouTube Video Guides',
+    admins: 'Manage Admin Sessions',
+    premium: 'Premium ID Management'
+  };
   document.getElementById('sectionTitle').textContent = titles[id];
-  
-  if (id === 'admins') loadAdmins(); // Refresh table when opening section
+  if (id === 'admins') loadAdmins();
+  if (id === 'premium') loadPremiumIds(); // <-- THIS FIXES THE LOADING BUG
 };
 
 function toast(msg, isError = false) {
