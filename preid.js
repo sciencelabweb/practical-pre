@@ -6,7 +6,7 @@ export async function verifyPremiumId(inputId) {
   const cleanId = inputId.trim().toUpperCase();
   
   if (cleanId.length !== 8) {
-    return { valid: false, message: "Invalid ID format. Must be exactly 8 characters." };
+    return { valid: false, message: "Invalid Premium ID. Try Again!" };
   }
 
   try {
@@ -14,13 +14,13 @@ export async function verifyPremiumId(inputId) {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      return { valid: false, message: "Premium ID not found in our database." };
+      return { valid: false, message: "Premium ID not found." };
     }
 
     const docData = querySnapshot.docs[0].data();
 
     if (!docData.isActive) {
-      return { valid: false, message: "This Premium ID has been disabled by the administrator." };
+      return { valid: false, message: "This Premium ID has been banned by the administrator." };
     }
 
     return { 
