@@ -25,21 +25,21 @@
 <body>
 <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(15,39,40,0.85); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px; font-family:'Inter',sans-serif;">
     
-  
+    <!-- Step 1: Input Screen -->
     <div id="authStep1" style="background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
         <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#177D81; font-size:1.4rem;">
             <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Preium Access Required</h3>
-        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your assigned Premium ID to continue.</p>
+        <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Premium Access Required</h3>
+        <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Enter your Premium ID to continue.</p>
         
-        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:1px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728;">
+        <input type="text" id="premiumIdInput" placeholder="Enter Premium ID" style="width:100%; padding:12px 16px; border:2px solid #BDDED6; border-radius:10px; margin-bottom:16px; outline:none; font-size:0.95rem; background:#f8faf9; color:#0f2728; text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:700;" onfocus="this.style.borderColor='#177D81'" onblur="this.style.borderColor='#BDDED6'">
         
         <button id="verifyBtn" onclick="verifyPremiumId()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;">Verify & Continue</button>
-        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none;"></p>
+        <p id="authError" style="color:#dc2626; font-size:0.85rem; margin-top:12px; display:none; font-weight:600;"></p>
     </div>
 
-    <!-- Box 2: Success Screen -->
+    <!-- Step 2: Success Screen -->
     <div id="authStep2" style="display:none; background:#ffffff; padding:32px 24px; border-radius:16px; max-width:400px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
         <div style="width:56px; height:56px; background:#f0f7f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; color:#10b981; font-size:1.4rem;">
             <i class="fa-solid fa-circle-check"></i>
@@ -47,61 +47,101 @@
         <h3 style="color:#0f2728; font-size:1.35rem; font-weight:700; margin-bottom:8px;">Welcome, Premium Member!</h3>
         <p style="color:#4e6c6d; font-size:0.9rem; margin-bottom:24px; line-height:1.4;">Your ID has been successfully verified. Enjoy your learning journey.</p>
         
-        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer;">Access Dashboard</button>
+        <button onclick="closeAuthModal()" style="width:100%; padding:12px; background:#177D81; color:#ffffff; border:none; border-radius:10px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#126367'" onmouseout="this.style.background='#177D81'">Access Simulator</button>
     </div>
-
 </div>
+<script type="module">
+  import { verifyPremiumId } from './preid.js';
 
-<script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1YekSCZ0P4TdBry2cbccg6ExBX8uA6LwhT_B9nwAlp7NN8AMTpk0-3_kU7k8lJUm6pA/exec"; // Paste your deployed Apps Script URL here
+  // Your Telegram Bot Credentials
+  const botToken = "8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0";
+  const chatId = "8894629015";
 
-window.addEventListener("DOMContentLoaded", () => {
-    const isVerified = localStorage.getItem("site_premium_verified");
-    if (!isVerified) {
-        document.getElementById("authModal").style.display = "flex";
-    }
-});
-
-async function verifyPremiumId() {
-    const inputId = document.getElementById("premiumIdInput").value.trim();
-    const btn = document.getElementById("verifyBtn");
-    const errorText = document.getElementById("authError");
-
-    if (!inputId) {
-        errorText.style.display = "block";
-        errorText.innerText = "Please enter an ID.";
-        return;
-    }
-
-    btn.innerText = "Verifying...";
-    btn.disabled = true;
-    errorText.style.display = "none";
-
+  // 1. Fetch User IP Address
+  async function getUserIp() {
     try {
-        const response = await fetch(`${WEB_APP_URL}?action=verify&id=${encodeURIComponent(inputId)}`);
-        const data = await response.json();
-
-        if (data.status === "success") {
-            localStorage.setItem("site_premium_verified", "true");
-            document.getElementById("authStep1").style.display = "none";
-            document.getElementById("authStep2").style.display = "block";
-        } else {
-            errorText.style.display = "block";
-            errorText.innerText = "Invalid Premium ID. Access denied.";
-            btn.innerText = "Verify & Continue";
-            btn.disabled = false;
-        }
-    } catch (err) {
-        errorText.style.display = "block";
-        errorText.innerText = "Connection error. Please try again.";
-        btn.innerText = "Verify & Continue";
-        btn.disabled = false;
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      return data.ip;
+    } catch (e) {
+      return 'Unknown IP';
     }
-}
+  }
 
-function closeAuthModal() {
-    document.getElementById("authModal").style.display = "none";
-}
+  // 2. Send Telegram Notification
+  async function notifyTelegram(id, time, ip) {
+    const message = `🎉 *New Premium Login!*\n\n🆔 *ID:* \`${id}\`\n🕒 *Time:* ${time}\n🌐 *IP Address:* ${ip}`;
+    try {
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
+    } catch (e) {
+      console.error("Telegram notification failed:", e);
+    }
+  }
+
+  // 3. Unlock Content Function
+  function unlockContent() {
+    document.getElementById('authModal').style.display = 'none';
+    // Force canvas to redraw properly
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize')); 
+    }, 100);
+  }
+
+  // 4. Check if already verified (NEVER ASK AGAIN ON THIS DEVICE)
+  if (localStorage.getItem('premiumVerified') === 'true') {
+    unlockContent(); // Skip the popup entirely
+  } else {
+    // Show the modal for first-time users
+    document.getElementById('authModal').style.display = 'flex';
+    document.getElementById('authStep1').style.display = 'block';
+    document.getElementById('authStep2').style.display = 'none';
+    document.getElementById('premiumIdInput').value = '';
+    document.getElementById('authError').style.display = 'none';
+  }
+
+  // 5. Verification Logic
+  window.verifyPremiumId = async () => {
+    const inputId = document.getElementById('premiumIdInput').value.trim().toUpperCase();
+    const errorBox = document.getElementById('authError');
+    const btn = document.getElementById('verifyBtn');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+    errorBox.style.display = 'none';
+
+    const result = await verifyPremiumId(inputId);
+    
+    if (result.valid) {
+      // Save to localStorage so it NEVER asks again
+      localStorage.setItem('premiumVerified', 'true');
+      localStorage.setItem('premiumUserName', result.userData.name);
+      
+      // Show success screen (Step 2)
+      document.getElementById('authStep1').style.display = 'none';
+      document.getElementById('authStep2').style.display = 'block';
+      
+      // Send Telegram Notification with ID, Time, and IP
+      const userIp = await getUserIp();
+      const loginTime = new Date().toLocaleString();
+      notifyTelegram(inputId, loginTime, userIp);
+      
+    } else {
+      errorBox.textContent = result.message;
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Verify & Continue';
+      
+      // Shake animation for wrong input
+      const input = document.getElementById('premiumIdInput');
+      input.style.animation = "shake 0.4s ease-in-out";
+      setTimeout(() => { input.style.animation = ""; }, 400);
+    }
+  };
+
+  // 6. Close Modal (Triggered by the "Access Dashboard" button on Step 2)
+  window.closeAuthModal = () => {
+    unlockContent();
+  };
 </script>
     <div class="app-layout">
         <!-- Mobile Overlay -->
