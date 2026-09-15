@@ -162,6 +162,9 @@
     </div>
     <div class="admin-nav-item active" data-section="dashboard" onclick="switchSection('dashboard', this)"><i class="fa-solid fa-chart-line"></i> Dashboard</div>
     <div class="admin-nav-item" data-section="ads" onclick="switchSection('ads', this)"><i class="fa-solid fa-bullhorn"></i> Popup Ads</div>
+    <a class="admin-nav-item" onclick="switchSection('premium', this)">
+  <i class="fa-solid fa-crown"></i> Premium IDs
+</a>
     <div class="admin-nav-item" data-section="feedbacks" onclick="switchSection('feedbacks', this)"><i class="fa-solid fa-comments"></i> Feedbacks</div>
     <div class="admin-nav-item" data-section="analytics" onclick="switchSection('analytics', this)"><i class="fa-solid fa-chart-column"></i> Analytics</div>
     <div class="admin-nav-item" data-section="youtube" onclick="switchSection('youtube', this)"><i class="fa-brands fa-youtube"></i> YouTube Guides</div>
@@ -230,7 +233,60 @@
         <div id="adsList"></div>
       </div>
     </section>
+<!-- Premium IDs Section -->
+<div id="sec-premium" class="admin-section">
+  <h2 id="sectionTitle">Premium ID Management</h2>
+  
+  <!-- Generation Form -->
+  <div class="card">
+    <h3 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate New Premium ID</h3>
+    <div class="controls-grid">
+      <div class="control-group">
+        <label>Full Name</label>
+        <input type="text" id="premName" placeholder="Enter user's full name">
+      </div>
+      <div class="control-group">
+        <label>Phone Number</label>
+        <input type="tel" id="premPhone" placeholder="e.g., +94 77 123 4567">
+      </div>
+      <div class="control-group">
+        <label>Age</label>
+        <input type="number" id="premAge" placeholder="e.g., 16">
+      </div>
+    </div>
+    <button class="btn" onclick="generateAndSavePremiumId()" style="margin-top: 20px;">
+      <i class="fa-solid fa-plus-circle"></i> Generate & Save Premium ID
+    </button>
+    
+    <div id="generatedIdDisplay" style="margin-top: 20px; text-align: center; display: none; padding: 16px; background: var(--teal-subtle); border-radius: 12px; border: 2px dashed var(--teal-light);">
+      <p style="color: var(--text-muted); margin-bottom: 8px;">✅ Generated Premium ID:</p>
+      <h2 id="newPremiumId" style="color: var(--teal-dark); letter-spacing: 3px; font-family: monospace; font-size: 1.8rem;"></h2>
+    </div>
+  </div>
 
+  <!-- Generated IDs List -->
+  <div class="card" style="margin-top: 24px;">
+    <h3 class="card-title"><i class="fa-solid fa-list"></i> All Generated Premium IDs</h3>
+    <div class="table-responsive">
+      <table class="data-table" id="premiumIdsTable">
+        <thead>
+          <tr>
+            <th>Premium ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Age</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="7" style="text-align:center; padding:20px;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
     <!-- FEEDBACKS -->
     <section class="admin-section" id="sec-feedbacks">
       <div class="card">
