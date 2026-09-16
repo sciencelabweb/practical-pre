@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Activated - Science Lab Pro</title>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Success Page Specific Styles */
+        .success-hero {
+            text-align: center;
+            padding: 40px 20px 20px 20px;
+        }
+        
+        .success-card {
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+            background: #ffffff;
+            border: 2px solid var(--accent-yellow);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 10px 40px rgba(217, 142, 24, 0.15), var(--shadow-md);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .success-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent-yellow), #f59e0b, var(--accent-yellow));
+        }
+        
+        .vip-gif-container {
+            margin-bottom: 24px;
+        }
+        
+        .vip-gif {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(217, 142, 24, 0.3));
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-12px) scale(1.05); }
+        }
+        
+        .success-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .success-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .features-unlocked {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+        
+        .unlock-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--teal-subtle);
+            border-radius: 12px;
+            border: 1px solid var(--teal-light);
+            transition: transform 0.2s ease;
+        }
+        
+        .unlock-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .unlock-item i {
+            color: var(--teal-dark);
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .unlock-item span {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .dashboard-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal-dark-hover));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(23, 125, 129, 0.4);
+            text-decoration: none;
+        }
+        
+        .dashboard-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(23, 125, 129, 0.5);
+        }
+        
+        .support-text {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .support-text a {
+            color: var(--teal-dark);
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .features-unlocked {
+                grid-template-columns: 1fr;
+            }
+            .success-card {
+                padding: 32px 20px;
+                margin: 0 16px 40px 16px;
+            }
+            .success-title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation (Identical to 3.html) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>Vernier Caliper</span>
+                </a>
+                <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>Travelling Microscope</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Micrometer Gauge</span>
+                </a>
+                <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>Spherometer Lab</span>
+                </a>
+                <a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Forces Simulator</span>
+                </a>
+                <a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Moments Simulator</span>
+                </a>
+                <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>Hare's Apparatus</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U-Tube Density</span>
+                </a>
+                <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>Liquid Density</span>
+                </a>
+                <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Simple Pendulum</span>
+                </a>
+                <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Helical Spring</span>
+                </a>
+                <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-guitar"></i>
+                    <span>Sonometer Practical</span>
+                </a>
+                <a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>Resonance Tube Practical</span>
+                </a>
+                <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Relative Humidity</span>
+                    <span class="menu-tag">Free</span>
+                </a>
+                <a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>Gas Law Simulator</span>
+                </a>
+                <a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+                <a href="developer.html" class="nav-item">
+                    <i class="fas fa-code"></i>
+                    <span>Developer</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Premium Activated</h1>
+                </div>
+                <div class="header-right">
+                    <a href="3s.html" class="lang-toggle-btn" title="Switch to Sinhala">
+                        <i class="fas fa-language"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="content-body">
+                
+                <div class="success-hero">
+                    <!-- Success Card -->
+                    <div class="success-card">
+                        <div class="vip-gif-container">
+                            <img src="https://i.postimg.cc/T1nTnthy/vip.gif" alt="VIP Member" class="vip-gif">
+                        </div>
+                        
+                        <h1 class="success-title">🎉 Congratulations!</h1>
+                        <p class="success-subtitle">
+                            You are now an official <strong>VIP Member</strong> of Science Lab Pro. 
+                            Your premium access has been successfully activated. Welcome to the elite club!
+                        </p>
+                        
+                        <!-- Unlocked Features Grid -->
+                        <div class="features-unlocked">
+                            <div class="unlock-item">
+                                <i class="fa-solid fa-lock-open"></i>
+                                <span>All Simulators Unlocked</span>
+                            </div>
+                            <div class="unlock-item">
+                                <i class="fa-solid fa-ban"></i>
+                                <span>100% Ad-Free Experience</span>
+                            </div>
+                            <div class="unlock-item">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>Priority New Content</span>
+                            </div>
+                            <div class="unlock-item">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Offline Mode Enabled</span>
+                            </div>
+                            <div class="unlock-item">
+                                <i class="fa-solid fa-headset"></i>
+                                <span>24/7 Priority Support</span>
+                            </div>
+                            <div class="unlock-item">
+                                <i class="fa-solid fa-infinity"></i>
+                                <span>Lifetime Free Updates</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Call to Action -->
+                        <a href="index.html" class="dashboard-btn">
+                            <i class="fa-solid fa-rocket"></i>
+                            Go to Dashboard
+                        </a>
+                        
+                        <p class="support-text">
+                            Need help? <a href="https://t.me/learnyapp" target="_blank">Contact Support on Telegram</a>
+                        </p>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-links-group">
+                    <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+                        <i class="fa-solid fa-graduation-cap"></i> Learny App
+                    </a>
+                    <span style="color: var(--text-muted);">|</span>
+                    <a href="https://t.me/sciencepiccoorg" class="footer-custom-link footer-science" target="_blank">
+                        <i class="fa-brands fa-telegram"></i> Science Picco
+                    </a>
+                </div>
+                <p>
+                    Designed by 
+                    <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Sidebar Toggle Logic -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('mainWrapper');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainWrapper.classList.toggle('expanded');
+            }
+        }
+    </script>
+
+</body>
+</html>
