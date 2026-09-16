@@ -13,36 +13,15 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
-        /* Success Page Specific Styles */
+        /* VIP Success Page Specific Styles */
         .success-hero {
             text-align: center;
             padding: 40px 20px 20px 20px;
         }
         
-        .success-card {
-            max-width: 600px;
-            margin: 0 auto 40px auto;
-            background: #ffffff;
-            border: 2px solid var(--accent-yellow);
-            border-radius: 24px;
-            padding: 40px 32px;
-            box-shadow: 0 10px 40px rgba(217, 142, 24, 0.15), var(--shadow-md);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .success-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--accent-yellow), #f59e0b, var(--accent-yellow));
-        }
-        
         .vip-gif-container {
+            position: relative;
+            display: inline-block;
             margin-bottom: 24px;
         }
         
@@ -51,7 +30,7 @@
             height: 160px;
             object-fit: contain;
             animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 10px 15px rgba(217, 142, 24, 0.3));
+            filter: drop-shadow(0 10px 20px rgba(217, 142, 24, 0.3));
         }
         
         @keyframes float {
@@ -68,96 +47,83 @@
         }
         
         .success-subtitle {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             color: var(--text-muted);
-            margin-bottom: 32px;
+            max-width: 500px;
+            margin: 0 auto 40px auto;
             line-height: 1.6;
         }
         
-        .features-unlocked {
+        .features-unlocked-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 32px;
-            text-align: left;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+            padding: 0 20px;
         }
         
-        .unlock-item {
+        .unlock-card {
+            background: #ffffff;
+            border: 2px solid var(--teal-light);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .unlock-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--teal-dark);
+        }
+        
+        .unlock-icon {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            background: linear-gradient(135deg, var(--teal-subtle), #ffffff);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            background: var(--teal-subtle);
-            border-radius: 12px;
-            border: 1px solid var(--teal-light);
-            transition: transform 0.2s ease;
-        }
-        
-        .unlock-item:hover {
-            transform: translateY(-2px);
-        }
-        
-        .unlock-item i {
+            justify-content: center;
+            font-size: 1.3rem;
             color: var(--teal-dark);
-            font-size: 1.1rem;
-            width: 24px;
-            text-align: center;
+            border: 1px solid var(--teal-light);
         }
         
-        .unlock-item span {
-            font-size: 0.9rem;
+        .unlock-info h4 {
+            font-size: 1rem;
             font-weight: 700;
             color: var(--primary);
+            margin: 0 0 6px 0;
         }
         
-        .dashboard-btn {
-            width: 100%;
-            max-width: 300px;
-            padding: 16px 24px;
-            background: linear-gradient(135deg, var(--teal-dark), var(--teal-dark-hover));
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 6px 20px rgba(23, 125, 129, 0.4);
-            text-decoration: none;
-        }
-        
-        .dashboard-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(23, 125, 129, 0.5);
-        }
-        
-        .support-text {
-            margin-top: 20px;
-            font-size: 0.85rem;
+        .unlock-info p {
+            font-size: 0.9rem;
             color: var(--text-muted);
+            margin: 0;
+            line-height: 1.5;
         }
         
-        .support-text a {
-            color: var(--teal-dark);
-            font-weight: 700;
-            text-decoration: none;
+        .cta-container {
+            text-align: center;
+            padding: 20px;
         }
         
+        .btn-large {
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            max-width: 300px;
+            width: 100%;
+        }
+
         @media (max-width: 600px) {
-            .features-unlocked {
-                grid-template-columns: 1fr;
-            }
-            .success-card {
-                padding: 32px 20px;
-                margin: 0 16px 40px 16px;
-            }
-            .success-title {
-                font-size: 1.6rem;
-            }
+            .success-title { font-size: 1.6rem; }
+            .vip-gif { width: 120px; height: 120px; }
+            .features-unlocked-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -167,7 +133,7 @@
         <!-- Mobile Overlay -->
         <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-        <!-- Sidebar Navigation (Identical to 3.html) -->
+        <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-container">
@@ -179,7 +145,7 @@
                 </button>
             </div>
             <nav class="sidebar-nav">
-                <a href="index.html" class="nav-item">
+                <a href="index.html" class="nav-item active">
                     <i class="fa-solid fa-house"></i>
                     <span>Dashboard</span>
                 </a>
@@ -246,10 +212,9 @@
                     <i class="fa-solid fa-temperature-high"></i>
                     <span>Gas Law Simulator</span>
                 </a>
-                <a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                <a href="premium.html" class="nav-item">
                     <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
                     <span>Get Premium</span>
-                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
                 </a>
                 <a href="rate.html" class="nav-item">
                     <i class="fa-solid fa-star"></i>
@@ -288,57 +253,69 @@
             <!-- Main Content -->
             <main class="content-body">
                 
+                <!-- Success Hero Section -->
                 <div class="success-hero">
-                    <!-- Success Card -->
-                    <div class="success-card">
-                        <div class="vip-gif-container">
-                            <img src="https://i.postimg.cc/T1nTnthy/vip.gif" alt="VIP Member" class="vip-gif">
-                        </div>
-                        
-                        <h1 class="success-title">🎉 Congratulations!</h1>
-                        <p class="success-subtitle">
-                            You are now an official <strong>VIP Member</strong> of Science Lab Pro. 
-                            Your premium access has been successfully activated. Welcome to the elite club!
-                        </p>
-                        
-                        <!-- Unlocked Features Grid -->
-                        <div class="features-unlocked">
-                            <div class="unlock-item">
-                                <i class="fa-solid fa-lock-open"></i>
-                                <span>All Simulators Unlocked</span>
-                            </div>
-                            <div class="unlock-item">
-                                <i class="fa-solid fa-ban"></i>
-                                <span>100% Ad-Free Experience</span>
-                            </div>
-                            <div class="unlock-item">
-                                <i class="fa-solid fa-bolt"></i>
-                                <span>Priority New Content</span>
-                            </div>
-                            <div class="unlock-item">
-                                <i class="fa-solid fa-download"></i>
-                                <span>Offline Mode Enabled</span>
-                            </div>
-                            <div class="unlock-item">
-                                <i class="fa-solid fa-headset"></i>
-                                <span>24/7 Priority Support</span>
-                            </div>
-                            <div class="unlock-item">
-                                <i class="fa-solid fa-infinity"></i>
-                                <span>Lifetime Free Updates</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Call to Action -->
-                        <a href="index.html" class="dashboard-btn">
-                            <i class="fa-solid fa-rocket"></i>
-                            Go to Dashboard
-                        </a>
-                        
-                        <p class="support-text">
-                            Need help? <a href="https://t.me/learnyapp" target="_blank">Contact Support on Telegram</a>
-                        </p>
+                    <div class="vip-gif-container">
+                        <img src="https://i.postimg.cc/T1nTnthy/vip.gif" alt="VIP Member" class="vip-gif">
                     </div>
+                    <h1 class="success-title">🎉 Welcome to the Elite Club!</h1>
+                    <p class="success-subtitle">
+                        Your payment was successful. You are now a <strong>VIP Premium Member</strong> with lifetime access to all advanced features.
+                    </p>
+                </div>
+
+                <!-- Unlocked Features Grid -->
+                <div class="features-unlocked-grid">
+                    <div class="unlock-card">
+                        <div class="unlock-icon">
+                            <i class="fa-solid fa-lock-open"></i>
+                        </div>
+                        <div class="unlock-info">
+                            <h4>All Simulators Unlocked</h4>
+                            <p>Full, unrestricted access to every physics and science simulator on the platform.</p>
+                        </div>
+                    </div>
+
+                    <div class="unlock-card">
+                        <div class="unlock-icon">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="unlock-info">
+                            <h4>100% Ad-Free Experience</h4>
+                            <p>Enjoy a completely clean, distraction-free learning environment forever.</p>
+                        </div>
+                    </div>
+
+                    <div class="unlock-card">
+                        <div class="unlock-icon">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div class="unlock-info">
+                            <h4>Priority Early Access</h4>
+                            <p>Be the first to test new simulators, features, and educational content.</p>
+                        </div>
+                    </div>
+
+                    <div class="unlock-card">
+                        <div class="unlock-icon">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div class="unlock-info">
+                            <h4>VIP Priority Support</h4>
+                            <p>Get fast-tracked, 24/7 dedicated support for any questions or issues.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="cta-container">
+                    <a href="index.html" class="btn btn-large">
+                        <i class="fa-solid fa-rocket"></i>
+                        Explore Simulators Now
+                    </a>
+                    <p style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-info"></i> A confirmation receipt has been sent to your Telegram.
+                    </p>
                 </div>
 
             </main>
@@ -362,8 +339,8 @@
         </div>
     </div>
 
-    <!-- Sidebar Toggle Logic -->
     <script>
+        // Sidebar Toggle Logic
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainWrapper = document.getElementById('mainWrapper');
