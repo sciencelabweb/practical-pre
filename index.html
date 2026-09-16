@@ -240,7 +240,13 @@
         </a>
     </div>
             </header>
-
+<!-- Premium Plan Banner -->
+<div id="premium-banner" class="premium-banner" style="display: none;">
+    <div class="premium-banner-inner">
+        <p><i class="fas fa-crown" style="color: var(--accent-yellow);"></i> Check your plan & unlock all premium features!</p>
+        <button id="view-plan-btn" class="btn-view-plan">View</button>
+    </div>
+</div>
             <!-- Main Interactive Content Area -->
             <main class="content-body">
                 <div class="container">
@@ -619,7 +625,34 @@
     });
   }
 </script>
-    
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const banner = document.getElementById('premium-banner');
+        const viewBtn = document.getElementById('view-plan-btn');
+        
+        // Check localStorage to see if the banner was already dismissed
+        const isDismissed = localStorage.getItem('premiumBannerDismissed');
+        
+        // Show banner only if not dismissed
+        if (!isDismissed && banner) {
+            banner.style.display = 'flex';
+        }
+        
+        // Handle View button click
+        if (viewBtn) {
+            viewBtn.addEventListener('click', () => {
+                // Hide the banner visually
+                if (banner) banner.style.display = 'none';
+                
+                // Save dismissal state to localStorage so it never shows again
+                localStorage.setItem('premiumBannerDismissed', 'true');
+                
+                // Redirect to premium page
+                window.location.href = 'premium.html';
+            });
+        }
+    });
+</script>
 <script type="module" src="ad-popup.js"></script>
 </body>
 </html>
