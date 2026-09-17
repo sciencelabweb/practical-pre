@@ -611,31 +611,55 @@ let allDownloadsData = [];
 let dlChart = null;
 
 async function loadDownloads() {
-  const snap = await getDocs(query(collection(db, 'downloads'), orderBy('timestamp', 'desc')));
-  allDownloadsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  
-  // Set default dates (last 30 days)
-  const today = new Date(), from = new Date(); 
-  from.setDate(today.getDate() - 30);
-  document.getElementById('dlDateTo').value = today.toISOString().split('T')[0];
-  document.getElementById('dlDateFrom').value = from.toISOString().split('T')[0];
-  
-  renderDlStats(allDownloadsData); // <-- NEW: Render stats
-  renderDlChart(allDownloadsData);
-  renderDlTable(allDownloadsData);
+  try {
+    const snap = await getDocs(query(collection(db, 'downloads'), orderBy('timestamp', 'desc')));
+    allDownloadsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    
+    console.log("✅ Total downloads fetched from Firestore:", allDownloadsData.length);
+
+    // Set default dates (last 30 days)
+    const today = new Date(), from = new Date(); 
+    from.setDate(today.getDate() - 30);
+    
+    const dateToEl = document.getElementById('dlDateTo');
+    const dateFromEl = document.getElementById('dlDateFrom');
+    if (dateToEl) dateToEl.value = today.toISOString().split('T')[0];
+    if (dateFromEl) dateFromEl.value = from.toISOString().split('T')[0];
+    
+    renderDlStats(allDownloadsData);
+    renderDlChart(allDownloadsData);
+    renderDlTable(allDownloadsData);
+  } catch (error) {
+    console.error("❌ Error loading downloads:", error);
+  }
 }
 
-// NEW: Function to calculate and display device stats
+// Bulletproof Stats Renderer with Case-Insensitive Matching
 function renderDlStats(data) {
-  const total = data.length;
-  const android = data.filter(d => d.platform === 'Android').length;
-  const ios = data.filter(d => d.platform === 'iOS').length;
-  const desktop = data.filter(d => d.platform === 'Desktop').length;
+  if (!Array.isArray(data)) {
+    console.warn("⚠️ renderDlStats received non-array data:", data);
+    return;
+  }
 
-  document.getElementById('statDlTotal').textContent = total.toLocaleString();
-  document.getElementById('statDlAndroid').textContent = android.toLocaleString();
-  document.getElementById('statDlIos').textContent = ios.toLocaleString();
-  document.getElementById('statDlDesktop').textContent = desktop.toLocaleString();
+  const total = data.length;
+  // Case-insensitive matching to catch 'android', 'Android', 'ANDROID', etc.
+  const android = data.filter(d => (d.platform || '').toLowerCase() === 'android').length;
+  const ios = data.filter(d => (d.platform || '').toLowerCase() === 'ios').length;
+  const desktop = data.filter(d => (d.platform || '').toLowerCase() === 'desktop').length;
+
+  console.log("📊 Stats Calculated:", { total, android, ios, desktop });
+
+  const elTotal = document.getElementById('statDlTotal');
+  const elAndroid = document.getElementById('statDlAndroid');
+  const elIos = document.getElementById('statDlIos');
+  const elDesktop = document.getElementById('statDlDesktop');
+
+  if (elTotal) elTotal.textContent = total.toLocaleString();
+  else console.error("❌ HTML Element 'statDlTotal' not found!");
+
+  if (elAndroid) elAndroid.textContent = android.toLocaleString();
+  if (elIos) elIos.textContent = ios.toLocaleString();
+  if (elDesktop) elDesktop.textContent = desktop.toLocaleString();
 }
 
 function renderDlChart(data) {
@@ -644,12 +668,13 @@ function renderDlChart(data) {
   
   data.forEach(d => {
     if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
-    const platform = d.platform || 'Unknown';
-    if (byDate[d.date][platform] !== undefined) {
-      byDate[d.date][platform]++;
-    } else {
-      byDate[d.date]['Unknown']++;
-    }
+    const platform = (d.platform || 'Unknown');
+    // Normalize platform name for chart grouping
+    const normalizedPlatform = platform.toLowerCase() === 'android' ? 'Android' : 
+                               platform.toLowerCase() === 'ios' ? 'iOS' : 
+                               platform.toLowerCase() === 'desktop' ? 'Desktop' : 'Unknown';
+    
+    byDate[d.date][normalizedPlatform]++;
     byDate[d.date].Total++;
   });
 
@@ -678,9 +703,12 @@ function renderDlTable(data) {
   const byDate = {};
   data.forEach(d => {
     if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
-    const p = d.platform || 'Unknown';
-    if (byDate[d.date][p] !== undefined) byDate[d.date][p]++;
-    else byDate[d.date]['Unknown']++;
+    const p = (d.platform || 'Unknown');
+    const normalizedP = p.toLowerCase() === 'android' ? 'Android' : 
+                        p.toLowerCase() === 'ios' ? 'iOS' : 
+                        p.toLowerCase() === 'desktop' ? 'Desktop' : 'Unknown';
+    
+    byDate[d.date][normalizedP]++;
     byDate[d.date].Total++;
   });
 
@@ -718,9 +746,9 @@ window.applyDlFilter = () => {
   let filtered = allDownloadsData;
   if (from) filtered = filtered.filter(d => d.date >= from);
   if (to) filtered = filtered.filter(d => d.date <= to);
-  if (platform !== 'all') filtered = filtered.filter(d => (d.platform || 'Unknown') === platform);
+  if (platform !== 'all') filtered = filtered.filter(d => (d.platform || 'Unknown').toLowerCase() === platform.toLowerCase());
 
-  renderDlStats(filtered); // <-- NEW: Update stats on filter
+  renderDlStats(filtered);
   renderDlChart(filtered);
   renderDlTable(filtered);
   toast('Download filter applied');
@@ -730,18 +758,21 @@ window.exportDlPDF = async () => {
   toast('Generating PDF Report...');
   const { jsPDF } = window.jspdf;
   
-  // Calculate stats for PDF
+  // Calculate stats for PDF using case-insensitive logic
   const total = allDownloadsData.length;
-  const android = allDownloadsData.filter(d => d.platform === 'Android').length;
-  const ios = allDownloadsData.filter(d => d.platform === 'iOS').length;
-  const desktop = allDownloadsData.filter(d => d.platform === 'Desktop').length;
+  const android = allDownloadsData.filter(d => (d.platform || '').toLowerCase() === 'android').length;
+  const ios = allDownloadsData.filter(d => (d.platform || '').toLowerCase() === 'ios').length;
+  const desktop = allDownloadsData.filter(d => (d.platform || '').toLowerCase() === 'desktop').length;
 
   const byDate = {};
   allDownloadsData.forEach(d => {
     if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
-    const p = d.platform || 'Unknown';
-    if (byDate[d.date][p] !== undefined) byDate[d.date][p]++;
-    else byDate[d.date]['Unknown']++;
+    const p = (d.platform || 'Unknown');
+    const normalizedP = p.toLowerCase() === 'android' ? 'Android' : 
+                        p.toLowerCase() === 'ios' ? 'iOS' : 
+                        p.toLowerCase() === 'desktop' ? 'Desktop' : 'Unknown';
+    
+    byDate[d.date][normalizedP]++;
     byDate[d.date].Total++;
   });
 
@@ -769,7 +800,6 @@ window.exportDlPDF = async () => {
       <p style="color: #999; font-size: 12px; margin-top: 5px;">Generated on: ${new Date().toLocaleString()} | By Hexa Solutions</p>
     </div>
     
-    <!-- NEW: Stats Grid in PDF -->
     <div style="display: flex; justify-content: space-between; margin-bottom: 30px; gap: 15px;">
       <div style="flex: 1; background: #f0f7f5; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #177D81;">
         <div style="font-size: 12px; color: #666; font-weight: 700;">TOTAL DOWNLOADS</div>
