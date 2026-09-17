@@ -796,7 +796,7 @@ window.exportDlPDF = async () => {
   pdfContainer.innerHTML = `
     <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #177D81; padding-bottom: 20px;">
       <h1 style="color: #177D81; margin: 0; font-size: 28px; font-weight: 800;">ScienceLab Download Report</h1>
-      <p style="color: #666; margin-top: 10px; font-size: 16px; font-weight: 600;">PWA Installation Statistics</p>
+      <p style="color: #666; margin-top: 10px; font-size: 16px; font-weight: 600;">Installation Statistics</p>
       <p style="color: #999; font-size: 12px; margin-top: 5px;">Generated on: ${new Date().toLocaleString()} | By Hexa Solutions</p>
     </div>
     
