@@ -21,7 +21,7 @@
 <!-- Install Page Custom Styles -->
 <style>
   .install-hero {
-    background: linear-gradient(135deg, var(--teal-subtle) 0%, #ffffff 100%);
+    background: #ffffff;
     border: 2px dashed var(--teal-light);
     border-radius: var(--radius);
     padding: 40px 28px;
@@ -206,6 +206,18 @@
     font-size: 0.9rem;
     line-height: 1.6;
   }
+  .rate-hero-img {
+    width: 100%;
+    max-width: 150px; /* Smaller, more refined size */
+    margin-bottom: 20px;
+    border-radius: 16px;
+    border: 3px solid #ffffff;
+   
+    transition: transform 0.3s ease;
+  }
+  .rate-hero-img:hover {
+    transform: scale(1.03);
+  }
 </style>
 </head>
 <body>
@@ -273,9 +285,7 @@
 
         <!-- Hero Install Card -->
         <div class="card install-hero">
-          <div class="install-hero-icon">
-            <i class="fa-solid fa-mobile-screen-button"></i>
-          </div>
+           <img src="https://i.postimg.cc/ydqJKR8f/download.gif" alt="Install ScienceLab" class="rate-hero-img">
           <h2>Install ScienceLab on Your Device</h2>
           <p>Turn this website into a full app experience. Get offline access to all physics simulators, a home-screen icon, and a fast, distraction-free interface — no app store needed.</p>
           <button class="install-main-btn" id="installBtn" disabled>
