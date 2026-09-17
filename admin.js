@@ -133,18 +133,23 @@ window.switchSection = (id, el) => {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
   el.classList.add('active');
-  const titles = {
-    dashboard: 'Dashboard Overview',
-    ads: 'Popup Ads Manager',
-    feedbacks: 'User Feedbacks',
-    analytics: 'Views Analytics',
-    youtube: 'YouTube Video Guides',
-    admins: 'Manage Admin Sessions',
-    premium: 'Premium ID Management'
-  };
+ const titles = {
+  dashboard: 'Dashboard Overview',
+  ads: 'Popup Ads Manager',
+  feedbacks: 'User Feedbacks',
+  analytics: 'Views Analytics',
+  youtube: 'YouTube Video Guides',
+  admins: 'Manage Admin Sessions',
+  premium: 'Premium ID Management',
+  downloads: 'App Downloads Analytics' // <-- ADD THIS LINE
+};
+// ...
+
+// <-- ADD THIS LINE
   document.getElementById('sectionTitle').textContent = titles[id];
   if (id === 'admins') loadAdmins();
-  if (id === 'premium') loadPremiumIds(); // <-- THIS FIXES THE LOADING BUG
+  if (id === 'premium') loadPremiumIds();
+  if (id === 'downloads') loadDownloads(); 
 };
 
 function toast(msg, isError = false) {
@@ -599,4 +604,172 @@ window.togglePremiumStatus = async (docId, newStatus) => {
   } catch (e) {
     toast('Error updating status: ' + e.message, true);
   }
+};
+
+// ============ DOWNLOADS ANALYTICS ============
+let allDownloadsData = [];
+let dlChart = null;
+
+async function loadDownloads() {
+  const snap = await getDocs(query(collection(db, 'downloads'), orderBy('timestamp', 'desc')));
+  allDownloadsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  
+  // Set default dates (last 30 days)
+  const today = new Date(), from = new Date(); 
+  from.setDate(today.getDate() - 30);
+  document.getElementById('dlDateTo').value = today.toISOString().split('T')[0];
+  document.getElementById('dlDateFrom').value = from.toISOString().split('T')[0];
+  
+  renderDlChart(allDownloadsData);
+  renderDlTable(allDownloadsData);
+}
+
+function renderDlChart(data) {
+  const ctx = document.getElementById('downloadsChart').getContext('2d');
+  const byDate = {};
+  
+  data.forEach(d => {
+    if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
+    const platform = d.platform || 'Unknown';
+    if (byDate[d.date][platform] !== undefined) {
+      byDate[d.date][platform]++;
+    } else {
+      byDate[d.date]['Unknown']++;
+    }
+    byDate[d.date].Total++;
+  });
+
+  const dates = Object.keys(byDate).sort();
+  const datasets = [
+    { label: 'Total', data: dates.map(d => byDate[d].Total), borderColor: '#177D81', backgroundColor: '#177D8122', tension: 0.35, fill: true, borderWidth: 3 },
+    { label: 'Android', data: dates.map(d => byDate[d].Android), borderColor: '#10b981', backgroundColor: '#10b98122', tension: 0.35, fill: true },
+    { label: 'iOS', data: dates.map(d => byDate[d].iOS), borderColor: '#3b82f6', backgroundColor: '#3b82f622', tension: 0.35, fill: true },
+    { label: 'Desktop', data: dates.map(d => byDate[d].Desktop), borderColor: '#f59e0b', backgroundColor: '#f59e0b22', tension: 0.35, fill: true }
+  ];
+
+  if (dlChart) dlChart.destroy();
+  dlChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dates, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } }
+    }
+  });
+}
+
+function renderDlTable(data) {
+  const byDate = {};
+  data.forEach(d => {
+    if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
+    const p = d.platform || 'Unknown';
+    if (byDate[d.date][p] !== undefined) byDate[d.date][p]++;
+    else byDate[d.date]['Unknown']++;
+    byDate[d.date].Total++;
+  });
+
+  const tbody = document.querySelector('#downloadsTable tbody');
+  tbody.innerHTML = '';
+  const dates = Object.keys(byDate).sort().reverse();
+  
+  if (dates.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-muted);">No download data found for this period.</td></tr>';
+    return;
+  }
+
+  dates.forEach(date => {
+    const d = byDate[date];
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${date}</strong></td>
+        <td>
+          <span style="color:#10b981; font-weight:600;">● Android: ${d.Android}</span> &nbsp;|&nbsp; 
+          <span style="color:#3b82f6; font-weight:600;">● iOS: ${d.iOS}</span> &nbsp;|&nbsp; 
+          <span style="color:#f59e0b; font-weight:600;">● Desktop: ${d.Desktop}</span>
+          ${d.Unknown > 0 ? ` &nbsp;|&nbsp; <span style="color:#94a3b8; font-weight:600;">● Unknown: ${d.Unknown}</span>` : ''}
+        </td>
+        <td style="text-align: right;"><strong style="color:var(--teal-dark); font-size:1.1rem;">${d.Total}</strong></td>
+      </tr>
+    `;
+  });
+}
+
+window.applyDlFilter = () => {
+  const from = document.getElementById('dlDateFrom').value;
+  const to = document.getElementById('dlDateTo').value;
+  const platform = document.getElementById('dlPlatformFilter').value;
+
+  let filtered = allDownloadsData;
+  if (from) filtered = filtered.filter(d => d.date >= from);
+  if (to) filtered = filtered.filter(d => d.date <= to);
+  if (platform !== 'all') filtered = filtered.filter(d => (d.platform || 'Unknown') === platform);
+
+  renderDlChart(filtered);
+  renderDlTable(filtered);
+  toast('Download filter applied');
+};
+
+window.exportDlPDF = async () => {
+  toast('Generating PDF Report...');
+  const { jsPDF } = window.jspdf;
+  
+  const byDate = {};
+  allDownloadsData.forEach(d => {
+    if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
+    const p = d.platform || 'Unknown';
+    if (byDate[d.date][p] !== undefined) byDate[d.date][p]++;
+    else byDate[d.date]['Unknown']++;
+    byDate[d.date].Total++;
+  });
+
+  const dates = Object.keys(byDate).sort().reverse();
+  let tableRows = '';
+  dates.forEach(date => {
+    const d = byDate[date];
+    tableRows += `
+      <tr style="border-bottom: 1px solid #eee;">
+        <td style="padding: 12px; text-align: left; color: #333; font-size: 13px;">${date}</td>
+        <td style="padding: 12px; text-align: left; color: #555; font-size: 13px;">
+          Android: ${d.Android} | iOS: ${d.iOS} | Desktop: ${d.Desktop} ${d.Unknown > 0 ? '| Unknown: '+d.Unknown : ''}
+        </td>
+        <td style="padding: 12px; text-align: right; font-weight: bold; color: #177D81; font-size: 14px;">${d.Total}</td>
+      </tr>
+    `;
+  });
+
+  const pdfContainer = document.createElement('div');
+  pdfContainer.style.cssText = 'position: absolute; left: -9999px; width: 800px; background: #fff; padding: 40px; font-family: "Plus Jakarta Sans", sans-serif;';
+  pdfContainer.innerHTML = `
+    <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #177D81; padding-bottom: 20px;">
+      <h1 style="color: #177D81; margin: 0; font-size: 28px; font-weight: 800;">ScienceLab Download Report</h1>
+      <p style="color: #666; margin-top: 10px; font-size: 16px; font-weight: 600;">PWA Installation Statistics</p>
+      <p style="color: #999; font-size: 12px; margin-top: 5px;">Generated on: ${new Date().toLocaleString()} | By Hexa Solutions</p>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background-color: #f0f7f5;">
+          <th style="padding: 12px; text-align: left; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Date</th>
+          <th style="padding: 12px; text-align: left; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Platform Breakdown</th>
+          <th style="padding: 12px; text-align: right; color: #177D81; border-bottom: 2px solid #177D81; font-weight: 700;">Total Downloads</th>
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <div style="margin-top: 40px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
+      Powered by <strong style="color:#177D81;">Hexa Solutions</strong> (hexasolutions.online)
+    </div>
+  `;
+  
+  document.body.appendChild(pdfContainer);
+  const canvas = await html2canvas(pdfContainer, { scale: 2, backgroundColor: '#ffffff' });
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`ScienceLab_Downloads_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+  document.body.removeChild(pdfContainer);
+  toast('PDF downloaded successfully!');
 };
