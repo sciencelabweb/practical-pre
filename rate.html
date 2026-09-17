@@ -3,95 +3,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ScienceLab: Rate Our App & Feedback</title>
+<title>Rate ScienceLab | Student Feedback & Reviews</title>
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Feedback Display Styles */
-  .feedbacks-section {
-    margin-top: 32px;
+  /* Premium Rate Page Styles */
+  .rate-hero {
+    text-align: center;
+    background: linear-gradient(135deg, var(--teal-subtle) 0%, #ffffff 100%);
+    border: 2px dashed var(--teal-light);
+    padding: 32px 28px;
   }
-  .feedbacks-section .section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary);
+  .rate-hero-img {
+    width: 100%;
+    max-width: 150px; /* Smaller, more refined size */
     margin-bottom: 20px;
+    border-radius: 16px;
+    border: 3px solid #ffffff;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease;
+  }
+  .rate-hero-img:hover {
+    transform: scale(1.03);
+  }
+  .rate-hero h2 {
+    color: var(--primary);
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .rate-hero p {
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .form-card {
+    background: #fff;
+    border: 2px solid var(--border-color);
+  }
+  
+  /* Professional Centered Star Rating */
+  .star-rating-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    margin: 16px 0 8px;
+  }
+  .star-rating {
+    display: flex;
     gap: 10px;
-    border-bottom: 2px solid var(--teal-subtle);
-    padding-bottom: 12px;
+    font-size: 2.2rem;
+    color: #e2e8f0;
+    cursor: pointer;
   }
-  .feedbacks-section .section-title i {
+  .star-rating .star {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+  }
+  .star-rating .star:hover,
+  .star-rating .star.active {
+    color: #D98E18;
+    transform: scale(1.2);
+    filter: drop-shadow(0 4px 10px rgba(217, 142, 24, 0.4));
+  }
+  #ratingText {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
     color: var(--teal-dark);
-    background: var(--teal-subtle);
-    padding: 8px;
-    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
   }
-  .feedbacks-list {
+
+  .reviews-section {
+    margin-top: 40px;
+  }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 768px) {
+    .reviews-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  .review-card {
+    background: #fff;
+    border: 1.5px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     gap: 14px;
-  }
-  .public-feedback-card {
-    background: #ffffff;
-    border: 1.5px solid var(--border-color);
-    border-radius: 16px;
-    padding: 18px 20px;
-    transition: all 0.25s ease;
-  }
-  .public-feedback-card:hover {
-    border-color: var(--teal-light);
     box-shadow: var(--shadow-sm);
-    transform: translateY(-2px);
   }
-  .public-feedback-head {
+  .review-card:hover {
+    border-color: var(--teal-light);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .review-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    gap: 14px;
   }
-  .public-feedback-stars {
-    color: #D98E18;
-    font-size: 1rem;
+  .review-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--teal-subtle);
+    color: var(--teal-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    border: 2px solid var(--teal-light);
+    flex-shrink: 0;
+  }
+  .review-meta { flex: 1; }
+  .review-name {
     font-weight: 700;
-    letter-spacing: 2px;
+    color: var(--primary);
+    font-size: 1rem;
+    margin-bottom: 2px;
   }
-  .public-feedback-date {
-    font-size: 0.78rem;
+  .review-date {
+    font-size: 0.75rem;
     color: var(--text-muted);
     font-weight: 500;
   }
-  .public-feedback-msg {
+  .review-stars {
+    color: #D98E18;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+  .review-msg {
     color: var(--text-main);
+    font-size: 0.92rem;
     line-height: 1.6;
-    font-size: 0.95rem;
-    word-wrap: break-word;
-  }
-  .feedbacks-empty {
-    text-align: center;
-    padding: 30px 20px;
-    color: var(--text-muted);
-    font-size: 0.95rem;
     background: var(--bg-card);
-    border-radius: 14px;
-    border: 2px dashed var(--teal-light);
+    padding: 14px;
+    border-radius: 12px;
+    border: 1.5px dashed var(--teal-light);
   }
-  .feedbacks-empty i {
-    font-size: 2rem;
+  
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 2px dashed var(--teal-light);
+    color: var(--text-muted);
+  }
+  .empty-state i {
+    font-size: 2.5rem;
     color: var(--teal-light);
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     display: block;
   }
-  .feedbacks-loading {
+  
+  .success-toast {
+    display: none;
+    margin-top: 16px;
+    padding: 14px;
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 12px;
     text-align: center;
-    padding: 20px;
-    color: var(--text-muted);
+    font-weight: 600;
+    border: 1.5px solid #86efac;
+    animation: fadeIn 0.4s ease;
   }
-  .feedbacks-loading i {
-    color: var(--teal-dark);
-    margin-right: 6px;
+
+  /* Input focus enhancements */
+  #userName:focus, #feedbackMessage:focus {
+    border-color: var(--teal-dark) !important;
+    box-shadow: 0 0 0 4px var(--teal-subtle) !important;
   }
 </style>
 </head>
@@ -102,27 +199,32 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo-container">
-        <i class="fa-solid fa-flask"></i>
-        ScienceLab
+        <i class="fa-solid fa-flask-vial"></i>
+        <span>ScienceLab</span>
       </div>
     </div>
     <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="18.html" class="nav-item"><i class="fa-solid fa-ruler-combined"></i> Vernier Caliper</a>
       <a href="12.html" class="nav-item"><i class="fa-solid fa-microscope"></i> Travelling Microscope <span class="menu-tag">Free</span></a>
       <a href="10.html" class="nav-item"><i class="fa-solid fa-circle-dot"></i> Micrometer Gauge</a>
-      <a href="11.html" class="nav-item"><i class="fa-solid fa-compass-drafting"></i> Spherometer Lab</a>
-      <a href="2.html" class="nav-item"><i class="fa-solid fa-arrows-up-down"></i> Forces Simulator</a>
+      <a href="11.html" class="nav-item"><i class="fa-solid fa-compact-disc"></i> Spherometer Lab</a>
+      <a href="2.html" class="nav-item"><i class="fa-solid fa-arrows-left-right"></i> Forces Simulator</a>
       <a href="3.html" class="nav-item"><i class="fa-solid fa-scale-balanced"></i> Moments Simulator</a>
       <a href="4.html" class="nav-item"><i class="fa-solid fa-temperature-half"></i> Hare's Apparatus <span class="menu-tag">Free</span></a>
-      <a href="5.html" class="nav-item"><i class="fa-solid fa-beaker"></i> U-Tube Density</a>
-      <a href="6.html" class="nav-item"><i class="fa-solid fa-flask-vial"></i> Liquid Density</a>
+      <a href="5.html" class="nav-item"><i class="fa-solid fa-u"></i> U-Tube Density</a>
+      <a href="6.html" class="nav-item"><i class="fa-solid fa-droplet"></i> Liquid Density</a>
       <a href="7.html" class="nav-item"><i class="fa-solid fa-clock"></i> Simple Pendulum</a>
       <a href="8.html" class="nav-item"><i class="fa-solid fa-wave-square"></i> Helical Spring</a>
-      <a href="13.html" class="nav-item"><i class="fa-solid fa-guitar"></i> Sonometer Practical</a>
-      <a href="14.html" class="nav-item"><i class="fa-solid fa-tower-broadcast"></i> Resonance Tube Practical</a>
-      <a href="15.html" class="nav-item"><i class="fa-solid fa-droplet"></i> Relative Humidity <span class="menu-tag">Free</span></a>
-      <a href="16.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Gas Law Simulator</a>
-      <a href="premium.html" class="nav-item"><i class="fa-solid fa-crown"></i> Go Premium (Rs 999)</a>
-      <a href="rate.html" class="nav-item active"><i class="fa-solid fa-star"></i> Rate Our App</a>
+      <a href="13.html" class="nav-item"><i class="fa-solid fa-music"></i> Sonometer</a>
+      <a href="14.html" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Resonance Tube</a>
+      <a href="15.html" class="nav-item"><i class="fa-solid fa-cloud-sun-rain"></i> Relative Humidity <span class="menu-tag">Free</span></a>
+      <a href="16.html" class="nav-item"><i class="fa-solid fa-wind"></i> Gas Law Simulator</a>
+      <a href="install.html" class="nav-item"><i class="fa-solid fa-download"></i> Install App</a>
+      <a href="premium.html" class="nav-item"><i class="fa-solid fa-crown"></i> Get Premium <span class="menu-tag">Offer</span></a>
+      <a href="rate.html" class="nav-item active"><i class="fa-solid fa-star"></i> Rate Us</a>
+      <a href="contact.html" class="nav-item"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="developer.html" class="nav-item"><i class="fa-solid fa-code"></i> Developer</a>
     </nav>
   </aside>
 
@@ -132,61 +234,77 @@
   <div class="main-wrapper">
     <header class="top-header">
       <div class="header-left">
-        <button class="toggle-btn" id="toggleBtn"><i class="fa-solid fa-bars"></i></button>
+        <button class="toggle-btn" id="toggleBtn" aria-label="Toggle Menu"><i class="fa-solid fa-bars"></i></button>
       </div>
       <div class="header-title"><h1>Rate & Feedback</h1></div>
-      <div></div>
+      <div class="header-right">
+        <a href="index.html" class="lang-toggle-btn" title="Home"><i class="fa-solid fa-house"></i></a>
+      </div>
     </header>
 
     <div class="content-body">
-      <!-- ========== FEEDBACK FORM ========== -->
-      <div class="card" style="max-width: 600px; margin: 0 auto;">
-        <div class="card-title">
-          <i class="fa-solid fa-star" style="color: #D98E18;"></i> Rate & Feedback
+      <div class="container">
+        
+        <!-- Hero Section -->
+        <div class="card rate-hero">
+          <img src="https://i.postimg.cc/0jDgYd2n/rate.gif" alt="Rate ScienceLab" class="rate-hero-img">
+          <h2>Share Your Experience</h2>
+          <p>Help us improve ScienceLab by sharing your thoughts. Your feedback directly influences our next simulator updates and helps fellow students!</p>
         </div>
-        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
-          Your feedback helps us refine simulations and add new physics practical setups.
-        </p>
 
-        <form id="feedbackForm">
-          <div class="control-group">
-            <label>How would you rate ScienceLab?</label>
-            <div style="display: flex; gap: 8px; font-size: 2rem; color: #cbd5e1; cursor: pointer; margin-bottom: 8px;" id="starContainer">
-              <span data-value="1" class="star">★</span>
-              <span data-value="2" class="star">★</span>
-              <span data-value="3" class="star">★</span>
-              <span data-value="4" class="star">★</span>
-              <span data-value="5" class="star">★</span>
-            </div>
-            <input type="hidden" id="ratingValue" name="rating" value="5">
-            <p style="font-size: 0.85rem; color: var(--teal-dark); font-weight: 600;" id="ratingText">Selected: 5 Stars</p>
-          </div>
-
-          <div class="control-group">
-            <label for="feedbackMessage">Tell us what you like or what we can improve:</label>
-            <textarea id="feedbackMessage" name="message" rows="4" placeholder="e.g., The micrometer simulator is great, but please add more specimens..." style="width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 12px; font-family: inherit; font-size: 1rem; resize: vertical; outline: none;"></textarea>
-          </div>
-
-          <button type="submit" class="btn" id="submitBtn" style="margin-top: 8px;">
-            <i class="fa-solid fa-paper-plane"></i> Submit Feedback
-          </button>
+        <!-- Feedback Form -->
+        <div class="card form-card" style="max-width: 600px; margin: 0 auto; width: 100%;">
+          <h3 class="card-title" style="justify-content: center;"><i class="fa-solid fa-pen-to-square"></i> Write a Review</h3>
           
-          <div id="successMessage" style="display: none; margin-top: 16px; padding: 14px; background: #dcfce7; color: #166534; border-radius: 12px; text-align: center; font-weight: 600; border: 1px solid #86efac;">
-            <i class="fa-solid fa-check-circle"></i> Thank you! Your review has been recorded successfully.
-          </div>
-        </form>
-      </div>
+          <form id="feedbackForm">
+            <div class="control-group">
+              <label for="userName">Your Name <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="userName" name="name" required placeholder="e.g., Kamal Perera" style="width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 12px; font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s ease;">
+            </div>
 
-      <!-- ========== PUBLIC FEEDBACKS DISPLAY (NEW!) ========== -->
-      <div class="feedbacks-section" style="max-width: 600px; margin: 32px auto 0;">
-        <div class="section-title">
-          <i class="fa-solid fa-comments"></i> What Others Say
+            <div class="control-group">
+              <label style="justify-content: center;">Your Rating <span style="color:#dc2626;">*</span></label>
+              <div class="star-rating-container">
+                <div class="star-rating" id="starContainer">
+                  <span data-value="1" class="star">★</span>
+                  <span data-value="2" class="star">★</span>
+                  <span data-value="3" class="star">★</span>
+                  <span data-value="4" class="star">★</span>
+                  <span data-value="5" class="star">★</span>
+                </div>
+                <input type="hidden" id="ratingValue" name="rating" value="5">
+                <p id="ratingText">Selected: 5 Stars</p>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="feedbackMessage">Your Feedback</label>
+              <textarea id="feedbackMessage" name="message" rows="4" placeholder="What did you like? What can we improve?" style="width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 12px; font-family: inherit; font-size: 1rem; resize: vertical; outline: none; transition: all 0.3s ease;"></textarea>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn" style="margin-top: 8px;">
+              <i class="fa-solid fa-paper-plane"></i> Submit Review
+            </button>
+            
+            <div class="success-toast" id="successMessage">
+              <i class="fa-solid fa-check-circle"></i> Thank you! Your review has been recorded successfully.
+            </div>
+          </form>
         </div>
-        <div id="publicFeedbacksList" class="feedbacks-list">
-          <div class="feedbacks-loading">
-            <i class="fa-solid fa-spinner fa-spin"></i> Loading reviews...
+
+        <!-- Public Reviews Section -->
+        <div class="reviews-section">
+          <h3 class="card-title" style="border: none; padding: 0; margin-bottom: 20px; justify-content: center;">
+            <i class="fa-solid fa-comments"></i> Student Reviews
+          </h3>
+          <div id="publicFeedbacksList" class="reviews-grid">
+            <div class="empty-state" style="padding: 20px;">
+              <i class="fa-solid fa-spinner fa-spin" style="color: var(--teal-dark);"></i>
+              <p>Loading reviews...</p>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -215,8 +333,13 @@
   const overlay = document.getElementById('overlay');
   
   toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('mobile-open');
-    overlay.classList.toggle('active');
+    if (window.innerWidth <= 992) {
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    } else {
+      sidebar.classList.toggle('collapsed');
+      document.querySelector('.main-wrapper').classList.toggle('expanded');
+    }
   });
   
   overlay.addEventListener('click', () => {
@@ -247,17 +370,33 @@
   const ratingInput = document.getElementById('ratingValue');
   const ratingText = document.getElementById('ratingText');
 
+  function updateStars(value) {
+    stars.forEach(s => {
+      s.classList.toggle('active', parseInt(s.getAttribute('data-value')) <= value);
+    });
+    ratingText.textContent = `Selected: ${value} Star${value > 1 ? 's' : ''}`;
+  }
+
   stars.forEach(star => {
     star.addEventListener('click', () => {
       const value = parseInt(star.getAttribute('data-value'));
       ratingInput.value = value;
-      ratingText.textContent = `Selected: ${value} Star${value > 1 ? 's' : ''}`;
+      updateStars(value);
+    });
+    
+    star.addEventListener('mouseenter', () => {
+      const value = parseInt(star.getAttribute('data-value'));
       stars.forEach(s => {
-        s.style.color = parseInt(s.getAttribute('data-value')) <= value ? '#D98E18' : '#cbd5e1';
+        s.classList.toggle('active', parseInt(s.getAttribute('data-value')) <= value);
       });
     });
   });
-  stars.forEach(s => s.style.color = '#D98E18');
+
+  document.getElementById('starContainer').addEventListener('mouseleave', () => {
+    updateStars(parseInt(ratingInput.value));
+  });
+
+  updateStars(5); // Default to 5 stars
 
   // ========== FORM SUBMISSION ==========
   const form = document.getElementById('feedbackForm');
@@ -266,24 +405,32 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const name = document.getElementById('userName').value.trim();
     const rating = parseInt(ratingInput.value) || 5;
     const message = document.getElementById('feedbackMessage').value.trim();
+
+    if (!name) {
+      alert('Please enter your name.');
+      return;
+    }
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
     try {
       await addDoc(collection(db, 'feedbacks'), {
+        name: name,
         rating: rating,
         message: message,
         page: 'rate.html',
         createdAt: serverTimestamp()
       });
+      
       successMsg.style.display = 'block';
       form.reset();
       ratingInput.value = 5;
-      ratingText.textContent = 'Selected: 5 Stars';
-      stars.forEach(s => s.style.color = '#D98E18');
+      updateStars(5);
+      
       setTimeout(() => successMsg.style.display = 'none', 5000);
       
       // Reload public feedbacks to show the new one instantly
@@ -293,7 +440,7 @@
       alert("Failed to submit feedback. Please check your internet connection.");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Feedback';
+      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Review';
     }
   });
 
@@ -306,9 +453,9 @@
       
       if (snap.empty) {
         container.innerHTML = `
-          <div class="feedbacks-empty">
+          <div class="empty-state">
             <i class="fa-regular fa-comment-dots"></i>
-            No reviews yet. Be the first to share your feedback!
+            <p>No reviews yet. Be the first to share your feedback!</p>
           </div>`;
         return;
       }
@@ -317,7 +464,9 @@
       snap.docs.forEach(docSnap => {
         const f = docSnap.data();
         const rating = f.rating || 5;
-        const starsHtml = '★'.repeat(rating) + '<span style="color:#cbd5e1;">' + '☆'.repeat(5 - rating) + '</span>';
+        const starsHtml = '★'.repeat(rating) + '<span style="color:#e2e8f0;">' + '☆'.repeat(5 - rating) + '</span>';
+        const name = f.name || 'Anonymous';
+        const initial = name.charAt(0).toUpperCase();
         
         // Format date nicely
         let dateStr = 'Recently';
@@ -337,22 +486,26 @@
         }
 
         const card = document.createElement('div');
-        card.className = 'public-feedback-card';
+        card.className = 'review-card';
         card.innerHTML = `
-          <div class="public-feedback-head">
-            <div class="public-feedback-stars">${starsHtml}</div>
-            <div class="public-feedback-date">${dateStr}</div>
+          <div class="review-header">
+            <div class="review-avatar">${initial}</div>
+            <div class="review-meta">
+              <div class="review-name">${escapeHtml(name)}</div>
+              <div class="review-date">${dateStr}</div>
+            </div>
           </div>
-          <div class="public-feedback-msg">${f.message ? escapeHtml(f.message) : '<em style="color:var(--text-muted);">No comment provided.</em>'}</div>
+          <div class="review-stars">${starsHtml}</div>
+          <div class="review-msg">${f.message ? escapeHtml(f.message) : '<em style="color:var(--text-muted);">No comment provided.</em>'}</div>
         `;
         container.appendChild(card);
       });
     } catch (err) {
       console.error("Error loading feedbacks:", err);
       container.innerHTML = `
-        <div class="feedbacks-empty">
+        <div class="empty-state">
           <i class="fa-solid fa-triangle-exclamation"></i>
-          Could not load reviews. Please try again later.
+          <p>Could not load reviews. Please try again later.</p>
         </div>`;
     }
   }
