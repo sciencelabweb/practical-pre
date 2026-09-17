@@ -620,8 +620,22 @@ async function loadDownloads() {
   document.getElementById('dlDateTo').value = today.toISOString().split('T')[0];
   document.getElementById('dlDateFrom').value = from.toISOString().split('T')[0];
   
+  renderDlStats(allDownloadsData); // <-- NEW: Render stats
   renderDlChart(allDownloadsData);
   renderDlTable(allDownloadsData);
+}
+
+// NEW: Function to calculate and display device stats
+function renderDlStats(data) {
+  const total = data.length;
+  const android = data.filter(d => d.platform === 'Android').length;
+  const ios = data.filter(d => d.platform === 'iOS').length;
+  const desktop = data.filter(d => d.platform === 'Desktop').length;
+
+  document.getElementById('statDlTotal').textContent = total.toLocaleString();
+  document.getElementById('statDlAndroid').textContent = android.toLocaleString();
+  document.getElementById('statDlIos').textContent = ios.toLocaleString();
+  document.getElementById('statDlDesktop').textContent = desktop.toLocaleString();
 }
 
 function renderDlChart(data) {
@@ -706,6 +720,7 @@ window.applyDlFilter = () => {
   if (to) filtered = filtered.filter(d => d.date <= to);
   if (platform !== 'all') filtered = filtered.filter(d => (d.platform || 'Unknown') === platform);
 
+  renderDlStats(filtered); // <-- NEW: Update stats on filter
   renderDlChart(filtered);
   renderDlTable(filtered);
   toast('Download filter applied');
@@ -715,6 +730,12 @@ window.exportDlPDF = async () => {
   toast('Generating PDF Report...');
   const { jsPDF } = window.jspdf;
   
+  // Calculate stats for PDF
+  const total = allDownloadsData.length;
+  const android = allDownloadsData.filter(d => d.platform === 'Android').length;
+  const ios = allDownloadsData.filter(d => d.platform === 'iOS').length;
+  const desktop = allDownloadsData.filter(d => d.platform === 'Desktop').length;
+
   const byDate = {};
   allDownloadsData.forEach(d => {
     if (!byDate[d.date]) byDate[d.date] = { Android: 0, iOS: 0, Desktop: 0, Unknown: 0, Total: 0 };
@@ -747,6 +768,27 @@ window.exportDlPDF = async () => {
       <p style="color: #666; margin-top: 10px; font-size: 16px; font-weight: 600;">PWA Installation Statistics</p>
       <p style="color: #999; font-size: 12px; margin-top: 5px;">Generated on: ${new Date().toLocaleString()} | By Hexa Solutions</p>
     </div>
+    
+    <!-- NEW: Stats Grid in PDF -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 30px; gap: 15px;">
+      <div style="flex: 1; background: #f0f7f5; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #177D81;">
+        <div style="font-size: 12px; color: #666; font-weight: 700;">TOTAL DOWNLOADS</div>
+        <div style="font-size: 24px; font-weight: 800; color: #177D81;">${total}</div>
+      </div>
+      <div style="flex: 1; background: #f0fdf4; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #10b981;">
+        <div style="font-size: 12px; color: #666; font-weight: 700;">ANDROID</div>
+        <div style="font-size: 24px; font-weight: 800; color: #10b981;">${android}</div>
+      </div>
+      <div style="flex: 1; background: #eff6ff; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #3b82f6;">
+        <div style="font-size: 12px; color: #666; font-weight: 700;">iOS</div>
+        <div style="font-size: 24px; font-weight: 800; color: #3b82f6;">${ios}</div>
+      </div>
+      <div style="flex: 1; background: #fffbeb; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #f59e0b;">
+        <div style="font-size: 12px; color: #666; font-weight: 700;">DESKTOP</div>
+        <div style="font-size: 24px; font-weight: 800; color: #f59e0b;">${desktop}</div>
+      </div>
+    </div>
+
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>
         <tr style="background-color: #f0f7f5;">
