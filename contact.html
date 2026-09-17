@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Lab: Contact & Support</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Custom Contact & FAQ Page Styles */
+        .contact-hero {
+            background: linear-gradient(135deg, var(--teal-subtle) 0%, #ffffff 100%);
+            border: 2px dashed var(--teal-light);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .contact-hero h2 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .contact-hero p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Get in Touch Section */
+        .get-in-touch-section {
+            background: #ffffff;
+            border: 2px dashed var(--teal-light);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .get-in-touch-img {
+            width: 100%;
+            max-width: 180px;
+            margin-bottom: 20px;
+            border-radius: 16px;
+            border: 3px solid #ffffff;
+            
+        }
+        .get-in-touch-section h3 {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+        .get-in-touch-section p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .telegram-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: #229ED9;
+            color: #ffffff;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(34, 158, 217, 0.3);
+        }
+        .telegram-btn:hover {
+            background: #1a8bc0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 158, 217, 0.4);
+        }
+        .telegram-btn i {
+            font-size: 1.3rem;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 992px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .contact-card, .faq-card {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .contact-card:hover, .faq-card:hover {
+            border-color: var(--teal-dark);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: var(--bg-card);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--teal-dark);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px var(--teal-subtle);
+        }
+        .form-textarea {
+            height: 140px;
+            resize: vertical;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--teal-dark);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(23, 125, 129, 0.3);
+        }
+        .submit-btn:hover {
+            background: var(--teal-dark-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(23, 125, 129, 0.4);
+        }
+        .submit-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+        /* Accordion FAQs */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .faq-item {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .faq-item:hover {
+            border-color: var(--teal-dark);
+            background: var(--teal-subtle);
+        }
+        .faq-question {
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: var(--teal-dark);
+        }
+        .faq-answer {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            line-height: 1.6;
+            display: none;
+            border-top: 2px dashed var(--teal-light);
+            padding-top: 12px;
+        }
+        .faq-item.open {
+            border-color: var(--teal-dark);
+            background: var(--teal-subtle);
+        }
+        .faq-item.open .faq-question i {
+            transform: rotate(180deg);
+        }
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+        /* Success Message */
+        .success-message {
+            display: none;
+            margin-top: 16px;
+            padding: 14px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            border: 1.5px solid #86efac;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Mobile Overlay -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fa-solid fa-flask-vial fa-lg"></i>
+                    <span>ScienceLab</span>
+                </div>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="18.html" class="nav-item">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <span>Vernier Caliper</span>
+                </a>
+                  <a href="12.html" class="nav-item">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>Travelling Microscope</span>
+                      <span class="menu-tag">Free</span>
+                </a>
+<a href="10.html" class="nav-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Micrometer Gauge</span>
+                </a>
+ <a href="11.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>Spherometer Lab</span>
+                </a>
+ 
+<a href="2.html" class="nav-item">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Forces Simulator</span>
+                </a>
+<a href="3.html" class="nav-item">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Moments Simulator</span>
+                </a>
+ <a href="4.html" class="nav-item">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <span>Hare's Apparatus</span>
+     <span class="menu-tag">Free</span>
+                </a>
+ <a href="5.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>U-Tube Density</span>
+                </a>
+ <a href="6.html" class="nav-item">
+                    <i class="fa-solid fa-vial"></i>
+                    <span>Liquid Density</span>
+                </a>
+ <a href="7.html" class="nav-item">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Simple Pendulum</span>
+                </a>
+ <a href="8.html" class="nav-item">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <span>Helical Spring</span>
+                </a>
+ <a href="13.html" class="nav-item">
+                    <i class="fa-solid fa-guitar"></i>
+                    <span>Sonometer Practical</span>
+                </a>
+<a href="14.html" class="nav-item">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>Resonance Tube Practical</span>
+                </a>
+ <a href="15.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>Relative Humidity</span>
+     <span class="menu-tag">Free</span>
+                </a>
+<a href="16.html" class="nav-item">
+                    <i class="fa-solid fa-temperature-high"></i>
+                    <span>Gas Law Simulator</span>
+                </a>
+<a href="premium.html" class="nav-item" style="color: #d97706; font-weight: 600;">
+                    <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+                    <span>Get Premium</span>
+                    <span class="menu-tag" style="background:#fef3c7; color:#d97706;">Offer</span>
+                </a>
+                <a href="rate.html" class="nav-item">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Rate Us</span>
+                </a>
+                <a href="contact.html" class="nav-item active">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Contact & FAQs</span>
+                </a>
+                 <a href="developer.html" class="nav-item"><i class="fas fa-code"></i> Developer</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <main class="main-wrapper" id="mainWrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-title">
+                    <h1>Contact & Support FAQs</h1>
+                </div>
+                <div class="header-right"></div>
+            </header>
+
+            <!-- Main Interactive Content Area -->
+            <div class="content-body">
+                <div class="container">
+                    
+                    <!-- Contact Hero Banner -->
+                    <div class="contact-hero">
+                        <h2><i class="fa-solid fa-headset" style="color: var(--teal-dark);"></i> We Are Here to Help</h2>
+                        <p>Have questions about physics modules, technical issues, or the lifetime pass? Get in touch with us or check our frequently asked questions below.</p>
+                    </div>
+
+                    <!-- Get in Touch Telegram Section -->
+                    <div class="get-in-touch-section">
+                        <img src="https://i.postimg.cc/ydbggRLL/customer-service.gif" alt="Customer Service" class="get-in-touch-img">
+                        <h3>Get in Touch</h3>
+                        <p>Need immediate assistance? Join our Telegram support channel for quick responses and updates!</p>
+                        <a href="https://t.me/teamsciencelab" target="_blank" class="telegram-btn">
+                            <i class="fa-brands fa-telegram"></i>
+                            <span>Team ScienceLab</span>
+                        </a>
+                    </div>
+
+                    <!-- Contact & FAQ Grid layout -->
+                    <div class="contact-grid">
+                        
+                        <!-- Get in Touch Form Card -->
+                        <div class="contact-card">
+                            <h2 class="card-title" style="margin-bottom: 20px;">
+                                <i class="fa-solid fa-envelope"></i> Send Us a Message
+                            </h2>
+                            <form id="contactForm" onsubmit="submitContact(event)">
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-user"></i> Your Full Name <span style="color:#dc2626;">*</span></label>
+                                    <input type="text" class="form-input" id="contactName" placeholder="John Doe" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-at"></i> Email Address <span style="color:#dc2626;">*</span></label>
+                                    <input type="email" class="form-input" id="contactEmail" placeholder="student@university.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fa-solid fa-comment-dots"></i> Message / Inquiry <span style="color:#dc2626;">*</span></label>
+                                    <textarea class="form-textarea" id="contactMsg" placeholder="Describe your question or issue in detail..." required></textarea>
+                                </div>
+                                <button type="submit" class="submit-btn" id="submitBtn">
+                                    <i class="fa-solid fa-paper-plane"></i> Send Support Request
+                                </button>
+                            </form>
+                            <div class="success-message" id="successMessage">
+                                <i class="fa-solid fa-check-circle"></i> Thank you! Your message has been sent successfully to our support team.
+                            </div>
+                        </div>
+
+                        <!-- FAQs Accordion Card -->
+                        <div class="faq-card">
+                            <h2 class="card-title" style="margin-bottom: 20px;">
+                                <i class="fa-solid fa-circle-question"></i> Frequently Asked Questions
+                            </h2>
+                            <div class="faq-list">
+                                <div class="faq-item" onclick="toggleFaq(this)">
+                                    <div class="faq-question">
+                                        <span><i class="fa-solid fa-circle-dot" style="font-size: 0.5rem; color: var(--teal-dark); margin-right: 6px;"></i> Are all simulators completely free?</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </div>
+                                    <div class="faq-answer">Selected apparatus labs like Vernier Caliper, Travelling Microscope, and Hare's Apparatus are free. Full access to all 15+ modules requires the lifetime Premium Pass.</div>
+                                </div>
+                                <div class="faq-item" onclick="toggleFaq(this)">
+                                    <div class="faq-question">
+                                        <span><i class="fa-solid fa-circle-dot" style="font-size: 0.5rem; color: var(--teal-dark); margin-right: 6px;"></i> How does the Rs. 999 lifetime payment work?</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </div>
+                                    <div class="faq-answer">It is a single, one-time payment with no recurring subscription fees, giving you permanent access to all future lab updates and features.</div>
+                                </div>
+                                <div class="faq-item" onclick="toggleFaq(this)">
+                                    <div class="faq-question">
+                                        <span><i class="fa-solid fa-circle-dot" style="font-size: 0.5rem; color: var(--teal-dark); margin-right: 6px;"></i> Can I use these labs on mobile devices?</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </div>
+                                    <div class="faq-answer">Yes! All simulators are fully responsive and support touch-drag controls on smartphones, tablets, and desktop computers alike.</div>
+                                </div>
+                                <div class="faq-item" onclick="toggleFaq(this)">
+                                    <div class="faq-question">
+                                        <span><i class="fa-solid fa-circle-dot" style="font-size: 0.5rem; color: var(--teal-dark); margin-right: 6px;"></i> How do I report a technical bug?</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </div>
+                                    <div class="faq-answer">You can easily report bugs using the contact form on the left by entering your email and detailing the simulator module where you faced the issue.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>
+                    Sponsored & Designed by 
+                    <a href="https://hexasolutions.online" target="_blank" rel="noopener noreferrer" class="footer-link">Hexa Solutions</a>
+                </p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="menu.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        async function submitContact(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const msg = document.getElementById('contactMsg').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const successMsg = document.getElementById('successMessage');
+
+            if (!name || !email || !msg) {
+                alert('Please fill out all contact fields before submitting.');
+                return;
+            }
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+            // Prepare Telegram message
+            const message = `📨 *New Contact Form Submission*%0A%0A *Name:* ${name}%0A *Email:* ${email}%0A💬 *Message:* ${msg}%0A%0A📅 *Date:* ${new Date().toLocaleString()}`;
+            
+            // Telegram Bot API
+            const botToken = "8915689423:AAEX8Pu-tO6uwoeJJhwxwt9VQjb6bPP_6J0";
+            const chatId = "8894629015";
+            const telegramURL = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            try {
+                // Send to Telegram
+                const response = await fetch(telegramURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: decodeURIComponent(message),
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    successMsg.style.display = 'block';
+                    
+                    // Reset form
+                    document.getElementById('contactForm').reset();
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        successMsg.style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error('Telegram API error');
+                }
+            } catch (error) {
+                console.error('Error sending to Telegram:', error);
+                alert('Thank you! Your message has been saved locally. (Note: Telegram notification failed)');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Support Request';
+            }
+        }
+
+        function toggleFaq(element) {
+            // Close other open items for a cleaner accordion effect
+            const parentList = element.parentElement;
+            parentList.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== element) {
+                    item.classList.remove('open');
+                }
+            });
+            element.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
