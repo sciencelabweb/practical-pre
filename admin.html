@@ -168,6 +168,9 @@
     <div class="admin-nav-item" data-section="feedbacks" onclick="switchSection('feedbacks', this)"><i class="fa-solid fa-comments"></i> Feedbacks</div>
     <div class="admin-nav-item" data-section="analytics" onclick="switchSection('analytics', this)"><i class="fa-solid fa-chart-column"></i> Analytics</div>
     <div class="admin-nav-item" data-section="youtube" onclick="switchSection('youtube', this)"><i class="fa-brands fa-youtube"></i> YouTube Guides</div>
+    <a href="#" class="admin-nav-item" onclick="switchSection('downloads', this)">
+  <i class="fa-solid fa-download"></i> Downloads
+</a>
     <div class="admin-nav-item" data-section="admins" onclick="switchSection('admins', this)"><i class="fa-solid fa-users-gear"></i> Manage Admins</div>
     <div class="admin-nav-item logout" onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
   </aside>
@@ -342,6 +345,57 @@
       </div>
     </section>
 
+<div id="sec-downloads" class="admin-section">
+  <h3 class="section-title" style="margin-bottom: 20px; color: var(--primary); font-weight: 800;">
+    <i class="fa-solid fa-download" style="color: var(--teal-dark);"></i> App Downloads Analytics
+  </h3>
+  
+  <div class="filter-bar" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; align-items: flex-end;">
+    <div style="flex: 1; min-width: 150px;">
+      <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">From Date</label>
+      <input type="date" id="dlDateFrom" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 10px; font-family: inherit;">
+    </div>
+    <div style="flex: 1; min-width: 150px;">
+      <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">To Date</label>
+      <input type="date" id="dlDateTo" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 10px; font-family: inherit;">
+    </div>
+    <div style="flex: 1; min-width: 150px;">
+      <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">Platform</label>
+      <select id="dlPlatformFilter" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 10px; font-family: inherit; background: #fff;">
+        <option value="all">All Platforms</option>
+        <option value="Android">Android</option>
+        <option value="iOS">iOS</option>
+        <option value="Desktop">Desktop</option>
+      </select>
+    </div>
+    <button class="btn" onclick="applyDlFilter()" style="padding: 10px 20px; border-radius: 10px;">
+      <i class="fa-solid fa-filter"></i> Apply
+    </button>
+    <button class="btn btn-secondary" onclick="exportDlPDF()" style="padding: 10px 20px; border-radius: 10px;">
+      <i class="fa-solid fa-file-pdf"></i> Export PDF
+    </button>
+  </div>
+
+  <div class="chart-container" style="height: 350px; background: #fff; border: 2px solid var(--border-color); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm);">
+    <canvas id="downloadsChart"></canvas>
+  </div>
+
+  <div class="table-responsive" style="margin-top: 24px; border-radius: 16px; border: 2px solid var(--border-color); overflow: hidden;">
+    <table class="data-table" id="downloadsTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Platform Breakdown</th>
+          <th style="text-align: right;">Total Downloads</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading download data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+    
     <!-- MANAGE ADMINS SECTION -->
     <section class="admin-section" id="sec-admins">
       <div class="card">
