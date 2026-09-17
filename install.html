@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Install ScienceLab PWA | Offline Physics Lab</title>
+<meta name="description" content="Install ScienceLab as a Progressive Web App. Access physics simulators offline on Android, iOS, and Desktop." />
+<meta name="theme-color" content="#177D81" />
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon192.png" />
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<!-- Your Shared Stylesheet -->
+<link rel="stylesheet" href="style.css" />
+
+<!-- Install Page Custom Styles -->
+<style>
+  .install-hero {
+    background: linear-gradient(135deg, var(--teal-subtle) 0%, #ffffff 100%);
+    border: 2px dashed var(--teal-light);
+    border-radius: var(--radius);
+    padding: 40px 28px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .install-hero-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px;
+    background: var(--teal-subtle);
+    border: 2px dashed var(--teal-light);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal-dark);
+    font-size: 2.4rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .install-hero h2 {
+    font-size: 1.8rem;
+    color: var(--primary);
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .install-hero p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 560px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+  }
+  .install-main-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: var(--teal-dark);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(23, 125, 129, 0.35);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .install-main-btn:hover {
+    background: var(--teal-dark-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(23, 125, 129, 0.45);
+  }
+  .install-main-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .install-status {
+    margin-top: 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-height: 22px;
+  }
+  .install-status.success { color: #059669; }
+  .install-status.info { color: var(--teal-dark); }
+
+  .platform-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 768px) {
+    .platform-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .platform-card {
+    background: #fff;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+  }
+  .platform-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--teal-light);
+  }
+  .platform-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 14px;
+    background: var(--teal-subtle);
+    border: 2px dashed var(--teal-light);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal-dark);
+    font-size: 1.6rem;
+  }
+  .platform-card h3 {
+    font-size: 1.1rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .platform-card ol {
+    text-align: left;
+    padding-left: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .platform-card ol li { margin-bottom: 4px; }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 768px) {
+    .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 2px dashed var(--teal-light);
+    border-radius: 14px;
+  }
+  .benefit-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    background: var(--teal-subtle);
+    border: 1.5px solid var(--teal-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal-dark);
+    font-size: 1.05rem;
+  }
+  .benefit-text h4 {
+    font-size: 0.98rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .benefit-text p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .faq-item {
+    background: var(--bg-card);
+    border: 2px dashed var(--teal-light);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .faq-item h4 {
+    color: var(--primary);
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .faq-item h4 i { color: var(--teal-dark); }
+  .faq-item p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <i class="fa-solid fa-flask-vial"></i>
+        <span>ScienceLab</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="18.html" class="nav-item"><i class="fa-solid fa-ruler-combined"></i> Vernier Caliper</a>
+      <a href="12.html" class="nav-item"><i class="fa-solid fa-microscope"></i> Travelling Microscope <span class="menu-tag">Free</span></a>
+      <a href="10.html" class="nav-item"><i class="fa-solid fa-circle-dot"></i> Micrometer Gauge</a>
+      <a href="11.html" class="nav-item"><i class="fa-solid fa-compact-disc"></i> Spherometer Lab</a>
+      <a href="2.html" class="nav-item"><i class="fa-solid fa-arrows-left-right"></i> Forces Simulator</a>
+      <a href="3.html" class="nav-item"><i class="fa-solid fa-scale-balanced"></i> Moments Simulator</a>
+      <a href="4.html" class="nav-item"><i class="fa-solid fa-temperature-half"></i> Hare's Apparatus <span class="menu-tag">Free</span></a>
+      <a href="5.html" class="nav-item"><i class="fa-solid fa-u"></i> U-Tube Density</a>
+      <a href="6.html" class="nav-item"><i class="fa-solid fa-droplet"></i> Liquid Density</a>
+      <a href="7.html" class="nav-item"><i class="fa-solid fa-clock"></i> Simple Pendulum</a>
+      <a href="8.html" class="nav-item"><i class="fa-solid fa-wave-square"></i> Helical Spring</a>
+      <a href="13.html" class="nav-item"><i class="fa-solid fa-music"></i> Sonometer</a>
+      <a href="14.html" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Resonance Tube</a>
+      <a href="15.html" class="nav-item"><i class="fa-solid fa-cloud-sun-rain"></i> Relative Humidity <span class="menu-tag">Free</span></a>
+      <a href="16.html" class="nav-item"><i class="fa-solid fa-wind"></i> Gas Law Simulator</a>
+      <a href="install.html" class="nav-item active"><i class="fa-solid fa-download"></i> Install App</a>
+      <a href="premium.html" class="nav-item"><i class="fa-solid fa-crown"></i> Get Premium <span class="menu-tag">Offer</span></a>
+      <a href="rate.html" class="nav-item"><i class="fa-solid fa-star"></i> Rate Us</a>
+      <a href="contact.html" class="nav-item"><i class="fa-solid fa-envelope"></i> Contact</a>
+      <a href="developer.html" class="nav-item"><i class="fa-solid fa-code"></i> Developer</a>
+    </nav>
+  </aside>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="toggle-btn" id="toggleBtn" aria-label="Toggle Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+      <div class="header-title">
+        <h1>Install ScienceLab App</h1>
+      </div>
+      <div class="header-right">
+        <a href="index.html" class="lang-toggle-btn" title="Home">
+          <i class="fa-solid fa-house"></i>
+        </a>
+      </div>
+    </header>
+
+    <!-- Content Body -->
+    <main class="content-body">
+      <div class="container">
+
+        <!-- Hero Install Card -->
+        <div class="card install-hero">
+          <div class="install-hero-icon">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <h2>Install ScienceLab on Your Device</h2>
+          <p>Turn this website into a full app experience. Get offline access to all physics simulators, a home-screen icon, and a fast, distraction-free interface — no app store needed.</p>
+          <button class="install-main-btn" id="installBtn" disabled>
+            <i class="fa-solid fa-download"></i>
+            <span id="installBtnText">Checking Installability...</span>
+          </button>
+          <div class="install-status info" id="installStatus">
+            <i class="fa-solid fa-circle-info"></i> Detecting your browser...
+          </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="card">
+          <h3 class="card-title"><i class="fa-solid fa-sparkles"></i> Why Install the App?</h3>
+          <div class="benefits-grid">
+            <div class="benefit-item">
+              <div class="benefit-icon"><i class="fa-solid fa-wifi-slash fa-solid fa-tower-broadcast"></i></div>
+              <div class="benefit-text">
+                <h4>Works Offline</h4>
+                <p>Run all simulators without internet. Perfect for exam revision anywhere.</p>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon"><i class="fa-solid fa-bolt"></i></div>
+              <div class="benefit-text">
+                <h4>Lightning Fast</h4>
+                <p>Launches instantly from your home screen — no browser tabs, no loading delays.</p>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon"><i class="fa-solid fa-expand"></i></div>
+              <div class="benefit-text">
+                <h4>Full-Screen Mode</h4>
+                <p>Distraction-free interface with no address bar — just pure learning.</p>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="benefit-text">
+                <h4>Safe & Private</h4>
+                <p>No permissions, no ads, no tracking. Your data stays on your device.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Platform Guides -->
+        <div class="card">
+          <h3 class="card-title"><i class="fa-solid fa-laptop-code"></i> Manual Installation Guide</h3>
+          <p class="theory-text" style="margin-bottom: 20px;">If the automatic install prompt doesn't appear, follow the steps for your device below.</p>
+          <div class="platform-grid">
+
+            <div class="platform-card">
+              <div class="platform-icon"><i class="fa-brands fa-android"></i></div>
+              <h3>Android</h3>
+              <ol>
+                <li>Open this site in <strong>Chrome</strong></li>
+                <li>Tap the <strong>⋮ menu</strong> (top-right)</li>
+                <li>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
+                <li>Confirm by tapping <strong>Install</strong></li>
+              </ol>
+            </div>
+
+            <div class="platform-card">
+              <div class="platform-icon"><i class="fa-brands fa-apple"></i></div>
+              <h3>iPhone / iPad</h3>
+              <ol>
+                <li>Open this site in <strong>Safari</strong></li>
+                <li>Tap the <strong>Share</strong> icon (bottom)</li>
+                <li>Scroll and tap <strong>"Add to Home Screen"</strong></li>
+                <li>Tap <strong>Add</strong> to confirm</li>
+              </ol>
+            </div>
+
+            <div class="platform-card">
+              <div class="platform-icon"><i class="fa-solid fa-desktop"></i></div>
+              <h3>Desktop (PC/Mac)</h3>
+              <ol>
+                <li>Open in <strong>Chrome</strong> or <strong>Edge</strong></li>
+                <li>Click the <strong>install icon</strong> in the address bar</li>
+                <li>Or press <strong>Ctrl + D</strong> / <strong>⌘ + D</strong></li>
+                <li>Click <strong>Install</strong> in the popup</li>
+              </ol>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="card">
+          <h3 class="card-title"><i class="fa-solid fa-circle-question"></i> Frequently Asked Questions</h3>
+
+          <div class="faq-item">
+            <h4><i class="fa-solid fa-circle-info"></i> What is a PWA?</h4>
+            <p>A Progressive Web App (PWA) is a website that installs like a native app. It runs in its own window, works offline, and appears on your home screen — without downloading from an app store.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4><i class="fa-solid fa-circle-info"></i> Does it take up storage?</h4>
+            <p>Very little — typically under 5 MB. Much smaller than a native app, and it caches only the files needed for offline use.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4><i class="fa-solid fa-circle-info"></i> Will I get updates?</h4>
+            <p>Yes! Whenever you open the app with internet, it silently updates in the background. You always get the latest simulators and fixes.</p>
+          </div>
+
+          <div class="faq-item">
+            <h4><i class="fa-solid fa-circle-info"></i> Can I uninstall it?</h4>
+            <p>Absolutely. Just long-press the app icon on your home screen (or use your browser's app settings) and select <strong>Uninstall</strong>.</p>
+          </div>
+        </div>
+
+        <!-- Theory / Info Box -->
+        <div class="card theory-card">
+          <h3 class="card-title"><i class="fa-solid fa-lightbulb"></i> Student Tip</h3>
+          <p class="theory-text">
+            Installing ScienceLab as a PWA is perfect for <strong>practical exam preparation</strong>. You can access all simulators offline during revision sessions, on the bus, or anywhere without worrying about data. It behaves exactly like a native app but uses almost no storage space.
+          </p>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-links-group">
+        <a href="https://www.learny.study" class="footer-custom-link footer-learny" target="_blank">
+          <i class="fa-solid fa-graduation-cap"></i> Learny App
+        </a>
+        <a href="https://t.me/sciencepicco" class="footer-custom-link footer-science" target="_blank">
+          <i class="fa-brands fa-telegram"></i> Science Picco
+        </a>
+      </div>
+      <p>Designed by <a href="https://hexasolutions.online" class="footer-link" target="_blank">Hexa Solutions</a> © 2026</p>
+    </footer>
+
+  </div>
+</div>
+
+<script type="module">
+  import { db } from './firebase-config.js';
+  import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // Sidebar Toggle (Existing)
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const toggleBtn = document.getElementById('toggleBtn');
+  toggleBtn.addEventListener('click', () => {
+    if (window.innerWidth <= 992) {
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    } else {
+      sidebar.classList.toggle('collapsed');
+      document.querySelector('.main-wrapper').classList.toggle('expanded');
+    }
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+  });
+
+  // PWA Install Logic
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+  const installBtnText = document.getElementById('installBtnText');
+  const installStatus = document.getElementById('installStatus');
+
+  // Function to track download in Firestore
+  const trackDownload = async (platform) => {
+    try {
+      await addDoc(collection(db, 'downloads'), {
+        date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+        timestamp: serverTimestamp(),
+        platform: platform || 'Unknown',
+        userAgent: navigator.userAgent
+      });
+      console.log('Download tracked successfully');
+    } catch (e) {
+      console.error('Error tracking download:', e);
+    }
+  };
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.disabled = false;
+    installBtnText.textContent = 'Install ScienceLab App';
+    installStatus.className = 'install-status success';
+    installStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Ready to install! Tap the button above.';
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) {
+      installStatus.className = 'install-status info';
+      installStatus.innerHTML = '<i class="fa-solid fa-circle-info"></i> Please follow the manual guide below for your device.';
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      installStatus.className = 'install-status success';
+      installStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Installation started! Check your home screen.';
+      installBtn.disabled = true;
+      installBtnText.textContent = 'Installed Successfully';
+      
+      // TRACK DOWNLOAD
+      let platform = 'Desktop';
+      if (navigator.userAgent.includes('Android')) platform = 'Android';
+      else if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) platform = 'iOS';
+      trackDownload(platform);
+    } else {
+      installStatus.className = 'install-status info';
+      installStatus.innerHTML = '<i class="fa-solid fa-circle-info"></i> Installation cancelled. You can try again anytime.';
+    }
+    deferredPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installStatus.className = 'install-status success';
+    installStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> ScienceLab is now installed on your device!';
+    installBtn.disabled = true;
+    installBtnText.textContent = 'Already Installed';
+    deferredPrompt = null;
+    
+    // TRACK DOWNLOAD (Fallback for browser UI installs)
+    let platform = 'Desktop';
+    if (navigator.userAgent.includes('Android')) platform = 'Android';
+    else if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) platform = 'iOS';
+    trackDownload(platform);
+  });
+
+  if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+    installBtn.disabled = true;
+    installBtnText.textContent = 'Already Running as App';
+    installStatus.className = 'install-status success';
+    installStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> You are already using the installed app!';
+  } else {
+    setTimeout(() => {
+      if (!deferredPrompt) {
+        installBtn.disabled = true;
+        installBtnText.textContent = 'Install Not Available';
+        installStatus.className = 'install-status info';
+        installStatus.innerHTML = '<i class="fa-solid fa-circle-info"></i> Auto-install not supported. Use the manual guide below.';
+      }
+    }, 1500);
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.warn('SW registration failed:', err));
+    });
+  }
+</script>
+
+</body>
+</html>
